@@ -213,6 +213,11 @@
             <span>[06] PENGATURAN</span>
             <span class="text-ember">●</span>
           </a>
+
+          <a href="/admin/dashboard" class="p-4 border-b-grid hover-invert flex items-center justify-between transition-none text-ember">
+            <span>[07] PANEL ADMIN</span>
+            <span class="font-normal">→</span>
+          </a>
         </div>
 
         <div class="mt-auto border-t-grid bg-light flex flex-col font-mono text-xs uppercase tracking-widest">

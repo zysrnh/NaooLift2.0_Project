@@ -75,6 +75,35 @@
     animation: toastSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
+  /* Smooth Brutalist Modal Pop & Step Switcher Animations */
+  @keyframes modalPopIn {
+    from {
+      opacity: 0;
+      transform: scale(0.94) translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+  .animate-modal-pop {
+    animation: modalPopIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes stepFadeIn {
+    from {
+      opacity: 0;
+      transform: translateX(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  .animate-step-in {
+    animation: stepFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
   ::-webkit-scrollbar { display: none; }
 </style>
 <script>
@@ -147,20 +176,45 @@
 
       <!-- Action Buttons -->
       <div class="flex flex-col sm:flex-row md:w-1/3">
-        <a href="/dashboard" class="flex-1 p-4 sm:p-6 bg-light text-charcoal font-bold text-xs sm:text-sm uppercase tracking-widest hover:bg-charcoal hover:text-canvas transition-none flex items-center justify-center border-b-grid sm:border-b-0 sm:border-r-grid active:translate-y-1">
-          DASHBOARD →
-        </a>
         @if(session('user'))
-          <button onclick="openLogoutModal()" class="flex-1 p-4 sm:p-6 bg-charcoal text-canvas font-bold text-xs sm:text-sm uppercase tracking-widest hover:bg-ember transition-none flex items-center justify-center active:translate-y-1">
+          <a href="/dashboard" class="flex-1 p-4 sm:p-6 bg-light text-charcoal font-bold text-xs sm:text-sm uppercase tracking-widest hover:bg-charcoal hover:text-canvas transition-none flex items-center justify-center border-b-grid sm:border-b-0 sm:border-r-grid active:translate-y-1">
+            DASHBOARD →
+          </a>
+          <a href="/admin/dashboard" class="flex-1 p-4 sm:p-6 bg-ember text-canvas font-bold text-xs sm:text-sm uppercase tracking-widest hover:bg-charcoal transition-none flex items-center justify-center border-b-grid sm:border-b-0 sm:border-r-grid active:translate-y-1">
+            ADMIN →
+          </a>
+          <button onclick="openLogoutModal()" class="p-4 sm:p-6 bg-charcoal text-canvas font-bold text-xs sm:text-sm uppercase tracking-widest hover:bg-ember transition-none flex items-center justify-center active:translate-y-1">
             KELUAR [✕]
           </button>
         @else
-          <a href="/register" class="flex-1 p-4 sm:p-6 bg-ember text-canvas font-bold text-xs sm:text-sm uppercase tracking-widest hover:bg-charcoal transition-none flex items-center justify-center active:translate-y-1">
+          <a href="/login" class="flex-1 p-4 sm:p-6 bg-light text-charcoal font-bold text-xs sm:text-sm uppercase tracking-widest hover:bg-charcoal hover:text-canvas transition-none flex items-center justify-center border-b-grid sm:border-b-0 sm:border-r-grid active:translate-y-1">
             MASUK →
+          </a>
+          <a href="/register" class="flex-1 p-4 sm:p-6 bg-ember text-canvas font-bold text-xs sm:text-sm uppercase tracking-widest hover:bg-charcoal transition-none flex items-center justify-center active:translate-y-1">
+            REGISTRASI →
           </a>
         @endif
       </div>
     </header>
+
+    <!-- ANNOUNCEMENT BANNER: SYSTEM UNDER ACTIVE DEVELOPMENT -->
+    <div class="border-b-grid bg-ember text-canvas p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 font-mono">
+      <div class="flex items-start md:items-center gap-3">
+        <span class="bg-canvas text-ember font-black text-xs px-2.5 py-1 border-grid uppercase shrink-0">
+          ! ANNOUNCEMENT
+        </span>
+        <p class="text-xs font-bold uppercase tracking-wider leading-relaxed">
+          Aplikasi NaooLift saat ini <span class="underline">masih dalam tahap pengembangan aktif</span>. Punya masukan, saran, atau laporan bug? Silakan sampaikan masukan Anda!
+        </p>
+      </div>
+
+      <button 
+        onclick="openFeedbackModal(2)"
+        class="border-grid bg-canvas text-charcoal font-bold text-xs uppercase tracking-widest px-5 py-2.5 hover:bg-charcoal hover:text-canvas transition-none shrink-0 active:translate-y-1"
+      >
+        [ + KIRIM SARAN / MASUKAN ]
+      </button>
+    </div>
 
     <!-- INFO STRIP -->
     <div class="flex flex-col md:flex-row border-b-grid text-xs sm:text-sm font-bold uppercase tracking-widest text-charcoal">
@@ -168,7 +222,7 @@
         <span>STATUS SISTEM:</span>
         <span class="text-ember flex items-center gap-1.5 font-mono">
           <span class="w-2 h-2 bg-ember animate-pulse inline-block"></span>
-          @if(session('user')) OPERATIONAL @else GUEST_SESSION @endif
+          ACTIVE_DEVELOPMENT
         </span>
       </div>
       <div class="flex-1 p-4 border-b-grid md:border-b-0 md:border-r-grid flex justify-between items-center">
@@ -209,14 +263,12 @@
           >
             BUKA DASBOR LATIHAN →
           </a>
-          @if(!session('user'))
-            <a 
-              href="/register" 
-              class="border-[3px] border-charcoal bg-canvas text-charcoal font-bold text-xs sm:text-sm uppercase tracking-widest px-8 py-4 hover:bg-charcoal hover:text-canvas transition-none active:translate-y-1"
-            >
-              REGISTRASI AKUN BARU
-            </a>
-          @endif
+          <button 
+            onclick="openFeedbackModal(2)" 
+            class="border-[3px] border-charcoal bg-canvas text-charcoal font-bold text-xs sm:text-sm uppercase tracking-widest px-8 py-4 hover:bg-charcoal hover:text-canvas transition-none active:translate-y-1"
+          >
+            ISI SARAN & MASUKAN
+          </button>
         </div>
       </div>
 
@@ -400,6 +452,139 @@
 
   </div>
 
+  <!-- 2-STEP INTERACTIVE ANNOUNCEMENT & FEEDBACK MODAL -->
+  <div id="feedback-modal" class="fixed inset-0 z-[100] bg-charcoal/80 flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-[540px] border-grid bg-canvas p-6 sm:p-8 flex flex-col gap-5 shadow-none relative animate-modal-pop">
+      
+      <!-- STEP 1: ANNOUNCEMENT NOTICE TEXT -->
+      <div id="modal-step-1" class="flex flex-col gap-4 animate-step-in">
+        <div class="flex justify-between items-center border-b-[3px] border-charcoal pb-3">
+          <span class="font-mono text-xs font-bold text-ember uppercase tracking-widest flex items-center gap-1.5">
+            <span class="w-2 h-2 bg-ember animate-pulse inline-block"></span>
+            ! SYSTEM ANNOUNCEMENT
+          </span>
+          <button onclick="closeFeedbackModal()" class="font-mono text-xs font-bold text-slate hover:text-ember">[✕ LEWATI]</button>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <h3 class="text-2xl sm:text-3xl font-black uppercase tracking-tight text-charcoal leading-none">
+            WEB MASIH DALAM TAHAP PENGEMBANGAN AKTIF
+          </h3>
+          <span class="font-mono text-[10px] text-ember font-bold uppercase">VERSION 2.0 DEVELOPMENT PHASE</span>
+        </div>
+
+        <p class="text-xs sm:text-sm font-semibold text-slate leading-relaxed border-l-[4px] border-ember pl-3.5 bg-light p-3">
+          Selamat datang di <strong class="text-charcoal font-black">NaooLift v2.0</strong>! Aplikasi ini saat ini sedang dalam tahap pengembangan aktif. Kami sangat mengapresiasi masukan, ide fitur baru, atau laporan kendala dari Anda untuk menyempurnakan aplikasi.
+        </p>
+
+        <div class="flex flex-col sm:flex-row gap-3 pt-2">
+          <button 
+            onclick="goToModalStep(2)" 
+            class="flex-1 border-[3px] border-charcoal bg-ember text-canvas font-bold text-xs uppercase tracking-widest py-3.5 hover:bg-charcoal transition-none active:translate-y-1"
+          >
+            [ + BERI MASUKAN / SARAN ]
+          </button>
+          
+          <button 
+            onclick="closeFeedbackModal()" 
+            class="border-[3px] border-charcoal bg-canvas text-charcoal font-bold text-xs uppercase tracking-widest px-6 py-3.5 hover:bg-charcoal hover:text-canvas transition-none active:translate-y-1"
+          >
+            LEWATI →
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 2: FEEDBACK FORM FOR ADMIN MAILBOX -->
+      <div id="modal-step-2" class="flex flex-col gap-4 hidden animate-step-in">
+        <div class="flex justify-between items-center border-b-[3px] border-charcoal pb-3">
+          <h3 class="font-black text-xl uppercase tracking-tighter text-charcoal">
+            FORMULIR MASUKAN & SARAN
+          </h3>
+          <button onclick="goToModalStep(1)" class="font-mono text-xs font-bold text-slate hover:text-ember">[← KEMBALI]</button>
+        </div>
+
+        <p class="text-xs font-semibold text-slate leading-relaxed">
+          Silakan tuliskan masukan Anda. Pesan ini akan langsung masuk ke <strong class="text-charcoal font-black">Mailbox Admin</strong>.
+        </p>
+
+        <form action="/feedback" method="POST" class="space-y-3.5">
+          @csrf
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="flex flex-col gap-1">
+              <label class="font-mono text-[10px] font-bold uppercase tracking-widest text-charcoal">
+                NAMA ANDA (OPSIONAL)
+              </label>
+              <input 
+                type="text" 
+                name="user_name" 
+                value="{{ session('user', '') }}"
+                placeholder="MISAL: NAOO"
+                class="w-full bg-light border-grid p-2.5 font-mono text-xs font-bold uppercase text-charcoal focus:bg-canvas focus:outline-none focus:border-ember"
+              >
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label class="font-mono text-[10px] font-bold uppercase tracking-widest text-charcoal">
+                EMAIL CONTACT (OPSIONAL)
+              </label>
+              <input 
+                type="email" 
+                name="user_email" 
+                value="{{ session('user_email', '') }}"
+                placeholder="NAMA@EMAIL.COM"
+                class="w-full bg-light border-grid p-2.5 font-mono text-xs font-bold uppercase text-charcoal focus:bg-canvas focus:outline-none focus:border-ember"
+              >
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label class="font-mono text-[10px] font-bold uppercase tracking-widest text-charcoal">
+              KATEGORI PESAN
+            </label>
+            <select 
+              name="category"
+              class="w-full bg-light border-grid p-2.5 font-mono text-xs font-bold uppercase text-charcoal focus:bg-canvas focus:outline-none focus:border-ember cursor-pointer"
+            >
+              <option value="SARAN & MASUKAN">SARAN & MASUKAN PENGEMBANGAN</option>
+              <option value="PERMINTAAN FITUR">PERMINTAAN FITUR BARU</option>
+              <option value="LAPORAN BUG">LAPORAN BUG / ERROR</option>
+            </select>
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label class="font-mono text-[10px] font-bold uppercase tracking-widest text-charcoal">
+              ISIKAN PESAN / SARAN ANDA *
+            </label>
+            <textarea 
+              name="message" 
+              rows="3" 
+              required
+              placeholder="TULISKAN MASUKAN ATAU IDE UNTUK PEMBARUAN NAOOLIFT DI SINI..."
+              class="w-full bg-light border-grid p-3 font-mono text-xs font-bold uppercase text-charcoal focus:bg-canvas focus:outline-none focus:border-ember"
+            ></textarea>
+          </div>
+
+          <div class="flex gap-2 pt-1">
+            <button 
+              type="button"
+              onclick="goToModalStep(1)"
+              class="border-grid bg-light text-charcoal font-bold text-xs uppercase tracking-widest px-4 py-3 hover:bg-charcoal hover:text-canvas transition-none active:translate-y-1"
+            >
+              ← KEMBALI
+            </button>
+            <button 
+              type="submit" 
+              class="flex-1 border-grid bg-ember text-canvas font-bold text-xs uppercase tracking-widest py-3 hover:bg-charcoal transition-none active:translate-y-1"
+            >
+              KIRIM KE MAILBOX ADMIN →
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
   <!-- SWISS BRUTALIST LOGOUT CONFIRMATION MODAL -->
   <div id="logout-modal" class="fixed inset-0 z-[100] bg-charcoal/80 flex items-center justify-center p-4 hidden">
     <div class="w-full max-w-[440px] border-grid bg-canvas p-6 sm:p-8 flex flex-col gap-4 shadow-none relative animate-fade-in">
@@ -426,6 +611,52 @@
   </div>
 
   <script>
+    // Automatically trigger active development announcement pop-up on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      if (!sessionStorage.getItem('naoolift_dev_popup_dismissed')) {
+        setTimeout(() => {
+          openFeedbackModal(1);
+        }, 400);
+      }
+    });
+
+    function openFeedbackModal(step = 1) {
+      const modal = document.getElementById('feedback-modal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        goToModalStep(step);
+      }
+    }
+
+    function goToModalStep(step) {
+      const step1 = document.getElementById('modal-step-1');
+      const step2 = document.getElementById('modal-step-2');
+      
+      if (step === 1) {
+        if (step2) step2.classList.add('hidden');
+        if (step1) {
+          step1.classList.remove('hidden');
+          step1.classList.remove('animate-step-in');
+          void step1.offsetWidth; // Trigger reflow
+          step1.classList.add('animate-step-in');
+        }
+      } else if (step === 2) {
+        if (step1) step1.classList.add('hidden');
+        if (step2) {
+          step2.classList.remove('hidden');
+          step2.classList.remove('animate-step-in');
+          void step2.offsetWidth; // Trigger reflow
+          step2.classList.add('animate-step-in');
+        }
+      }
+    }
+
+    function closeFeedbackModal() {
+      const modal = document.getElementById('feedback-modal');
+      if (modal) modal.classList.add('hidden');
+      sessionStorage.setItem('naoolift_dev_popup_dismissed', 'true');
+    }
+
     function openLogoutModal() {
       const modal = document.getElementById('logout-modal');
       if (modal) modal.classList.remove('hidden');
@@ -437,7 +668,10 @@
     }
 
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeLogoutModal();
+      if (e.key === 'Escape') {
+        closeFeedbackModal();
+        closeLogoutModal();
+      }
     });
 
     // Real-time Live Workout Seconds Timer Counter

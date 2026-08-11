@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Schedule;
 use App\Models\WorkoutLog;
+use App\Models\FeedbackMessage;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -20,6 +21,42 @@ Route::get('/', function () {
     }
 
     return view('LandingPage.welcome', compact('activeDaysCount', 'totalLogsCount'));
+});
+
+// Submit User Feedback / Suggestions to Admin Mailbox
+Route::post('/feedback', function (Request $request) {
+    $request->validate([
+        'message' => 'required|string|max:2000',
+        'category' => 'nullable|string',
+    ], [
+        'message.required' => 'SARAN ATAU MASUKAN WAJIB DIISI.',
+    ]);
+
+    $userId = getAuthUserId();
+    $userName = session('user', 'GUEST');
+    $userEmail = session('user_email');
+
+    if ($userId && !$userEmail) {
+        $user = User::find($userId);
+        if ($user) $userEmail = $user->email;
+    }
+
+    if ($request->filled('user_name')) {
+        $userName = strtoupper($request->user_name);
+    }
+    if ($request->filled('user_email')) {
+        $userEmail = strtolower($request->user_email);
+    }
+
+    FeedbackMessage::create([
+        'user_name' => $userName,
+        'user_email' => $userEmail ?? 'N/A',
+        'category' => strtoupper($request->input('category', 'SARAN & MASUKAN')),
+        'message' => $request->message,
+        'is_read' => false,
+    ]);
+
+    return back()->with('success', 'TERIMA KASIH! MASUKAN & SARAN ANDA BERHASIL DIKIRIM KE MAILBOX ADMIN.');
 });
 
 // Helper function to get authenticated user ID
@@ -520,6 +557,127 @@ Route::post('/dashboard/settings/password', function (Request $request) {
     return redirect('/dashboard/settings')->with('success', 'KATA SANDI AKUN BERHASIL DIPERBARUI!');
 });
 
+// 7. Dedicated Admin Dashboard Route (/admin/dashboard)
+Route::get('/admin/dashboard', function () {
+    if (!Auth::check() && !session('user')) {
+        return redirect('/login')->with('error', 'AKSES ADMIN DITOLAK! SILAKAN LOGIN TERLEBIH DAHULU.');
+    }
+
+    $userId = getAuthUserId();
+    $currentUser = User::find($userId);
+
+    // Compute System-wide Admin Aggregates
+    $totalUsersCount = User::count();
+    $totalSchedulesCount = Schedule::count();
+    $totalLogsCount = WorkoutLog::count();
+    
+    $allSystemLogs = WorkoutLog::with('user')->get();
+    $totalSystemVolume = calculateLogsVolume($allSystemLogs);
+
+    // List of Registered Users with Log & Schedule Count
+    $users = User::withCount(['schedules', 'workoutLogs'])
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    // Latest System Workout Logs Feed
+    $latestSystemLogs = WorkoutLog::with('user')
+        ->orderBy('log_date', 'desc')
+        ->orderBy('id', 'desc')
+        ->take(15)
+        ->get();
+
+    // Feedback Mailbox Messages
+    $feedbackMessages = FeedbackMessage::orderBy('created_at', 'desc')->get();
+    $unreadFeedbackCount = FeedbackMessage::where('is_read', false)->count();
+
+    $todayInfo = getTodayInfo($userId);
+    $todayName = $todayInfo['todayName'];
+    $todayRoutineTitle = $todayInfo['todayRoutineTitle'];
+
+    return view('Admin.dashboard', compact(
+        'currentUser', 'totalUsersCount', 'totalSchedulesCount', 'totalLogsCount',
+        'totalSystemVolume', 'users', 'latestSystemLogs', 'feedbackMessages', 'unreadFeedbackCount', 'todayName', 'todayRoutineTitle'
+    ));
+});
+
+// Admin Delete User Account
+Route::post('/admin/users/delete', function (Request $request) {
+    $userId = getAuthUserId();
+    if (!$userId) return redirect('/login')->with('error', 'AKSES DITOLAK!');
+
+    $targetUser = User::find($request->user_id);
+    if ($targetUser) {
+        $userName = strtoupper($targetUser->name);
+        WorkoutLog::where('user_id', $targetUser->id)->delete();
+        Schedule::where('user_id', $targetUser->id)->delete();
+        $targetUser->delete();
+
+        return redirect('/admin/dashboard')->with('info', 'AKUN PENGGUNA ' . $userName . ' BERHASIL DIHAPUS DARI SISTEM.');
+    }
+
+    return back()->with('error', 'PENGGUNA TIDAK DITEMUKAN.');
+});
+
+// Admin Delete Workout Log Entry
+Route::post('/admin/logs/delete', function (Request $request) {
+    $userId = getAuthUserId();
+    if (!$userId) return redirect('/login')->with('error', 'AKSES DITOLAK!');
+
+    $log = WorkoutLog::find($request->log_id);
+    if ($log) {
+        $log->delete();
+        return redirect('/admin/dashboard')->with('info', 'ENTRI LOG LATIHAN BERHASIL DIHAPUS OLEH ADMIN.');
+    }
+
+    return back()->with('error', 'LOG TIDAK DITEMUKAN.');
+});
+
+// Admin Delete Feedback Message
+Route::post('/admin/feedback/delete', function (Request $request) {
+    $userId = getAuthUserId();
+    if (!$userId) return redirect('/login')->with('error', 'AKSES DITOLAK!');
+
+    $fb = FeedbackMessage::find($request->feedback_id);
+    if ($fb) {
+        $fb->delete();
+        return redirect('/admin/dashboard')->with('info', 'PESAN MASUKAN BERHASIL DIHAPUS DARI MAILBOX ADMIN.');
+    }
+
+    return back()->with('error', 'PESAN TIDAK DITEMUKAN.');
+});
+
+// Admin Toggle Feedback Read Status
+Route::post('/admin/feedback/toggle-read', function (Request $request) {
+    $userId = getAuthUserId();
+    if (!$userId) return redirect('/login')->with('error', 'AKSES DITOLAK!');
+
+    $fb = FeedbackMessage::find($request->feedback_id);
+    if ($fb) {
+        $fb->is_read = !$fb->is_read;
+        $fb->save();
+        return redirect('/admin/dashboard')->with('success', 'STATUS PESAN MAILBOX BERHASIL DIPERBARUI.');
+    }
+
+    return back()->with('error', 'PESAN TIDAK DITEMUKAN.');
+});
+
+// Admin Toggle Admin Role
+Route::post('/admin/users/toggle-admin', function (Request $request) {
+    $userId = getAuthUserId();
+    if (!$userId) return redirect('/login')->with('error', 'AKSES DITOLAK!');
+
+    $targetUser = User::find($request->user_id);
+    if ($targetUser) {
+        $targetUser->is_admin = !$targetUser->is_admin;
+        $targetUser->save();
+
+        $statusLabel = $targetUser->is_admin ? 'HAK AKSES ADMIN DIAKTIFKAN' : 'HAK AKSES ADMIN DICABUT';
+        return redirect('/admin/dashboard')->with('success', $statusLabel . ' UNTUK PENGGUNA ' . strtoupper($targetUser->name));
+    }
+
+    return back()->with('error', 'PENGGUNA TIDAK DITEMUKAN.');
+});
+
 // Save Workout Log Entry (With Duration Seconds Support)
 Route::post('/dashboard/logs', function (Request $request) {
     $userId = getAuthUserId();
@@ -647,7 +805,14 @@ Route::post('/schedules/delete', function (Request $request) {
 });
 
 Route::get('/register', function () {
-    if (Auth::check() || session('user')) return redirect('/dashboard');
+    if (Auth::check() || session('user')) {
+        $userId = getAuthUserId();
+        $user = User::find($userId);
+        if ($user && $user->is_admin) {
+            return redirect('/admin/dashboard');
+        }
+        return redirect('/dashboard');
+    }
     return view('Auth.register');
 });
 
@@ -676,7 +841,14 @@ Route::post('/register', function (Request $request) {
 });
 
 Route::get('/login', function () {
-    if (Auth::check() || session('user')) return redirect('/dashboard');
+    if (Auth::check() || session('user')) {
+        $userId = getAuthUserId();
+        $user = User::find($userId);
+        if ($user && $user->is_admin) {
+            return redirect('/admin/dashboard');
+        }
+        return redirect('/dashboard');
+    }
     return view('Auth.login');
 });
 
@@ -702,7 +874,11 @@ Route::post('/login', function (Request $request) {
 
     Auth::login($user);
     $userName = strtoupper($user->name);
-    session(['user' => $userName, 'user_email' => $user->email]);
+    session(['user' => $userName, 'user_email' => $user->email, 'is_admin' => $user->is_admin]);
+
+    if ($user->is_admin) {
+        return redirect('/admin/dashboard')->with('success', 'LOGIN BERHASIL! PANEL KONTROL ADMINISTRATOR DIAKTIFKAN.');
+    }
 
     return redirect('/dashboard')->with('success', 'LOGIN BERHASIL! SESI LATIHAN DIAKTIFKAN.');
 });

@@ -81,16 +81,14 @@
     animation: blink 1.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 
-  /* Smooth Accordion Dropdown Animation for Mobile Nav */
+  /* Mobile Navigation Drawer Transition (Precise & Fast per rule.md) */
   @media (max-width: 767px) {
     #nav-menu {
       max-height: 0;
       opacity: 0;
       overflow: hidden;
-      transform: translateY(-12px);
-      transition: max-height 0.45s cubic-bezier(0.16, 1, 0.3, 1), 
-                  opacity 0.35s ease, 
-                  transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+      transform: translateY(-8px);
+      transition: max-height 0.25s ease-out, opacity 0.2s ease-out, transform 0.25s ease-out;
     }
     #nav-menu.is-open {
       max-height: 240px;
@@ -99,18 +97,18 @@
     }
     #nav-menu a {
       opacity: 0;
-      transform: translateY(-10px);
-      transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.1s ease, color 0.1s ease;
+      transform: translateY(-6px);
+      transition: opacity 0.2s ease-out, transform 0.2s ease-out, background-color 0.1s ease, color 0.1s ease;
     }
     #nav-menu.is-open a:nth-child(1) {
       opacity: 1;
       transform: translateY(0);
-      transition-delay: 0.08s;
+      transition-delay: 0.05s;
     }
     #nav-menu.is-open a:nth-child(2) {
       opacity: 1;
       transform: translateY(0);
-      transition-delay: 0.16s;
+      transition-delay: 0.1s;
     }
   }
 
@@ -129,7 +127,7 @@
   }
 
   #nav-toggle-icon {
-    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: transform 0.2s ease-out;
   }
   #nav-toggle-btn.is-open #nav-toggle-icon {
     transform: rotate(180deg);
@@ -166,7 +164,7 @@
         <h1 class="text-xl sm:text-2xl font-black uppercase tracking-tighter">NAOOLIFT.LOG</h1>
         
         <!-- Mobile Menu Toggle Button -->
-        <button id="nav-toggle-btn" class="md:hidden font-bold text-xs bg-ember text-canvas px-3 py-2 uppercase hover:bg-canvas hover:text-charcoal transition-colors flex items-center gap-1.5">
+        <button id="nav-toggle-btn" class="md:hidden font-bold text-xs bg-ember text-canvas px-3 py-2 uppercase hover:bg-canvas hover:text-charcoal transition-colors flex items-center gap-1.5 active:translate-y-1">
           <span id="nav-toggle-text">MENU</span>
           <svg id="nav-toggle-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path>
@@ -185,10 +183,29 @@
       </div>
 
       <!-- Action Button -->
-      <a href="#" class="p-4 sm:p-6 md:w-1/4 bg-ember text-canvas font-black text-center uppercase tracking-widest hover:bg-charcoal transition-none flex items-center justify-center">
-        INSTALL APP →
+      <a href="/register" class="p-4 sm:p-6 md:w-1/4 bg-ember text-canvas font-black text-center uppercase tracking-widest hover:bg-charcoal transition-none flex items-center justify-center active:translate-y-1">
+        MASUK →
       </a>
     </header>
+
+    <!-- INFO STRIP (Relocated to Top below Header per User Request) -->
+    <div class="flex flex-col md:flex-row border-b-grid text-xs sm:text-sm font-bold uppercase tracking-widest text-charcoal">
+      <div class="flex-1 p-4 border-b-grid md:border-b-0 md:border-r-grid flex justify-between items-center">
+        <span>STATUS:</span>
+        <span class="text-ember flex items-center gap-1.5 font-mono">
+          <span class="w-2 h-2 bg-ember animate-pulse inline-block"></span>
+          GUEST_SESSION
+        </span>
+      </div>
+      <div class="flex-1 p-4 border-b-grid md:border-b-0 md:border-r-grid flex justify-between items-center">
+        <span>FORMAT:</span>
+        <span class="font-mono">PROGRESSIVE WEB APP</span>
+      </div>
+      <div class="flex-1 p-4 flex justify-between items-center bg-light">
+        <span>ACTIVE USER:</span>
+        <span class="font-mono text-slate">UNAUTHENTICATED</span>
+      </div>
+    </div>
 
     <!-- HERO SECTION (Split Screen) -->
     <section class="flex flex-col lg:flex-row border-b-grid">
@@ -238,25 +255,6 @@
 
       </div>
     </section>
-
-    <!-- INFO STRIP -->
-    <div class="flex flex-col md:flex-row border-b-grid text-xs sm:text-sm font-bold uppercase tracking-widest text-charcoal">
-      <div class="flex-1 p-4 border-b-grid md:border-b-0 md:border-r-grid flex justify-between items-center">
-        <span>STATUS:</span>
-        <span class="text-ember flex items-center gap-1.5 font-mono">
-          <span class="w-2 h-2 bg-ember animate-pulse inline-block"></span>
-          OPERATIONAL
-        </span>
-      </div>
-      <div class="flex-1 p-4 border-b-grid md:border-b-0 md:border-r-grid flex justify-between items-center">
-        <span>FORMAT:</span>
-        <span class="font-mono">PROGRESSIVE WEB APP</span>
-      </div>
-      <div class="flex-1 p-4 flex justify-between items-center bg-light">
-        <span>ACTIVE USER:</span>
-        <span class="font-mono">ZAKI.Y</span>
-      </div>
-    </div>
 
     <!-- MODULES SECTION -->
     <section id="data" class="grid grid-cols-1 md:grid-cols-3">
@@ -328,7 +326,7 @@
 
       <!-- Module 3: System Sync -->
       <div id="system" class="p-6 sm:p-8 flex flex-col bg-ember text-canvas">
-        <h3 class="font-black text-2xl sm:text-3xl uppercase tracking-tighter mb-3">SYSTEM<br>SYSTEM</h3>
+        <h3 class="font-black text-2xl sm:text-3xl uppercase tracking-tighter mb-3">SYSTEM<br>SYNC</h3>
         <p class="text-xs sm:text-sm font-semibold mb-8 pb-4 border-b-[3px] border-charcoal">
           Penyimpanan data lokal yang aman tanpa perlu sinkronisasi cloud yang lambat.
         </p>

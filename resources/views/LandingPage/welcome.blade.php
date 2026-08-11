@@ -133,6 +133,21 @@
     transform: rotate(180deg);
   }
 
+  /* Toast Slide-Up Animation */
+  @keyframes toastSlideUp {
+    from {
+      transform: translateY(120%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  .animate-toast-slide {
+    animation: toastSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
   ::-webkit-scrollbar { display: none; }
 </style>
 <script>
@@ -151,7 +166,36 @@
   }
 </script>
 </head>
-<body class="min-h-screen p-2 sm:p-6 lg:p-8 flex justify-center">
+<body class="min-h-screen p-2 sm:p-6 lg:p-8 flex justify-center relative">
+
+  <!-- SWISS BRUTALIST BOTTOM-RIGHT TOAST NOTIFICATION CONTAINER -->
+  <div id="toast-container" class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col gap-2 max-w-[380px] w-full pointer-events-none">
+    @if(session('error') || $errors->any())
+      <div id="toast-msg" class="pointer-events-auto border-[3px] border-charcoal bg-charcoal text-canvas p-3.5 font-mono text-xs font-bold uppercase tracking-widest flex items-start justify-between gap-3 animate-toast-slide border-l-[8px] border-l-ember">
+        <div class="flex items-start gap-2">
+          <span class="text-ember font-black">✕</span>
+          <span>{{ session('error') ?? $errors->first() }}</span>
+        </div>
+        <button onclick="dismissToast()" class="text-canvas hover:text-ember font-mono font-bold text-xs">[✕]</button>
+      </div>
+    @elseif(session('success'))
+      <div id="toast-msg" class="pointer-events-auto border-[3px] border-charcoal bg-ember text-canvas p-3.5 font-mono text-xs font-bold uppercase tracking-widest flex items-start justify-between gap-3 animate-toast-slide">
+        <div class="flex items-start gap-2">
+          <span class="font-black">✓</span>
+          <span>{{ session('success') }}</span>
+        </div>
+        <button onclick="dismissToast()" class="text-canvas hover:text-charcoal font-mono font-bold text-xs">[✕]</button>
+      </div>
+    @elseif(session('info'))
+      <div id="toast-msg" class="pointer-events-auto border-[3px] border-charcoal bg-light text-charcoal p-3.5 font-mono text-xs font-bold uppercase tracking-widest flex items-start justify-between gap-3 animate-toast-slide border-l-[8px] border-l-charcoal">
+        <div class="flex items-start gap-2">
+          <span class="font-black">ℹ</span>
+          <span>{{ session('info') }}</span>
+        </div>
+        <button onclick="dismissToast()" class="text-charcoal hover:text-ember font-mono font-bold text-xs">[✕]</button>
+      </div>
+    @endif
+  </div>
 
   <!-- Main Container: Acts like a printed sheet of paper -->
   <div class="w-full max-w-[1280px] border-grid flex flex-col relative bg-canvas shadow-none">
@@ -182,27 +226,22 @@
         </a>
       </div>
 
-      <!-- Action Button -->
-      @if(session('user'))
-        <a href="/logout" class="p-4 sm:p-6 md:w-1/4 bg-charcoal text-canvas font-black text-center uppercase tracking-widest hover:bg-ember transition-none flex items-center justify-center active:translate-y-1">
-          KELUAR [✕]
+      <!-- Action Buttons (DASHBOARD & MASUK / KELUAR) -->
+      <div class="flex flex-col sm:flex-row md:w-1/3">
+        <a href="#data" class="flex-1 p-4 sm:p-6 bg-light text-charcoal font-black text-center uppercase tracking-widest hover:bg-charcoal hover:text-canvas transition-none flex items-center justify-center border-b-grid sm:border-b-0 sm:border-r-grid active:translate-y-1">
+          DASHBOARD →
         </a>
-      @else
-        <a href="/register" class="p-4 sm:p-6 md:w-1/4 bg-ember text-canvas font-black text-center uppercase tracking-widest hover:bg-charcoal transition-none flex items-center justify-center active:translate-y-1">
-          MASUK →
-        </a>
-      @endif
+        @if(session('user'))
+          <button onclick="openLogoutModal()" class="flex-1 p-4 sm:p-6 bg-charcoal text-canvas font-black text-center uppercase tracking-widest hover:bg-ember transition-none flex items-center justify-center active:translate-y-1">
+            KELUAR [✕]
+          </button>
+        @else
+          <a href="/register" class="flex-1 p-4 sm:p-6 bg-ember text-canvas font-black text-center uppercase tracking-widest hover:bg-charcoal transition-none flex items-center justify-center active:translate-y-1">
+            MASUK →
+          </a>
+        @endif
+      </div>
     </header>
-
-    @if(session('success'))
-      <div class="bg-ember text-canvas p-3 sm:p-4 border-b-grid font-mono text-xs font-bold uppercase tracking-widest flex items-center justify-between">
-        <span>✓ {{ session('success') }}</span>
-      </div>
-    @elseif(session('info'))
-      <div class="bg-light text-charcoal p-3 sm:p-4 border-b-grid font-mono text-xs font-bold uppercase tracking-widest flex items-center justify-between">
-        <span>INFO: {{ session('info') }}</span>
-      </div>
-    @endif
 
     <!-- INFO STRIP (Relocated to Top below Header per User Request) -->
     <div class="flex flex-col md:flex-row border-b-grid text-xs sm:text-sm font-bold uppercase tracking-widest text-charcoal">
@@ -366,6 +405,31 @@
 
   </div>
 
+  <!-- SWISS BRUTALIST LOGOUT CONFIRMATION MODAL -->
+  <div id="logout-modal" class="fixed inset-0 z-[100] bg-charcoal/80 flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-[440px] border-grid bg-canvas p-6 sm:p-8 flex flex-col gap-4 shadow-none relative animate-fade-in">
+      <div class="flex justify-between items-center border-b-[3px] border-charcoal pb-3">
+        <h3 class="font-black text-xl uppercase tracking-tighter text-charcoal">
+          KONFIRMASI KELUAR
+        </h3>
+        <span class="font-mono text-xs font-bold text-ember">SYS_LOGOUT</span>
+      </div>
+
+      <p class="text-xs sm:text-sm font-semibold text-charcoal leading-relaxed">
+        Apakah Anda yakin ingin mengakhiri sesi latihan aktif saat ini? Sesi akan kembali ke mode tamu.
+      </p>
+
+      <div class="flex gap-3 pt-2">
+        <button onclick="closeLogoutModal()" class="flex-1 border-[3px] border-charcoal bg-light text-charcoal font-bold text-xs uppercase tracking-widest py-3 hover:bg-charcoal hover:text-canvas transition-none active:translate-y-1">
+          BATAL
+        </button>
+        <a href="/logout" class="flex-1 border-[3px] border-charcoal bg-ember text-canvas text-center font-bold text-xs uppercase tracking-widest py-3 hover:bg-charcoal transition-none active:translate-y-1 flex items-center justify-center">
+          YA, KELUAR →
+        </a>
+      </div>
+    </div>
+  </div>
+
   <script>
     // 1. Responsive Mobile Navigation Toggle & Icon Animation
     const navToggleBtn = document.getElementById('nav-toggle-btn');
@@ -394,7 +458,23 @@
       });
     }
 
-    // 2. Real-time Live Workout Seconds Timer Counter
+    // 2. Logout Confirmation Modal Triggers
+    function openLogoutModal() {
+      const modal = document.getElementById('logout-modal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeLogoutModal() {
+      const modal = document.getElementById('logout-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    // Close modal when pressing Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeLogoutModal();
+    });
+
+    // 3. Real-time Live Workout Seconds Timer Counter
     const timerElement = document.getElementById('live-timer');
     if (timerElement) {
       let seconds = 4;
@@ -416,7 +496,7 @@
       }, 1000);
     }
 
-    // 3. Force Sync Button Feedback Action
+    // 4. Force Sync Button Feedback Action
     const syncBtn = document.getElementById('sync-btn');
     if (syncBtn) {
       syncBtn.addEventListener('click', (e) => {
@@ -433,6 +513,20 @@
         }, 800);
       });
     }
+
+    // 5. Toast Dismiss Function
+    function dismissToast() {
+      const toast = document.getElementById('toast-msg');
+      if (toast) {
+        toast.style.transition = 'transform 0.25s ease-out, opacity 0.2s ease-out';
+        toast.style.transform = 'translateX(120%)';
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 250);
+      }
+    }
+    setTimeout(() => {
+      dismissToast();
+    }, 4500);
   </script>
 </body>
 </html>

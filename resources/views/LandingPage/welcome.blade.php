@@ -175,62 +175,64 @@
   <div class="w-full max-w-[1280px] border-grid flex flex-col relative bg-canvas shadow-none">
     
     <!-- TOP NAV / HEADER -->
-    <header class="flex flex-col md:flex-row border-b-grid">
+    <header class="flex flex-row md:flex-row border-b-grid items-stretch">
       
       <!-- Logo Block -->
-      <div class="p-4 sm:p-6 md:w-1/4 border-b-grid md:border-b-0 md:border-r-grid bg-charcoal text-canvas flex items-center justify-between">
-        <h1 class="text-xl sm:text-2xl font-black uppercase tracking-tighter">NAOOLIFT.LOG</h1>
+      <div class="p-3.5 sm:p-6 flex-1 md:flex-none md:w-1/4 border-r-grid bg-charcoal text-canvas flex items-center justify-between">
+        <h1 class="text-lg sm:text-2xl font-black uppercase tracking-tighter">NAOOLIFT.LOG</h1>
       </div>
       
-      <!-- Nav Links -->
-      <div class="flex flex-row flex-1 font-mono text-xs font-bold uppercase tracking-widest text-charcoal border-b-grid md:border-b-0">
+      <!-- Desktop Nav Links (Hidden on Mobile) -->
+      <div class="hidden md:flex flex-row flex-1 font-mono text-xs font-bold uppercase tracking-widest text-charcoal border-r-grid">
         <a href="#fitur" class="flex-1 p-4 sm:p-6 border-r-grid hover-invert flex items-center justify-center transition-none">
           [01] FITUR UTAMA
         </a>
-        <a href="#modul" class="flex-1 p-4 sm:p-6 border-r-grid hover-invert flex items-center justify-center transition-none">
+        <a href="#modul" class="flex-1 p-4 sm:p-6 hover-invert flex items-center justify-center transition-none">
           [02] MODUL SISTEM
         </a>
       </div>
 
       <!-- Action Buttons -->
-      <div class="flex flex-col sm:flex-row md:w-1/3">
+      <div class="flex flex-row shrink-0 md:w-1/3 font-mono text-xs sm:text-sm font-bold">
         @if(session('user'))
-          <a href="/dashboard" class="flex-1 p-4 sm:p-6 bg-light text-charcoal font-bold text-xs sm:text-sm uppercase tracking-widest hover:bg-charcoal hover:text-canvas transition-none flex items-center justify-center border-b-grid sm:border-b-0 sm:border-r-grid active:translate-y-1">
-            DASHBOARD →
+          <a href="/dashboard" class="px-3.5 py-3 sm:p-6 bg-light text-charcoal uppercase tracking-wider hover:bg-charcoal hover:text-canvas transition-none flex items-center justify-center border-r-grid active:translate-y-1">
+            DASBOR →
           </a>
-          <a href="/admin/dashboard" class="flex-1 p-4 sm:p-6 bg-ember text-canvas font-bold text-xs sm:text-sm uppercase tracking-widest hover:bg-charcoal transition-none flex items-center justify-center border-b-grid sm:border-b-0 sm:border-r-grid active:translate-y-1">
-            ADMIN →
-          </a>
-          <button onclick="openLogoutModal()" class="p-4 sm:p-6 bg-charcoal text-canvas font-bold text-xs sm:text-sm uppercase tracking-widest hover:bg-ember transition-none flex items-center justify-center active:translate-y-1">
-            KELUAR [✕]
+          @if(session('is_admin') || (Auth::check() && Auth::user()->is_admin))
+            <a href="/admin/dashboard" class="px-3.5 py-3 sm:p-6 bg-ember text-canvas uppercase tracking-wider hover:bg-charcoal transition-none flex items-center justify-center border-r-grid active:translate-y-1">
+              ADMIN →
+            </a>
+          @endif
+          <button onclick="openLogoutModal()" class="px-3.5 py-3 sm:p-6 bg-charcoal text-canvas uppercase tracking-wider hover:bg-ember transition-none flex items-center justify-center active:translate-y-1 shrink-0">
+            [✕]
           </button>
         @else
-          <a href="/login" class="flex-1 p-4 sm:p-6 bg-light text-charcoal font-bold text-xs sm:text-sm uppercase tracking-widest hover:bg-charcoal hover:text-canvas transition-none flex items-center justify-center border-b-grid sm:border-b-0 sm:border-r-grid active:translate-y-1">
+          <a href="/login" class="px-3.5 py-3 sm:p-6 bg-light text-charcoal uppercase tracking-wider hover:bg-charcoal hover:text-canvas transition-none flex items-center justify-center border-r-grid active:translate-y-1">
             MASUK →
           </a>
-          <a href="/register" class="flex-1 p-4 sm:p-6 bg-ember text-canvas font-bold text-xs sm:text-sm uppercase tracking-widest hover:bg-charcoal transition-none flex items-center justify-center active:translate-y-1">
+          <a href="/register" class="px-3.5 py-3 sm:p-6 bg-ember text-canvas uppercase tracking-wider hover:bg-charcoal transition-none flex items-center justify-center active:translate-y-1">
             REGISTRASI →
           </a>
         @endif
       </div>
     </header>
 
-    <!-- INFO STRIP -->
-    <div class="flex flex-col md:flex-row border-b-grid text-xs sm:text-sm font-bold uppercase tracking-widest text-charcoal">
-      <div class="flex-1 p-4 border-b-grid md:border-b-0 md:border-r-grid flex justify-between items-center">
+    <!-- INFO STRIP (Hidden on Mobile for Ultra-Clean UI) -->
+    <div class="hidden md:flex flex-row border-b-grid text-xs sm:text-sm font-bold uppercase tracking-widest text-charcoal">
+      <div class="flex-1 p-4 border-r-grid flex justify-between items-center">
         <span>STATUS SISTEM:</span>
         <span class="text-ember flex items-center gap-1.5 font-mono">
           <span class="w-2 h-2 bg-ember animate-pulse inline-block"></span>
           ACTIVE_DEVELOPMENT
         </span>
       </div>
-      <div class="flex-1 p-4 border-b-grid md:border-b-0 md:border-r-grid flex justify-between items-center">
+      <div class="flex-1 p-4 border-r-grid flex justify-between items-center">
         <span>ARSITEKTUR:</span>
-        <span class="font-mono">PROGRESSIVE OVERLOAD LOG</span>
+        <span class="font-mono text-xs">PROGRESSIVE OVERLOAD</span>
       </div>
       <div class="flex-1 p-4 flex justify-between items-center bg-light">
         <span>SESI AKTIF:</span>
-        <span class="font-mono @if(!session('user')) text-slate @endif">
+        <span class="font-mono text-xs @if(!session('user')) text-slate @endif">
           {{ session('user') ?? 'UNAUTHENTICATED' }}
         </span>
       </div>
@@ -240,31 +242,31 @@
     <section class="flex flex-col lg:flex-row border-b-grid">
       
       <!-- Left Hero Typography & Actions -->
-      <div class="lg:w-2/3 p-6 sm:p-12 lg:p-16 border-b-grid lg:border-b-0 lg:border-r-grid flex flex-col justify-center bg-light">
-        <div class="font-mono text-xs uppercase tracking-widest mb-6 border-b-[3px] border-charcoal pb-2 inline-block w-max font-bold text-ember">
+      <div class="lg:w-2/3 p-5 sm:p-12 lg:p-16 border-b-grid lg:border-b-0 lg:border-r-grid flex flex-col justify-center bg-light">
+        <div class="font-mono text-xs uppercase tracking-widest mb-4 sm:mb-6 border-b-[3px] border-charcoal pb-2 inline-block w-max font-bold text-ember">
           DOC_REF: NAOOLIFT-SYS-2026
         </div>
         
-        <h2 class="text-4xl sm:text-7xl lg:text-[7.5rem] font-black uppercase leading-[0.88] tracking-tighter mb-6 text-charcoal">
+        <h2 class="text-4xl sm:text-7xl lg:text-[7.5rem] font-black uppercase leading-[0.88] tracking-tighter mb-4 sm:mb-6 text-charcoal">
           RECORD<br>
           EVERY<br>
           <span class="text-ember">REP.</span>
         </h2>
         
-        <p class="text-sm sm:text-base font-semibold max-w-lg border-l-[6px] border-ember pl-4 text-charcoal leading-relaxed mb-8">
+        <p class="text-xs sm:text-base font-semibold max-w-lg border-l-[4px] sm:border-l-[6px] border-ember pl-3 sm:pl-4 text-charcoal leading-relaxed mb-6 sm:mb-8">
           Sistem jurnal kebugaran utilitarian. Tanpa gangguan visual. Fokus penuh pada metrik tonase beban, durasi waktu background, dan perbandingan harian / mingguan / bulanan.
         </p>
 
-        <div class="flex flex-wrap items-center gap-3">
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
           <a 
             href="/dashboard" 
-            class="border-[3px] border-charcoal bg-ember text-canvas font-bold text-xs sm:text-sm uppercase tracking-widest px-8 py-4 hover:bg-charcoal transition-none active:translate-y-1"
+            class="border-[3px] border-charcoal bg-ember text-canvas font-bold text-xs sm:text-sm uppercase tracking-widest px-6 py-3.5 sm:px-8 sm:py-4 text-center hover:bg-charcoal transition-none active:translate-y-1 w-full sm:w-auto"
           >
             BUKA DASBOR LATIHAN →
           </a>
           <button 
             onclick="openFeedbackModal(2)" 
-            class="border-[3px] border-charcoal bg-canvas text-charcoal font-bold text-xs sm:text-sm uppercase tracking-widest px-8 py-4 hover:bg-charcoal hover:text-canvas transition-none active:translate-y-1"
+            class="border-[3px] border-charcoal bg-canvas text-charcoal font-bold text-xs sm:text-sm uppercase tracking-widest px-6 py-3.5 sm:px-8 sm:py-4 text-center hover:bg-charcoal hover:text-canvas transition-none active:translate-y-1 w-full sm:w-auto"
           >
             ISI SARAN & MASUKAN
           </button>

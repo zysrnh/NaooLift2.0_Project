@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NaooLift — Kelola Jadwal Latihan</title>
+<title>NaooLift — Kelola Jadwal Latihan Bulanan</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Space+Mono:wght@400;700&display=swap');
@@ -146,8 +146,11 @@
           </span>
         </div>
         <div class="flex-1 p-4 border-r-grid flex justify-between items-center bg-light">
-          <span class="font-sans">SYS_TIME:</span>
-          <span id="dash-timer" class="font-bold">00:00:00</span>
+          <span class="font-sans">HARI INI ({{ $todayName }}):</span>
+          <span class="font-bold text-ember font-mono flex items-center gap-1.5 truncate max-w-[210px]" title="{{ $todayRoutineTitle }}">
+            <span class="w-2 h-2 bg-ember animate-pulse inline-block shrink-0"></span>
+            {{ $todayRoutineTitle }}
+          </span>
         </div>
         <div class="flex flex-row w-64 font-sans font-bold">
           <a href="/" class="flex-1 p-4 bg-canvas text-charcoal text-center hover:bg-charcoal hover:text-canvas transition-none flex items-center justify-center border-r-grid active:translate-y-1">
@@ -232,13 +235,13 @@
           <div class="border-b-[3px] border-charcoal pb-4 sm:pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
               <span class="font-mono text-[11px] sm:text-xs font-bold uppercase tracking-widest text-ember">
-                02 // DYNAMIC_SCHEDULE_MANAGER
+                02 // MONTHLY_PROGRAM_PERIODIZATION
               </span>
               <h2 class="text-2xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tighter text-charcoal mt-1">
-                JADWAL LATIHAN MINGGUAN
+                JADWAL PROGRAM BULANAN
               </h2>
               <p class="text-xs sm:text-sm font-semibold text-slate mt-1 max-w-xl">
-                Tambah dan atur pembagian jadwal sesi latihan Anda per hari.
+                Atur pembagian jadwal sesi latihan harian khusus untuk setiap bulan.
               </p>
             </div>
             
@@ -250,7 +253,30 @@
             </button>
           </div>
 
-          <!-- Schedule Summary Metrics -->
+          <!-- MONTHLY PROGRAM PERIOD SELECTOR BAR -->
+          <div class="border-grid bg-light p-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-2 w-full md:w-auto">
+              <span class="font-mono text-xs font-bold uppercase tracking-widest text-charcoal whitespace-nowrap">
+                PROGRAM BULAN:
+              </span>
+              <select 
+                onchange="window.location.href='/dashboard/schedule?month=' + this.value"
+                class="bg-canvas border-grid p-2 font-mono text-xs font-bold uppercase text-charcoal focus:outline-none focus:border-ember cursor-pointer flex-1 md:flex-none"
+              >
+                @foreach($allMonths as $m)
+                  <option value="{{ $m }}" {{ $m === $selectedMonth ? 'selected' : '' }}>
+                    PROGRAM {{ \App\Models\Schedule::class ? getIndonesianMonthLabel($m) : $m }} {{ $m === date('Y-m') ? '(BULAN INI)' : '' }}
+                  </option>
+                @endforeach
+              </select>
+            </div>
+
+            <div class="font-mono text-xs font-bold text-ember uppercase tracking-widest">
+              PROGRAM AKTIF: {{ $monthLabel }}
+            </div>
+          </div>
+
+          <!-- Schedule Summary Metrics for Selected Month -->
           <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
             <div class="border-grid bg-canvas p-4 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4">
               <span class="font-mono text-[10px] sm:text-[11px] font-bold text-slate uppercase tracking-widest">
@@ -260,7 +286,7 @@
                 {{ $totalWorkoutDays }} <span class="text-sm sm:text-lg text-slate">HARI</span>
               </div>
               <div class="font-mono text-[9px] sm:text-[10px] font-bold text-slate uppercase tracking-wider border-t-grid pt-2">
-                HARI AKTIF
+                HARI WORKOUT
               </div>
             </div>
 
@@ -272,7 +298,7 @@
                 {{ $totalRestDays }} <span class="text-sm sm:text-lg text-slate">HARI</span>
               </div>
               <div class="font-mono text-[9px] sm:text-[10px] font-bold text-slate uppercase tracking-wider border-t-grid pt-2">
-                RECOVERY / REST
+                RECOVERY DAYS
               </div>
             </div>
 
@@ -284,7 +310,7 @@
                 {{ $totalDaysSet }} <span class="text-sm sm:text-lg text-slate">/ 7</span>
               </div>
               <div class="font-mono text-[9px] sm:text-[10px] font-bold text-slate uppercase tracking-wider border-t-grid pt-2">
-                HARI TERATUR
+                CAKUPAN PROGRAM
               </div>
             </div>
 
@@ -296,16 +322,16 @@
                 BUKA LOG →
               </a>
               <div class="font-mono text-[9px] sm:text-[10px] font-bold text-charcoal uppercase tracking-wider border-t-grid pt-2">
-                DATE_LINKED
+                MONTHLY_SYNCED
               </div>
             </div>
           </div>
 
-          <!-- DYNAMICALLY ADDED SCHEDULE DAYS LIST -->
+          <!-- DYNAMICALLY ADDED SCHEDULE DAYS LIST FOR THIS MONTH -->
           <div class="flex flex-col gap-4 mt-2">
             <div class="flex justify-between items-center border-b-[3px] border-charcoal pb-3">
               <h3 class="text-xl sm:text-2xl font-black uppercase tracking-tighter text-charcoal">
-                DAFTAR JADWAL HARI LATIHAN
+                DAFTAR JADWAL HARI — {{ $monthLabel }}
               </h3>
               <span class="font-mono text-xs font-bold text-ember uppercase tracking-widest">
                 {{ $totalDaysSet }} HARI DITAMBAHKAN
@@ -364,8 +390,8 @@
 
                           <form action="/schedules/delete" method="POST" class="inline">
                             @csrf
+                            <input type="hidden" name="month_year" value="{{ $selectedMonth }}">
                             <input type="hidden" name="day_name" value="{{ $day }}">
-                            <input type="hidden" name="redirect_to" value="/dashboard/schedule">
                             <button 
                               type="submit" 
                               class="border-grid bg-canvas text-ember font-bold text-[11px] uppercase tracking-widest px-3 py-1.5 hover:bg-ember hover:text-canvas transition-none active:translate-y-1"
@@ -387,16 +413,16 @@
                   +
                 </div>
                 <h3 class="text-2xl sm:text-3xl font-black uppercase tracking-tighter text-charcoal">
-                  BELUM ADA JADWAL HARI DITAMBAHKAN
+                  BELUM ADA JADWAL PROGRAM UNTUK {{ $monthLabel }}
                 </h3>
                 <p class="text-xs sm:text-sm font-semibold text-slate max-w-md">
-                  Tekan tombol "+ TAMBAH JADWAL HARI" untuk mulai mengatur sesi latihan mingguan Anda.
+                  Tekan tombol "+ TAMBAH JADWAL HARI" untuk membuat jadwal latihan program bulan {{ $monthLabel }}.
                 </p>
                 <button 
                   onclick="openAddScheduleModal()"
                   class="border-grid bg-ember text-canvas font-bold text-xs uppercase tracking-widest px-6 py-3.5 hover:bg-charcoal transition-none active:translate-y-1 mt-2"
                 >
-                  + TAMBAH JADWAL HARI SEKARANG
+                  + TAMBAH JADWAL HARI {{ $monthLabel }}
                 </button>
               </div>
             @endif
@@ -412,7 +438,7 @@
     <!-- FULL-WIDTH SWISS BRUTALIST FOOTER BAR -->
     <footer class="border-t-grid bg-charcoal text-canvas p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-center font-mono text-[10px] sm:text-xs uppercase tracking-widest gap-2">
       <div>NAOOLIFT SYSTEM © 2026</div>
-      <div class="text-slate">MODULE: WORKOUT_SCHEDULE_SYSTEM</div>
+      <div class="text-slate">MODULE: MONTHLY_PROGRAM_PERIODIZATION</div>
     </footer>
 
   </div>
@@ -447,7 +473,7 @@
             TAMBAH JADWAL HARI
           </h3>
           <div class="font-mono text-xs font-bold text-ember uppercase tracking-widest">
-            MODUL JADWAL LATIHAN
+            PROGRAM: {{ $monthLabel }}
           </div>
         </div>
         <button onclick="closeScheduleModal()" class="font-mono text-xs font-bold text-charcoal hover:text-ember">[✕]</button>
@@ -455,7 +481,7 @@
 
       <form action="/schedules" method="POST" class="space-y-4">
         @csrf
-        <input type="hidden" name="redirect_to" value="/dashboard/schedule">
+        <input type="hidden" name="month_year" value="{{ $selectedMonth }}">
 
         <!-- Field 0: Pilih Hari -->
         <div class="flex flex-col gap-1">

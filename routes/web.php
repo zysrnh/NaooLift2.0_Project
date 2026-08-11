@@ -25,16 +25,25 @@ function getAuthUserId() {
     return null;
 }
 
-// 1. Dashboard Overview Route
-Route::get('/dashboard', function () {
-    if (!Auth::check() && !session('user')) {
-        return redirect('/login')->with('error', 'AKSES DITOLAK! SILAKAN LOGIN ATAU DAFTAR AKUN UNTUK MENGAKSES DASBOR.');
-    }
-
-    $userId = getAuthUserId();
-    $schedules = Schedule::where('user_id', $userId)->get();
+// Helper function to format Y-m to Indonesian Month Label e.g. "2026-08" -> "AGUSTUS 2026"
+function getIndonesianMonthLabel($monthYear) {
+    $parts = explode('-', $monthYear);
+    if (count($parts) !== 2) return strtoupper($monthYear);
     
-    // Map today's Indonesian day name
+    $year = $parts[0];
+    $month = (int)$parts[1];
+
+    $monthsId = [
+        1 => 'JANUARI', 2 => 'FEBRUARI', 3 => 'MARET', 4 => 'APRIL',
+        5 => 'MEI', 6 => 'JUNI', 7 => 'JULI', 8 => 'AGUSTUS',
+        9 => 'SEPTEMBER', 10 => 'OKTOBER', 11 => 'NOVEMBER', 12 => 'DESEMBER'
+    ];
+
+    return ($monthsId[$month] ?? 'BULAN') . ' ' . $year;
+}
+
+// Helper function to get today's Indonesian Day Name & Schedule Title
+function getTodayInfo($userId) {
     $dayMap = [
         'Monday' => 'SENIN',
         'Tuesday' => 'SELASA',
@@ -44,37 +53,80 @@ Route::get('/dashboard', function () {
         'Saturday' => 'SABTU',
         'Sunday' => 'MINGGU'
     ];
-    $todayName = $dayMap[date('l')] ?? 'SENIN';
-    $todaySchedule = $schedules->where('day_name', $todayName)->first();
 
-    // Fetch total logs count and volume for overview stats
+    $todayName = $dayMap[date('l')] ?? 'SENIN';
+    $currentMonthYear = date('Y-m');
+
+    $sched = Schedule::where('user_id', $userId)
+        ->where('month_year', $currentMonthYear)
+        ->where('day_name', $todayName)
+        ->first();
+
+    $routineTitle = $sched ? $sched->title : 'BELUM ATUR JADWAL';
+
+    return [
+        'todayName' => $todayName,
+        'todayDateFormatted' => date('d/m/Y'),
+        'todayRoutineTitle' => $routineTitle,
+        'todaySchedule' => $sched,
+    ];
+}
+
+// 1. Dashboard Overview Route
+Route::get('/dashboard', function () {
+    if (!Auth::check() && !session('user')) {
+        return redirect('/login')->with('error', 'AKSES DITOLAK! SILAKAN LOGIN ATAU DAFTAR AKUN UNTUK MENGAKSES DASBOR.');
+    }
+
+    $userId = getAuthUserId();
+    $currentMonthYear = date('Y-m');
+    $currentMonthLabel = getIndonesianMonthLabel($currentMonthYear);
+    $schedules = Schedule::where('user_id', $userId)->where('month_year', $currentMonthYear)->get();
+    
+    $todayInfo = getTodayInfo($userId);
+    $todayName = $todayInfo['todayName'];
+    $todaySchedule = $todayInfo['todaySchedule'];
+    $todayRoutineTitle = $todayInfo['todayRoutineTitle'];
+
     $totalLogs = WorkoutLog::where('user_id', $userId)->count();
     $totalDaysSet = $schedules->count();
     $totalRestDays = $schedules->where('is_rest', true)->count();
     $totalWorkoutDays = $totalDaysSet - $totalRestDays;
 
-    return view('Dashboard.overview', compact('schedules', 'todayName', 'todaySchedule', 'totalDaysSet', 'totalRestDays', 'totalWorkoutDays', 'totalLogs'));
+    return view('Dashboard.overview', compact('schedules', 'todayName', 'todaySchedule', 'todayRoutineTitle', 'totalDaysSet', 'totalRestDays', 'totalWorkoutDays', 'totalLogs', 'currentMonthLabel'));
 });
 
-// 2. Workout Schedule Route (Routine Setup per Day)
-Route::get('/dashboard/schedule', function () {
+// 2. Workout Schedule Route with Monthly Program Selection
+Route::get('/dashboard/schedule', function (Request $request) {
     if (!Auth::check() && !session('user')) {
         return redirect('/login')->with('error', 'AKSES DITOLAK! SILAKAN LOGIN ATAU DAFTAR AKUN.');
     }
 
     $userId = getAuthUserId();
     $days = ['SENIN', 'SELASA', 'RABU', 'KAMIS', 'JUMAT', 'SABTU', 'MINGGU'];
-    $schedules = Schedule::where('user_id', $userId)->get()->keyBy('day_name');
 
-    // Days not yet added
-    $addedDays = $schedules->keys()->toArray();
-    $availableDays = array_diff($days, $addedDays);
+    $selectedMonth = $request->query('month', date('Y-m'));
+    $monthLabel = getIndonesianMonthLabel($selectedMonth);
+
+    $schedules = Schedule::where('user_id', $userId)->where('month_year', $selectedMonth)->get()->keyBy('day_name');
+
+    $existingMonths = Schedule::where('user_id', $userId)->pluck('month_year')->toArray();
+    $defaultMonths = [];
+    for ($i = 0; $i < 6; $i++) {
+        $defaultMonths[] = date('Y-m', strtotime("+$i month"));
+    }
+    $allMonths = array_unique(array_merge($defaultMonths, $existingMonths));
+    sort($allMonths);
+
+    $todayInfo = getTodayInfo($userId);
+    $todayName = $todayInfo['todayName'];
+    $todayRoutineTitle = $todayInfo['todayRoutineTitle'];
 
     $totalDaysSet = $schedules->count();
     $totalRestDays = $schedules->where('is_rest', true)->count();
     $totalWorkoutDays = $totalDaysSet - $totalRestDays;
 
-    return view('Dashboard.schedule', compact('days', 'schedules', 'availableDays', 'totalDaysSet', 'totalRestDays', 'totalWorkoutDays'));
+    return view('Dashboard.schedule', compact('days', 'schedules', 'selectedMonth', 'monthLabel', 'allMonths', 'todayName', 'todayRoutineTitle', 'totalDaysSet', 'totalRestDays', 'totalWorkoutDays'));
 });
 
 // 3. Date-based Workout Log Route (/dashboard/logs)
@@ -85,10 +137,10 @@ Route::get('/dashboard/logs', function (Request $request) {
 
     $userId = getAuthUserId();
 
-    // Selected date (defaults to today's date Y-m-d)
     $selectedDate = $request->query('date', date('Y-m-d'));
+    $selectedMonthYear = date('Y-m', strtotime($selectedDate));
+    $selectedMonthLabel = getIndonesianMonthLabel($selectedMonthYear);
 
-    // Indonesian Day name mapping for selected date
     $dayNameEn = date('l', strtotime($selectedDate));
     $dayMap = [
         'Monday' => 'SENIN',
@@ -101,20 +153,24 @@ Route::get('/dashboard/logs', function (Request $request) {
     ];
     $dayNameId = $dayMap[$dayNameEn] ?? 'SENIN';
 
-    // Find schedule for this day
-    $scheduledRoutine = Schedule::where('user_id', $userId)->where('day_name', $dayNameId)->first();
+    $scheduledRoutine = Schedule::where('user_id', $userId)
+        ->where('month_year', $selectedMonthYear)
+        ->where('day_name', $dayNameId)
+        ->first();
 
-    // Fetch logs for this date
     $logs = WorkoutLog::where('user_id', $userId)->where('log_date', $selectedDate)->orderBy('id', 'asc')->get();
 
-    // Compute stats for selected date
+    $todayInfo = getTodayInfo($userId);
+    $todayName = $todayInfo['todayName'];
+    $todayRoutineTitle = $todayInfo['todayRoutineTitle'];
+
     $totalExercises = $logs->count();
     $totalSets = $logs->sum('sets');
     $totalVolumeKg = $logs->sum(function($item) {
         return $item->sets * $item->reps * $item->weight_kg;
     });
 
-    return view('Dashboard.logs', compact('selectedDate', 'dayNameId', 'scheduledRoutine', 'logs', 'totalExercises', 'totalSets', 'totalVolumeKg'));
+    return view('Dashboard.logs', compact('selectedDate', 'selectedMonthLabel', 'dayNameId', 'scheduledRoutine', 'logs', 'todayName', 'todayRoutineTitle', 'totalExercises', 'totalSets', 'totalVolumeKg'));
 });
 
 // Save Workout Log Entry
@@ -137,6 +193,7 @@ Route::post('/dashboard/logs', function (Request $request) {
         'weight_kg.required' => 'BEBAN (KG) WAJIB DIISI.',
     ]);
 
+    $logMonthYear = date('Y-m', strtotime($request->log_date));
     $dayNameEn = date('l', strtotime($request->log_date));
     $dayMap = [
         'Monday' => 'SENIN',
@@ -149,8 +206,12 @@ Route::post('/dashboard/logs', function (Request $request) {
     ];
     $dayNameId = $dayMap[$dayNameEn] ?? 'SENIN';
 
-    $scheduledRoutine = Schedule::where('user_id', $userId)->where('day_name', $dayNameId)->first();
-    $routineTitle = $scheduledRoutine ? $scheduledRoutine->title : ($request->routine_title ?? 'SESI BESOK/LATIHAN BEBAS');
+    $scheduledRoutine = Schedule::where('user_id', $userId)
+        ->where('month_year', $logMonthYear)
+        ->where('day_name', $dayNameId)
+        ->first();
+
+    $routineTitle = $scheduledRoutine ? $scheduledRoutine->title : ($request->routine_title ?? 'LATIHAN BEBAS');
 
     WorkoutLog::create([
         'user_id' => $userId,
@@ -187,6 +248,7 @@ Route::post('/schedules', function (Request $request) {
     if (!$userId) return redirect('/login')->with('error', 'AKSES DITOLAK!');
 
     $request->validate([
+        'month_year' => 'required|string',
         'day_name' => 'required|string',
         'title' => 'required|string|max:255',
         'focus_target' => 'nullable|string|max:255',
@@ -195,12 +257,15 @@ Route::post('/schedules', function (Request $request) {
         'title.required' => 'NAMA/NAMA SESI LATIHAN WAJIB DIISI.',
     ]);
 
+    $monthYear = $request->month_year;
+    $dayName = strtoupper($request->day_name);
     $isRest = $request->has('is_rest') || strtoupper($request->title) === 'REST DAY' || strtoupper($request->title) === 'ISTIRAHAT';
 
     Schedule::updateOrCreate(
         [
             'user_id' => $userId,
-            'day_name' => strtoupper($request->day_name),
+            'month_year' => $monthYear,
+            'day_name' => $dayName,
         ],
         [
             'title' => strtoupper($request->title),
@@ -209,20 +274,25 @@ Route::post('/schedules', function (Request $request) {
         ]
     );
 
-    $redirectUrl = $request->input('redirect_to', '/dashboard/schedule');
-    return redirect($redirectUrl)->with('success', 'JADWAL LATIHAN HARI ' . strtoupper($request->day_name) . ' BERHASIL DISIMPAN!');
+    $redirectUrl = '/dashboard/schedule?month=' . $monthYear;
+    return redirect($redirectUrl)->with('success', 'JADWAL LATIHAN ' . $dayName . ' (' . getIndonesianMonthLabel($monthYear) . ') BERHASIL DISIMPAN!');
 });
 
-// Delete Schedule Entry for a specific Day
+// Delete Schedule Entry
 Route::post('/schedules/delete', function (Request $request) {
     $userId = getAuthUserId();
     if (!$userId) return redirect('/login')->with('error', 'AKSES DITOLAK!');
 
+    $monthYear = $request->month_year;
     $dayName = strtoupper($request->day_name);
-    Schedule::where('user_id', $userId)->where('day_name', $dayName)->delete();
+    
+    Schedule::where('user_id', $userId)
+        ->where('month_year', $monthYear)
+        ->where('day_name', $dayName)
+        ->delete();
 
-    $redirectUrl = $request->input('redirect_to', '/dashboard/schedule');
-    return redirect($redirectUrl)->with('info', 'JADWAL HARI ' . $dayName . ' BERHASIL DIHAPUS.');
+    $redirectUrl = '/dashboard/schedule?month=' . $monthYear;
+    return redirect($redirectUrl)->with('info', 'JADWAL HARI ' . $dayName . ' (' . getIndonesianMonthLabel($monthYear) . ') BERHASIL DIHAPUS.');
 });
 
 Route::get('/register', function () {

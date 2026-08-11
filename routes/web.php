@@ -129,6 +129,31 @@ Route::get('/dashboard/schedule', function (Request $request) {
     return view('Dashboard.schedule', compact('days', 'schedules', 'selectedMonth', 'monthLabel', 'allMonths', 'todayName', 'todayRoutineTitle', 'totalDaysSet', 'totalRestDays', 'totalWorkoutDays'));
 });
 
+// Export Schedule to Styled Excel Document
+Route::get('/dashboard/schedule/export-excel', function (Request $request) {
+    $userId = getAuthUserId();
+    if (!$userId) return redirect('/login')->with('error', 'AKSES DITOLAK!');
+
+    $selectedMonth = $request->query('month', date('Y-m'));
+    $monthLabel = getIndonesianMonthLabel($selectedMonth);
+    $schedules = Schedule::where('user_id', $userId)->where('month_year', $selectedMonth)->get();
+    $userName = session('user', 'USER NAOOLIFT');
+
+    $fileName = 'NaooLift_Jadwal_Program_' . str_replace(' ', '_', $monthLabel) . '.xls';
+
+    $headers = [
+        "Content-type" => "application/vnd.ms-excel; charset=utf-8",
+        "Content-Disposition" => "attachment; filename=$fileName",
+        "Pragma" => "no-cache",
+        "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+        "Expires" => "0"
+    ];
+
+    $html = view('Exports.schedule_excel', compact('schedules', 'monthLabel', 'userName'))->render();
+
+    return response($html, 200, $headers);
+});
+
 // 3. Date-based Workout Log Route (/dashboard/logs)
 Route::get('/dashboard/logs', function (Request $request) {
     if (!Auth::check() && !session('user')) {
@@ -171,6 +196,41 @@ Route::get('/dashboard/logs', function (Request $request) {
     });
 
     return view('Dashboard.logs', compact('selectedDate', 'selectedMonthLabel', 'dayNameId', 'scheduledRoutine', 'logs', 'todayName', 'todayRoutineTitle', 'totalExercises', 'totalSets', 'totalVolumeKg'));
+});
+
+// Export Workout Logs to Styled Excel Document
+Route::get('/dashboard/logs/export-excel', function (Request $request) {
+    $userId = getAuthUserId();
+    if (!$userId) return redirect('/login')->with('error', 'AKSES DITOLAK!');
+
+    $selectedDate = $request->query('date');
+    $userName = session('user', 'USER NAOOLIFT');
+    
+    if ($selectedDate) {
+        $logs = WorkoutLog::where('user_id', $userId)->where('log_date', $selectedDate)->orderBy('id', 'asc')->get();
+        $fileName = 'NaooLift_Log_Latihan_' . $selectedDate . '.xls';
+        $titleLabel = 'CATATAN LATIHAN TANGGAL ' . date('d/m/Y', strtotime($selectedDate));
+    } else {
+        $logs = WorkoutLog::where('user_id', $userId)->orderBy('log_date', 'desc')->get();
+        $fileName = 'NaooLift_Semua_Log_Latihan_' . date('Y-m-d') . '.xls';
+        $titleLabel = 'SEMUA CATATAN LATIHAN NAOOLIFT';
+    }
+
+    $totalVolume = $logs->sum(function($item) {
+        return $item->sets * $item->reps * $item->weight_kg;
+    });
+
+    $headers = [
+        "Content-type" => "application/vnd.ms-excel; charset=utf-8",
+        "Content-Disposition" => "attachment; filename=$fileName",
+        "Pragma" => "no-cache",
+        "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+        "Expires" => "0"
+    ];
+
+    $html = view('Exports.workout_logs_excel', compact('logs', 'titleLabel', 'userName', 'totalVolume', 'selectedDate'))->render();
+
+    return response($html, 200, $headers);
 });
 
 // Save Workout Log Entry

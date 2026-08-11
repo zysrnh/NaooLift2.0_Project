@@ -68,6 +68,44 @@
     }
   }
 
+  .print-only-header, .print-only-table {
+    display: none;
+  }
+
+  /* SWISS BRUTALIST A4 PRINT & PDF OPTIMIZATION STYLESHEET */
+  @page {
+    size: A4 portrait;
+    margin: 8mm;
+  }
+
+  @media print {
+    body {
+      background-color: #FFFFFF !important;
+      padding: 0 !important;
+      color: #000000 !important;
+    }
+    header, aside, nav, #toast-container, button, form, .no-print, .hero-header, .action-bar, .screen-only-logs, .summary-metrics {
+      display: none !important;
+    }
+    .print-only-header, .print-only-table {
+      display: block !important;
+    }
+    .w-full.max-w-\[1280px\] {
+      max-width: 100% !important;
+      border: 2px solid #000000 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    .border-grid, .border-b-grid, .border-r-grid, .border-t-grid, .border-l-grid {
+      border-color: #000000 !important;
+    }
+    footer {
+      border-top: 2px solid #000000 !important;
+      padding: 8px !important;
+      font-size: 10px !important;
+    }
+  }
+
   ::-webkit-scrollbar { display: none; }
 </style>
 <script>
@@ -228,11 +266,24 @@
           <span id="dash-timer-mobile">00:00:00</span>
         </div>
 
+        <!-- PRINT ONLY CLEAN ARCHIVAL HEADER -->
+        <div class="print-only-header border-b-[3px] border-black p-5 bg-black text-white font-mono">
+          <div class="flex justify-between items-center">
+            <h1 class="text-xl font-black uppercase tracking-tight">NAOOLIFT — LAPORAN ARSIP CATATAN LATIHAN</h1>
+            <div class="text-xs text-amber-400 font-bold">OFFICIAL_REPORT</div>
+          </div>
+          <div class="flex justify-between items-center text-xs text-gray-300 mt-2 border-t border-gray-700 pt-2">
+            <div>USER: {{ session('user', 'USER NAOOLIFT') }}</div>
+            <div>TANGGAL LATIHAN: {{ date('d/m/Y', strtotime($selectedDate)) }} ({{ $dayNameId }})</div>
+            <div>TANGGAL CETAK: {{ date('d/m/Y H:i:s') }}</div>
+          </div>
+        </div>
+
         <!-- MAIN CONTENT WRAPPER -->
         <div class="p-4 sm:p-8 lg:p-10 flex flex-col gap-6 sm:gap-8">
 
           <!-- Hero Section Header -->
-          <div class="border-b-[3px] border-charcoal pb-4 sm:pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div class="hero-header border-b-[3px] border-charcoal pb-4 sm:pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
               <span class="font-mono text-[11px] sm:text-xs font-bold uppercase tracking-widest text-ember">
                 03 // DATE_BASED_WORKOUT_LOGS
@@ -245,16 +296,36 @@
               </p>
             </div>
             
-            <button 
-              onclick="openAddLogModal()"
-              class="border-grid bg-ember text-canvas font-bold text-xs uppercase tracking-widest px-5 py-3.5 hover:bg-charcoal transition-none active:translate-y-1 shrink-0 flex items-center justify-center gap-2"
-            >
-              <span>+ CATAT GERAKAN LATIHAN</span>
-            </button>
+            <div class="flex flex-wrap items-center gap-2 shrink-0">
+              <!-- Export Styled Excel Button -->
+              <a 
+                href="/dashboard/logs/export-excel?date={{ $selectedDate }}"
+                class="border-grid bg-light text-charcoal font-bold text-xs uppercase tracking-widest px-4 py-3.5 hover:bg-charcoal hover:text-canvas transition-none active:translate-y-1"
+                title="Export Spreadsheet Excel Berwarna"
+              >
+                <span>[ EXPORT EXCEL ]</span>
+              </a>
+
+              <!-- Export Printable Data PDF Button -->
+              <button 
+                onclick="window.print()"
+                class="border-grid bg-canvas text-charcoal font-bold text-xs uppercase tracking-widest px-4 py-3.5 hover:bg-charcoal hover:text-canvas transition-none active:translate-y-1"
+                title="Cetak Data Latihan / PDF Arsip"
+              >
+                <span>[ CETAK / PDF ARSIP ]</span>
+              </button>
+
+              <button 
+                onclick="openAddLogModal()"
+                class="border-grid bg-ember text-canvas font-bold text-xs uppercase tracking-widest px-5 py-3.5 hover:bg-charcoal transition-none active:translate-y-1 flex items-center justify-center gap-2"
+              >
+                <span>+ CATAT GERAKAN</span>
+              </button>
+            </div>
           </div>
 
           <!-- DATE SELECTOR ACTION BAR -->
-          <div class="border-grid bg-light p-4 flex flex-col md:flex-row justify-between items-center gap-4">
+          <div class="action-bar border-grid bg-light p-4 flex flex-col md:flex-row justify-between items-center gap-4">
             <form action="/dashboard/logs" method="GET" class="flex items-center gap-2 w-full md:w-auto">
               <span class="font-mono text-xs font-bold uppercase tracking-widest text-charcoal whitespace-nowrap">
                 PILIH TANGGAL:
@@ -277,6 +348,9 @@
               </a>
               <a href="/dashboard/logs?date={{ date('Y-m-d', strtotime('-1 day')) }}" class="border-grid bg-canvas px-3 py-1.5 font-mono text-[11px] font-bold uppercase text-charcoal hover:bg-charcoal hover:text-canvas transition-none">
                 [ KEMARIN ]
+              </a>
+              <a href="/dashboard/logs/export-excel" class="border-grid bg-ember text-canvas px-3 py-1.5 font-mono text-[11px] font-bold uppercase hover:bg-charcoal transition-none" title="Download Semua Excel">
+                [ DOWNLOAD SEMUA EXCEL ]
               </a>
             </div>
           </div>
@@ -314,9 +388,8 @@
             @endif
           </div>
 
-          <!-- Date Summary Metrics -->
-          <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
-            <!-- Metric 1 -->
+          <!-- Date Summary Metrics (Hidden in Print for 1-Page Compactness) -->
+          <div class="summary-metrics grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
             <div class="border-grid bg-canvas p-4 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4">
               <span class="font-mono text-[10px] sm:text-[11px] font-bold text-slate uppercase tracking-widest">
                 TOTAL GERAKAN
@@ -329,7 +402,6 @@
               </div>
             </div>
 
-            <!-- Metric 2 -->
             <div class="border-grid bg-canvas p-4 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4">
               <span class="font-mono text-[10px] sm:text-[11px] font-bold text-slate uppercase tracking-widest">
                 TOTAL SET & REPS
@@ -342,7 +414,6 @@
               </div>
             </div>
 
-            <!-- Metric 3 -->
             <div class="border-grid bg-canvas p-4 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4 col-span-2 lg:col-span-1">
               <span class="font-mono text-[10px] sm:text-[11px] font-bold text-slate uppercase tracking-widest">
                 VOLUMETRIK LATIHAN
@@ -356,11 +427,11 @@
             </div>
           </div>
 
-          <!-- LOGGED EXERCISES LIST TABLE / STACK -->
-          <div class="flex flex-col gap-4 mt-2">
+          <!-- SCREEN ONLY WORKOUT CARDS -->
+          <div class="screen-only-logs flex flex-col gap-4 mt-2">
             <div class="flex justify-between items-center border-b-[3px] border-charcoal pb-3">
               <h3 class="text-xl sm:text-2xl font-black uppercase tracking-tighter text-charcoal">
-                CATATAN LATIHAN TANGGAL {{ date('d/m/Y', strtotime($selectedDate)) }}
+                CATATAN DATA LATIHAN — TANGGAL {{ date('d/m/Y', strtotime($selectedDate)) }}
               </h3>
               <span class="font-mono text-xs font-bold text-ember uppercase tracking-widest">
                 {{ $logs->count() }} ENTRI DICATAT
@@ -406,7 +477,7 @@
                         </span>
                       </div>
 
-                      <form action="/dashboard/logs/delete" method="POST" class="inline">
+                      <form action="/dashboard/logs/delete" method="POST" class="inline no-print">
                         @csrf
                         <input type="hidden" name="log_id" value="{{ $log->id }}">
                         <button 
@@ -423,7 +494,6 @@
                 @endforeach
               </div>
             @else
-              <!-- Clean Empty State Container -->
               <div class="border-grid bg-light p-8 sm:p-16 flex flex-col items-center justify-center text-center gap-4 my-2 min-h-[260px]">
                 <div class="w-12 h-12 border-grid bg-charcoal text-canvas flex items-center justify-center font-mono font-black text-xl mb-1">
                   ✎
@@ -436,13 +506,56 @@
                 </p>
                 <button 
                   onclick="openAddLogModal()"
-                  class="border-grid bg-ember text-canvas font-bold text-xs uppercase tracking-widest px-6 py-3.5 hover:bg-charcoal transition-none active:translate-y-1 mt-2"
+                  class="border-grid bg-ember text-canvas font-bold text-xs uppercase tracking-widest px-6 py-3.5 hover:bg-charcoal transition-none active:translate-y-1 mt-2 no-print"
                 >
                   + CATAT GERAKAN LATIHAN SEKARANG
                 </button>
               </div>
             @endif
+          </div>
 
+          <!-- PRINT ONLY CLEAN COMPACT DATA TABLE FOR 1-PAGE PERFECT A4 EXPORT -->
+          <div class="print-only-table font-mono text-xs">
+            <table class="w-full border-collapse border-[2px] border-black">
+              <thead>
+                <tr class="bg-black text-white uppercase text-[11px]">
+                  <th class="border-[2px] border-black p-2 text-center w-12">NO</th>
+                  <th class="border-[2px] border-black p-2 text-left">GERAKAN LATIHAN (EXERCISE)</th>
+                  <th class="border-[2px] border-black p-2 text-center w-16">SET</th>
+                  <th class="border-[2px] border-black p-2 text-center w-16">REPS</th>
+                  <th class="border-[2px] border-black p-2 text-right w-24">BEBAN (KG)</th>
+                  <th class="border-[2px] border-black p-2 text-right w-32">VOLUMETRIK</th>
+                  <th class="border-[2px] border-black p-2 text-left">CATATAN PROGRES</th>
+                </tr>
+              </thead>
+              <tbody>
+                @forelse($logs as $index => $l)
+                  <tr class="border-[1.5px] border-black font-bold">
+                    <td class="border-[1.5px] border-black p-2 text-center">0{{ $index + 1 }}</td>
+                    <td class="border-[1.5px] border-black p-2 font-black text-black">{{ $l->exercise_name }}</td>
+                    <td class="border-[1.5px] border-black p-2 text-center">{{ $l->sets }}</td>
+                    <td class="border-[1.5px] border-black p-2 text-center">{{ $l->reps }}</td>
+                    <td class="border-[1.5px] border-black p-2 text-right">{{ number_format($l->weight_kg, 1) }} KG</td>
+                    <td class="border-[1.5px] border-black p-2 text-right font-black" style="color: #9A4A2E;">
+                      {{ number_format($l->sets * $l->reps * $l->weight_kg) }} KG
+                    </td>
+                    <td class="border-[1.5px] border-black p-2 text-gray-800">{{ $l->notes ?? '-' }}</td>
+                  </tr>
+                @empty
+                  <tr>
+                    <td colspan="7" class="p-4 text-center text-gray-500">BELUM ADA CATATAN LATIHAN PADA TANGGAL INI.</td>
+                  </tr>
+                @endforelse
+              </tbody>
+              <tfoot>
+                <tr class="bg-black text-white font-bold text-xs">
+                  <td colspan="5" class="p-2.5 text-right uppercase">AKUMULASI TOTAL VOLUMETRIK LATIHAN:</td>
+                  <td colspan="2" class="p-2.5 text-right font-black text-sm text-amber-400">
+                    {{ number_format($totalVolumeKg) }} KG
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
           </div>
 
         </div>
@@ -498,7 +611,6 @@
       <form action="/dashboard/logs" method="POST" class="space-y-4">
         @csrf
 
-        <!-- Field 0: Tanggal Latihan -->
         <div class="flex flex-col gap-1">
           <label class="font-mono text-[11px] font-bold uppercase tracking-widest text-charcoal">
             01 / TANGGAL LATIHAN
@@ -512,7 +624,6 @@
           >
         </div>
 
-        <!-- Field 1: Nama Gerakan Latihan -->
         <div class="flex flex-col gap-1">
           <label class="font-mono text-[11px] font-bold uppercase tracking-widest text-charcoal">
             02 / NAMA GERAKAN LATIHAN (EXERCISE)
@@ -526,7 +637,6 @@
           >
         </div>
 
-        <!-- Field 2: Set, Reps, Beban (KG) Grid -->
         <div class="grid grid-cols-3 gap-3">
           <div class="flex flex-col gap-1">
             <label class="font-mono text-[10px] font-bold uppercase tracking-widest text-charcoal">
@@ -571,7 +681,6 @@
           </div>
         </div>
 
-        <!-- Field 3: Catatan Log -->
         <div class="flex flex-col gap-1">
           <label class="font-mono text-[11px] font-bold uppercase tracking-widest text-charcoal">
             03 / CATATAN PROGRES / EVALUASI (OPSIONAL)
@@ -584,7 +693,6 @@
           ></textarea>
         </div>
 
-        <!-- Modal Action Buttons -->
         <div class="flex gap-3 pt-3 border-t-[3px] border-charcoal">
           <button 
             type="button" 

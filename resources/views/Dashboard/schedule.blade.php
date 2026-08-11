@@ -68,6 +68,44 @@
     }
   }
 
+  .print-only-header, .print-only-table {
+    display: none;
+  }
+
+  /* SWISS BRUTALIST A4 PRINT & PDF OPTIMIZATION STYLESHEET */
+  @page {
+    size: A4 portrait;
+    margin: 8mm;
+  }
+
+  @media print {
+    body {
+      background-color: #FFFFFF !important;
+      padding: 0 !important;
+      color: #000000 !important;
+    }
+    header, aside, nav, #toast-container, button, form, .no-print, .hero-header, .action-bar, .screen-only-schedule, .grid-cols-2, .grid-cols-4 {
+      display: none !important;
+    }
+    .print-only-header, .print-only-table {
+      display: block !important;
+    }
+    .w-full.max-w-\[1280px\] {
+      max-width: 100% !important;
+      border: 2px solid #000000 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    .border-grid, .border-b-grid, .border-r-grid, .border-t-grid, .border-l-grid {
+      border-color: #000000 !important;
+    }
+    footer {
+      border-top: 2px solid #000000 !important;
+      padding: 8px !important;
+      font-size: 10px !important;
+    }
+  }
+
   ::-webkit-scrollbar { display: none; }
 </style>
 <script>
@@ -228,11 +266,24 @@
           <span id="dash-timer-mobile">00:00:00</span>
         </div>
 
+        <!-- PRINT ONLY CLEAN ARCHIVAL HEADER -->
+        <div class="print-only-header border-b-[3px] border-black p-5 bg-black text-white font-mono">
+          <div class="flex justify-between items-center">
+            <h1 class="text-xl font-black uppercase tracking-tight">NAOOLIFT — ARSIP JADWAL PROGRAM ({{ $monthLabel }})</h1>
+            <div class="text-xs text-amber-400 font-bold">MONTHLY_SCHEDULE</div>
+          </div>
+          <div class="flex justify-between items-center text-xs text-gray-300 mt-2 border-t border-gray-700 pt-2">
+            <div>USER: {{ session('user', 'USER NAOOLIFT') }}</div>
+            <div>PROGRAM BULAN: {{ $monthLabel }}</div>
+            <div>TANGGAL CETAK: {{ date('d/m/Y H:i:s') }}</div>
+          </div>
+        </div>
+
         <!-- MAIN CONTENT WRAPPER -->
         <div class="p-4 sm:p-8 lg:p-10 flex flex-col gap-6 sm:gap-8">
 
           <!-- Hero Section Header -->
-          <div class="border-b-[3px] border-charcoal pb-4 sm:pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div class="hero-header border-b-[3px] border-charcoal pb-4 sm:pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
               <span class="font-mono text-[11px] sm:text-xs font-bold uppercase tracking-widest text-ember">
                 02 // MONTHLY_PROGRAM_PERIODIZATION
@@ -245,16 +296,36 @@
               </p>
             </div>
             
-            <button 
-              onclick="openAddScheduleModal()"
-              class="border-grid bg-ember text-canvas font-bold text-xs uppercase tracking-widest px-5 py-3.5 hover:bg-charcoal transition-none active:translate-y-1 shrink-0 flex items-center justify-center gap-2"
-            >
-              <span>+ TAMBAH JADWAL HARI</span>
-            </button>
+            <div class="flex flex-wrap items-center gap-2 shrink-0">
+              <!-- Export Styled Excel Button -->
+              <a 
+                href="/dashboard/schedule/export-excel?month={{ $selectedMonth }}"
+                class="border-grid bg-light text-charcoal font-bold text-xs uppercase tracking-widest px-4 py-3.5 hover:bg-charcoal hover:text-canvas transition-none active:translate-y-1"
+                title="Export Spreadsheet Excel Berwarna"
+              >
+                <span>[ EXPORT EXCEL ]</span>
+              </a>
+
+              <!-- Export Printable Data PDF Button -->
+              <button 
+                onclick="window.print()"
+                class="border-grid bg-canvas text-charcoal font-bold text-xs uppercase tracking-widest px-4 py-3.5 hover:bg-charcoal hover:text-canvas transition-none active:translate-y-1"
+                title="Cetak Data Jadwal / PDF Arsip"
+              >
+                <span>[ CETAK / PDF ARSIP ]</span>
+              </button>
+
+              <button 
+                onclick="openAddScheduleModal()"
+                class="border-grid bg-ember text-canvas font-bold text-xs uppercase tracking-widest px-5 py-3.5 hover:bg-charcoal transition-none active:translate-y-1 flex items-center justify-center gap-2"
+              >
+                <span>+ TAMBAH JADWAL HARI</span>
+              </button>
+            </div>
           </div>
 
           <!-- MONTHLY PROGRAM PERIOD SELECTOR BAR -->
-          <div class="border-grid bg-light p-4 flex flex-col md:flex-row justify-between items-center gap-4">
+          <div class="action-bar border-grid bg-light p-4 flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-2 w-full md:w-auto">
               <span class="font-mono text-xs font-bold uppercase tracking-widest text-charcoal whitespace-nowrap">
                 PROGRAM BULAN:
@@ -328,7 +399,7 @@
           </div>
 
           <!-- DYNAMICALLY ADDED SCHEDULE DAYS LIST FOR THIS MONTH -->
-          <div class="flex flex-col gap-4 mt-2">
+          <div class="screen-only-schedule flex flex-col gap-4 mt-2">
             <div class="flex justify-between items-center border-b-[3px] border-charcoal pb-3">
               <h3 class="text-xl sm:text-2xl font-black uppercase tracking-tighter text-charcoal">
                 DAFTAR JADWAL HARI — {{ $monthLabel }}
@@ -375,12 +446,12 @@
                       <div class="border-t-grid pt-3 flex flex-col gap-2">
                         <a 
                           href="/dashboard/logs" 
-                          class="w-full border-grid bg-charcoal text-canvas text-center font-bold text-[11px] uppercase tracking-widest py-2 hover:bg-ember transition-none active:translate-y-1 block"
+                          class="w-full border-grid bg-charcoal text-canvas text-center font-bold text-[11px] uppercase tracking-widest py-2 hover:bg-ember transition-none active:translate-y-1 block no-print"
                         >
                           ✎ CATAT LOG GERAKAN →
                         </a>
 
-                        <div class="flex gap-2">
+                        <div class="flex gap-2 no-print">
                           <button 
                             onclick="editScheduleModal('{{ $day }}', '{{ addslashes($sched->title) }}', '{{ addslashes($sched->focus_target) }}', {{ $sched->is_rest ? 'true' : 'false' }})"
                             class="flex-1 border-grid bg-light text-charcoal text-center font-bold text-[11px] uppercase tracking-widest py-1.5 hover:bg-charcoal hover:text-canvas transition-none active:translate-y-1"
@@ -420,13 +491,44 @@
                 </p>
                 <button 
                   onclick="openAddScheduleModal()"
-                  class="border-grid bg-ember text-canvas font-bold text-xs uppercase tracking-widest px-6 py-3.5 hover:bg-charcoal transition-none active:translate-y-1 mt-2"
+                  class="border-grid bg-ember text-canvas font-bold text-xs uppercase tracking-widest px-6 py-3.5 hover:bg-charcoal transition-none active:translate-y-1 mt-2 no-print"
                 >
                   + TAMBAH JADWAL HARI {{ $monthLabel }}
                 </button>
               </div>
             @endif
+          </div>
 
+          <!-- PRINT ONLY CLEAN COMPACT DATA TABLE FOR 1-PAGE PERFECT A4 EXPORT -->
+          <div class="print-only-table font-mono text-xs">
+            <table class="w-full border-collapse border-[2px] border-black">
+              <thead>
+                <tr class="bg-black text-white uppercase text-[11px]">
+                  <th class="border-[2px] border-black p-2 text-center w-12">NO</th>
+                  <th class="border-[2px] border-black p-2 text-left w-32">HARI</th>
+                  <th class="border-[2px] border-black p-2 text-left">NAMA ROUTINE / SESI LATIHAN</th>
+                  <th class="border-[2px] border-black p-2 text-left">TARGET OTOT / FOKUS</th>
+                  <th class="border-[2px] border-black p-2 text-center w-32">STATUS</th>
+                </tr>
+              </thead>
+              <tbody>
+                @forelse($schedules as $index => $sched)
+                  <tr class="border-[1.5px] border-black font-bold">
+                    <td class="border-[1.5px] border-black p-2 text-center">0{{ $loop->iteration }}</td>
+                    <td class="border-[1.5px] border-black p-2 font-black">{{ $sched->day_name }}</td>
+                    <td class="border-[1.5px] border-black p-2 font-black text-black">{{ $sched->title }}</td>
+                    <td class="border-[1.5px] border-black p-2 text-gray-800">{{ $sched->focus_target ?? '-' }}</td>
+                    <td class="border-[1.5px] border-black p-2 text-center font-black" style="color: {{ $sched->is_rest ? '#535366' : '#9A4A2E' }};">
+                      {{ $sched->is_rest ? 'REST DAY' : 'WORKOUT' }}
+                    </td>
+                  </tr>
+                @empty
+                  <tr>
+                    <td colspan="5" class="p-4 text-center text-gray-500">BELUM ADA JADWAL LATIHAN PADA BULAN INI.</td>
+                  </tr>
+                @endforelse
+              </tbody>
+            </table>
           </div>
 
         </div>
@@ -483,7 +585,6 @@
         @csrf
         <input type="hidden" name="month_year" value="{{ $selectedMonth }}">
 
-        <!-- Field 0: Pilih Hari -->
         <div class="flex flex-col gap-1">
           <label class="font-mono text-[11px] font-bold uppercase tracking-widest text-charcoal">
             01 / PILIH HARI LATIHAN
@@ -500,7 +601,6 @@
           </select>
         </div>
 
-        <!-- Field 1: Nama Sesi Latihan -->
         <div class="flex flex-col gap-1">
           <label class="font-mono text-[11px] font-bold uppercase tracking-widest text-charcoal">
             02 / NAMA SESI LATIHAN / ROUTINE
@@ -515,7 +615,6 @@
           >
         </div>
 
-        <!-- Field 2: Target Otot Focus -->
         <div class="flex flex-col gap-1">
           <label class="font-mono text-[11px] font-bold uppercase tracking-widest text-charcoal">
             03 / TARGET OTOT / FOKUS (OPSIONAL)
@@ -529,7 +628,6 @@
           >
         </div>
 
-        <!-- Checkbox: Rest Day Mode -->
         <div class="flex items-center gap-2 pt-1">
           <input 
             type="checkbox" 
@@ -542,7 +640,6 @@
           </label>
         </div>
 
-        <!-- Modal Action Buttons -->
         <div class="flex gap-3 pt-3 border-t-[3px] border-charcoal">
           <button 
             type="button" 

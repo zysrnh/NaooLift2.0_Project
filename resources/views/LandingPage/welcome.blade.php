@@ -183,10 +183,26 @@
       </div>
 
       <!-- Action Button -->
-      <a href="/register" class="p-4 sm:p-6 md:w-1/4 bg-ember text-canvas font-black text-center uppercase tracking-widest hover:bg-charcoal transition-none flex items-center justify-center active:translate-y-1">
-        MASUK →
-      </a>
+      @if(session('user'))
+        <a href="/logout" class="p-4 sm:p-6 md:w-1/4 bg-charcoal text-canvas font-black text-center uppercase tracking-widest hover:bg-ember transition-none flex items-center justify-center active:translate-y-1">
+          KELUAR [✕]
+        </a>
+      @else
+        <a href="/register" class="p-4 sm:p-6 md:w-1/4 bg-ember text-canvas font-black text-center uppercase tracking-widest hover:bg-charcoal transition-none flex items-center justify-center active:translate-y-1">
+          MASUK →
+        </a>
+      @endif
     </header>
+
+    @if(session('success'))
+      <div class="bg-ember text-canvas p-3 sm:p-4 border-b-grid font-mono text-xs font-bold uppercase tracking-widest flex items-center justify-between">
+        <span>✓ {{ session('success') }}</span>
+      </div>
+    @elseif(session('info'))
+      <div class="bg-light text-charcoal p-3 sm:p-4 border-b-grid font-mono text-xs font-bold uppercase tracking-widest flex items-center justify-between">
+        <span>INFO: {{ session('info') }}</span>
+      </div>
+    @endif
 
     <!-- INFO STRIP (Relocated to Top below Header per User Request) -->
     <div class="flex flex-col md:flex-row border-b-grid text-xs sm:text-sm font-bold uppercase tracking-widest text-charcoal">
@@ -194,7 +210,7 @@
         <span>STATUS:</span>
         <span class="text-ember flex items-center gap-1.5 font-mono">
           <span class="w-2 h-2 bg-ember animate-pulse inline-block"></span>
-          GUEST_SESSION
+          @if(session('user')) OPERATIONAL @else GUEST_SESSION @endif
         </span>
       </div>
       <div class="flex-1 p-4 border-b-grid md:border-b-0 md:border-r-grid flex justify-between items-center">
@@ -203,7 +219,9 @@
       </div>
       <div class="flex-1 p-4 flex justify-between items-center bg-light">
         <span>ACTIVE USER:</span>
-        <span class="font-mono text-slate">UNAUTHENTICATED</span>
+        <span class="font-mono @if(!session('user')) text-slate @endif">
+          {{ session('user') ?? 'UNAUTHENTICATED' }}
+        </span>
       </div>
     </div>
 

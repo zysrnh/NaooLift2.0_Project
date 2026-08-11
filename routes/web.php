@@ -10,7 +10,18 @@ Route::get('/', function () {
     return view('LandingPage.welcome');
 });
 
+// Protected Dashboard Route with Authentication Guard
+Route::get('/dashboard', function () {
+    if (!Auth::check() && !session('user')) {
+        return redirect('/login')->with('error', 'AKSES DITOLAK! SILAKAN LOGIN ATAU DAFTAR AKUN UNTUK MENGAKSES DASBOR.');
+    }
+    return view('Dashboard.index');
+});
+
 Route::get('/register', function () {
+    if (Auth::check() || session('user')) {
+        return redirect('/dashboard');
+    }
     return view('Auth.register');
 });
 
@@ -31,7 +42,7 @@ Route::post('/register', function (Request $request) {
     ]);
 
     // 2. Create and Save User Record into Database
-    User::create([
+    $user = User::create([
         'name' => $request->name,
         'email' => strtolower($request->email),
         'password' => Hash::make($request->password),
@@ -41,6 +52,9 @@ Route::post('/register', function (Request $request) {
 });
 
 Route::get('/login', function () {
+    if (Auth::check() || session('user')) {
+        return redirect('/dashboard');
+    }
     return view('Auth.login');
 });
 
@@ -73,7 +87,7 @@ Route::post('/login', function (Request $request) {
     $userName = strtoupper($user->name);
     session(['user' => $userName, 'user_email' => $user->email]);
 
-    return redirect('/')->with('success', 'LOGIN BERHASIL! SESI TERSIMPAN DI DATABASE.');
+    return redirect('/dashboard')->with('success', 'LOGIN BERHASIL! SESI LATIHAN DIAKTIFKAN.');
 });
 
 Route::get('/logout', function () {

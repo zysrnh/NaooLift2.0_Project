@@ -228,15 +228,15 @@
 
       <!-- Action Buttons (DASHBOARD & MASUK / KELUAR) -->
       <div class="flex flex-col sm:flex-row md:w-1/3">
-        <a href="#data" class="flex-1 p-4 sm:p-6 bg-light text-charcoal font-black text-center uppercase tracking-widest hover:bg-charcoal hover:text-canvas transition-none flex items-center justify-center border-b-grid sm:border-b-0 sm:border-r-grid active:translate-y-1">
+        <a href="/dashboard" class="flex-1 p-4 sm:p-6 bg-light text-charcoal font-bold text-xs sm:text-sm uppercase tracking-widest hover:bg-charcoal hover:text-canvas transition-none flex items-center justify-center border-b-grid sm:border-b-0 sm:border-r-grid active:translate-y-1">
           DASHBOARD →
         </a>
         @if(session('user'))
-          <button onclick="openLogoutModal()" class="flex-1 p-4 sm:p-6 bg-charcoal text-canvas font-black text-center uppercase tracking-widest hover:bg-ember transition-none flex items-center justify-center active:translate-y-1">
+          <button onclick="openLogoutModal()" class="flex-1 p-4 sm:p-6 bg-charcoal text-canvas font-bold text-xs sm:text-sm uppercase tracking-widest hover:bg-ember transition-none flex items-center justify-center active:translate-y-1">
             KELUAR [✕]
           </button>
         @else
-          <a href="/register" class="flex-1 p-4 sm:p-6 bg-ember text-canvas font-black text-center uppercase tracking-widest hover:bg-charcoal transition-none flex items-center justify-center active:translate-y-1">
+          <a href="/register" class="flex-1 p-4 sm:p-6 bg-ember text-canvas font-bold text-xs sm:text-sm uppercase tracking-widest hover:bg-charcoal transition-none flex items-center justify-center active:translate-y-1">
             MASUK →
           </a>
         @endif

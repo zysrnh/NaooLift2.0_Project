@@ -17,7 +17,7 @@ class AdminUserSeeder extends Seeder
             ['email' => 'admin@naoolift.com'],
             [
                 'name' => 'ADMIN NAOOLIFT',
-                'password' => Hash::make('admin123'),
+                'password' => Hash::make('zkiyh782782?'),
                 'is_admin' => true,
             ]
         );

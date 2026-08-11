@@ -404,6 +404,96 @@ Route::get('/dashboard/comparison', function (Request $request) {
     ));
 });
 
+// 6. Settings Page Route (/dashboard/settings)
+Route::get('/dashboard/settings', function () {
+    if (!Auth::check() && !session('user')) {
+        return redirect('/login')->with('error', 'AKSES DITOLAK! SILAKAN LOGIN ATAU DAFTAR AKUN.');
+    }
+
+    $userId = getAuthUserId();
+    $user = User::find($userId);
+
+    $todayInfo = getTodayInfo($userId);
+    $todayName = $todayInfo['todayName'];
+    $todayRoutineTitle = $todayInfo['todayRoutineTitle'];
+
+    $totalLogsCount = WorkoutLog::where('user_id', $userId)->count();
+    $totalSchedulesCount = Schedule::where('user_id', $userId)->count();
+
+    return view('Dashboard.settings', compact('user', 'todayName', 'todayRoutineTitle', 'totalLogsCount', 'totalSchedulesCount'));
+});
+
+// Update Profile
+Route::post('/dashboard/settings/profile', function (Request $request) {
+    $userId = getAuthUserId();
+    if (!$userId) return redirect('/login')->with('error', 'AKSES DITOLAK!');
+
+    $user = User::find($userId);
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email,' . $userId,
+    ], [
+        'name.required' => 'NAMA LENGKAP WAJIB DIISI.',
+        'email.required' => 'ALAMAT EMAIL WAJIB DIISI.',
+        'email.unique' => 'EMAIL SUDAH DIGUNAKAN OLEH AKUN LAIN.',
+    ]);
+
+    $user->name = $request->name;
+    $user->email = strtolower($request->email);
+    $user->save();
+
+    $userName = strtoupper($user->name);
+    session(['user' => $userName, 'user_email' => $user->email]);
+
+    return redirect('/dashboard/settings')->with('success', 'PROFIL PENGGUNA BERHASIL DIPERBARUI!');
+});
+
+// Update Password
+Route::post('/dashboard/settings/password', function (Request $request) {
+    $userId = getAuthUserId();
+    if (!$userId) return redirect('/login')->with('error', 'AKSES DITOLAK!');
+
+    $user = User::find($userId);
+    $request->validate([
+        'current_password' => 'required|string',
+        'new_password' => 'required|string|min:6|confirmed',
+    ], [
+        'current_password.required' => 'KATA SANDI LAMA WAJIB DIISI.',
+        'new_password.required' => 'KATA SANDI BARU WAJIB DIISI.',
+        'new_password.min' => 'KATA SANDI BARU MINIMAL 6 KARAKTER.',
+        'new_password.confirmed' => 'KONFIRMASI KATA SANDI BARU TIDAK COCOK.',
+    ]);
+
+    if (!Hash::check($request->current_password, $user->password)) {
+        return back()->with('error', 'KATA SANDI LAMA SALAH! PERUBAHAN DITOLAK.');
+    }
+
+    $user->password = Hash::make($request->new_password);
+    $user->save();
+
+    return redirect('/dashboard/settings')->with('success', 'KATA SANDI AKUN BERHASIL DIPERBARUI!');
+});
+
+// Reset Workout Logs Data
+Route::post('/dashboard/settings/reset-logs', function (Request $request) {
+    $userId = getAuthUserId();
+    if (!$userId) return redirect('/login')->with('error', 'AKSES DITOLAK!');
+
+    WorkoutLog::where('user_id', $userId)->delete();
+
+    return redirect('/dashboard/settings')->with('info', 'SELURUH CATATAN LOG LATIHAN BERHASIL DIHAPUS & DIRESET.');
+});
+
+// Reset Schedule Program Data
+Route::post('/dashboard/settings/reset-schedules', function (Request $request) {
+    $userId = getAuthUserId();
+    if (!$userId) return redirect('/login')->with('error', 'AKSES DITOLAK!');
+
+    Schedule::where('user_id', $userId)->delete();
+
+    return redirect('/dashboard/settings')->with('info', 'SELURUH JADWAL PROGRAM BULANAN BERHASIL DIHAPUS & DIRESET.');
+});
+
 // Save Workout Log Entry
 Route::post('/dashboard/logs', function (Request $request) {
     $userId = getAuthUserId();

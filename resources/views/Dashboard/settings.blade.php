@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NaooLift — Ringkasan Statistik Latihan</title>
+<title>NaooLift — Pengaturan Sistem & Akun</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Space+Mono:wght@400;700&display=swap');
@@ -68,44 +68,6 @@
     }
   }
 
-  .print-only-header, .print-only-table {
-    display: none;
-  }
-
-  /* SWISS BRUTALIST A4 PRINT & PDF OPTIMIZATION STYLESHEET */
-  @page {
-    size: A4 portrait;
-    margin: 8mm;
-  }
-
-  @media print {
-    body {
-      background-color: #FFFFFF !important;
-      padding: 0 !important;
-      color: #000000 !important;
-    }
-    header, aside, nav, #toast-container, button, form, .no-print, .hero-header, .action-bar {
-      display: none !important;
-    }
-    .print-only-header, .print-only-table {
-      display: block !important;
-    }
-    .w-full.max-w-\[1280px\] {
-      max-width: 100% !important;
-      border: 2px solid #000000 !important;
-      margin: 0 !important;
-      padding: 0 !important;
-    }
-    .border-grid, .border-b-grid, .border-r-grid, .border-t-grid, .border-l-grid {
-      border-color: #000000 !important;
-    }
-    footer {
-      border-top: 2px solid #000000 !important;
-      padding: 8px !important;
-      font-size: 10px !important;
-    }
-  }
-
   ::-webkit-scrollbar { display: none; }
 </style>
 <script>
@@ -166,7 +128,7 @@
             NAOOLIFT.LOG
           </a>
           <div class="font-mono text-[9px] text-slate uppercase tracking-widest mt-0.5">
-            SYS_STATISTICS v2.0
+            SYS_SETTINGS v2.0
           </div>
         </div>
         <span class="md:hidden font-mono text-[10px] bg-light text-charcoal px-2.5 py-1 font-bold uppercase border-grid flex items-center gap-1.5">
@@ -180,7 +142,7 @@
           <span class="font-sans">MODUL UTAMA:</span>
           <span class="text-ember flex items-center gap-1.5 font-bold">
             <span class="w-2 h-2 bg-ember animate-pulse inline-block"></span>
-            STATISTIK_RINGKASAN
+            PENGATURAN_SISTEM
           </span>
         </div>
         <div class="flex-1 p-4 border-r-grid flex justify-between items-center bg-light">
@@ -233,9 +195,9 @@
             <span class="text-slate font-normal">→</span>
           </a>
 
-          <a href="/dashboard/stats" class="p-4 border-b-grid bg-charcoal text-canvas flex items-center justify-between font-bold">
+          <a href="/dashboard/stats" class="p-4 border-b-grid hover-invert flex items-center justify-between transition-none">
             <span>[04] STATISTIK</span>
-            <span class="text-ember">●</span>
+            <span class="text-slate font-normal">→</span>
           </a>
 
           <a href="/dashboard/comparison" class="p-4 border-b-grid hover-invert flex items-center justify-between transition-none">
@@ -247,9 +209,9 @@
             02 // SISTEM & AKUN
           </div>
 
-          <a href="/dashboard/settings" class="p-4 border-b-grid hover-invert flex items-center justify-between transition-none">
+          <a href="/dashboard/settings" class="p-4 border-b-grid bg-charcoal text-canvas flex items-center justify-between font-bold">
             <span>[06] PENGATURAN</span>
-            <span class="text-slate font-normal">→</span>
+            <span class="text-ember">●</span>
           </a>
         </div>
 
@@ -271,169 +233,194 @@
           <span id="dash-timer-mobile">00:00:00</span>
         </div>
 
-        <!-- PRINT ONLY CLEAN ARCHIVAL HEADER -->
-        <div class="print-only-header border-b-[3px] border-black p-5 bg-black text-white font-mono">
-          <div class="flex justify-between items-center">
-            <h1 class="text-xl font-black uppercase tracking-tight">NAOOLIFT — RINGKASAN STATISTIK LATIHAN</h1>
-            <div class="text-xs text-amber-400 font-bold">STATISTICS_SUMMARY</div>
-          </div>
-          <div class="flex justify-between items-center text-xs text-gray-300 mt-2 border-t border-gray-700 pt-2">
-            <div>USER: {{ session('user', 'USER NAOOLIFT') }}</div>
-            <div>TANGGAL CETAK: {{ date('d/m/Y H:i:s') }}</div>
-          </div>
-        </div>
-
         <!-- MAIN CONTENT WRAPPER -->
         <div class="p-4 sm:p-8 lg:p-10 flex flex-col gap-6 sm:gap-8">
 
           <!-- Hero Section Header -->
-          <div class="hero-header border-b-[3px] border-charcoal pb-4 sm:pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div class="border-b-[3px] border-charcoal pb-4 sm:pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
               <span class="font-mono text-[11px] sm:text-xs font-bold uppercase tracking-widest text-ember">
-                04 // OVERALL_WORKOUT_STATISTICS
+                06 // SYSTEM_&_USER_SETTINGS
               </span>
               <h2 class="text-2xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tighter text-charcoal mt-1">
-                STATISTIK LATIHAN
+                PENGATURAN SISTEM & AKUN
               </h2>
               <p class="text-xs sm:text-sm font-semibold text-slate mt-1 max-w-xl">
-                Ringkasan akumulasi tonase beban, jumlah gerakan terfavorit, dan histori tren 7 hari terakhir.
+                Kelola informasi profil pengguna, ubah kata sandi akun, serta reset atau ekspor data arsip.
               </p>
             </div>
-            
-            <div class="flex flex-wrap items-center gap-2 shrink-0">
-              <a 
-                href="/dashboard/comparison"
-                class="border-grid bg-ember text-canvas font-bold text-xs uppercase tracking-widest px-5 py-3.5 hover:bg-charcoal transition-none active:translate-y-1 flex items-center gap-2"
-              >
-                <span>[05] BUKA HALAMAN PERBANDINGAN →</span>
-              </a>
-            </div>
           </div>
 
-          <!-- ALL-TIME OVERVIEW METRICS GRID -->
-          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-            <div class="border-grid bg-canvas p-4 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4 border-l-[8px] border-l-ember">
-              <span class="font-mono text-[10px] sm:text-[11px] font-bold text-slate uppercase tracking-widest">
-                TOTAL TONASE BEBAN (ALL-TIME)
-              </span>
-              <div class="font-mono text-3xl sm:text-4xl font-black text-ember">
-                {{ number_format($allTimeVol) }} <span class="text-sm text-charcoal">KG</span>
-              </div>
-              <div class="font-mono text-[9px] sm:text-[10px] font-bold text-slate uppercase tracking-wider border-t-grid pt-2">
-                CUMULATIVE LOAD
-              </div>
-            </div>
+          <!-- GRID CONTAINING SETTINGS SECTIONS -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-            <div class="border-grid bg-canvas p-4 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4">
-              <span class="font-mono text-[10px] sm:text-[11px] font-bold text-slate uppercase tracking-widest">
-                TOTAL SET DICATAT
-              </span>
-              <div class="font-mono text-3xl sm:text-4xl font-black text-charcoal">
-                {{ number_format($allTimeSets) }} <span class="text-sm text-slate">SET</span>
+            <!-- SECTION 1: EDIT PROFILE -->
+            <div class="border-grid bg-canvas p-6 flex flex-col justify-between gap-4">
+              <div class="border-b-[3px] border-charcoal pb-3">
+                <span class="font-mono text-[10px] font-bold uppercase tracking-widest text-ember">SECTION 01</span>
+                <h3 class="text-xl font-black uppercase text-charcoal mt-0.5">PENGATURAN PROFIL & AKUN</h3>
               </div>
-              <div class="font-mono text-[9px] sm:text-[10px] font-bold text-slate uppercase tracking-wider border-t-grid pt-2">
-                TOTAL SETS LOGGED
-              </div>
-            </div>
 
-            <div class="border-grid bg-canvas p-4 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4">
-              <span class="font-mono text-[10px] sm:text-[11px] font-bold text-slate uppercase tracking-widest">
-                TOTAL GERAKAN LATIHAN
-              </span>
-              <div class="font-mono text-3xl sm:text-4xl font-black text-charcoal">
-                {{ $totalExercisesCount }} <span class="text-sm text-slate">GERAKAN</span>
-              </div>
-              <div class="font-mono text-[9px] sm:text-[10px] font-bold text-slate uppercase tracking-wider border-t-grid pt-2">
-                EXERCISES LOGGED
-              </div>
-            </div>
-
-            <div class="border-grid bg-light p-4 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4">
-              <span class="font-mono text-[10px] sm:text-[11px] font-bold text-charcoal uppercase tracking-widest">
-                HARI AKTIF LATIHAN
-              </span>
-              <div class="font-mono text-3xl sm:text-4xl font-black text-charcoal">
-                {{ $totalActiveDays }} <span class="text-sm text-slate">HARI</span>
-              </div>
-              <div class="font-mono text-[9px] sm:text-[10px] font-bold text-charcoal uppercase tracking-wider border-t-grid pt-2">
-                ACTIVE SESSIONS
-              </div>
-            </div>
-          </div>
-
-          <!-- TOP 5 EXERCISES RANKING -->
-          <div class="border-grid bg-canvas p-5 sm:p-6 flex flex-col gap-4">
-            <div class="flex justify-between items-center border-b-[3px] border-charcoal pb-3">
-              <div>
-                <span class="font-mono text-[10px] font-bold text-ember uppercase tracking-widest">
-                  RANKING GERAKAN
-                </span>
-                <h3 class="text-xl sm:text-2xl font-black uppercase tracking-tight text-charcoal mt-0.5">
-                  5 GERAKAN DENGAN BEBAN TONASE TERBESAR
-                </h3>
-              </div>
-              <span class="font-mono text-xs font-bold text-slate uppercase tracking-widest">TOP_EXERCISES</span>
-            </div>
-
-            @if($topExercises->count() > 0)
-              <div class="flex flex-col gap-3 mt-1">
-                @foreach($topExercises as $rank => $ex)
-                  <div class="border-grid bg-canvas p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
-                    <div class="flex items-center gap-3">
-                      <div class="w-8 h-8 border-grid bg-charcoal text-canvas flex items-center justify-center font-mono font-bold text-xs shrink-0">
-                        #{{ $rank + 1 }}
-                      </div>
-                      <div>
-                        <h4 class="font-black text-base uppercase text-charcoal">{{ $ex->exercise_name }}</h4>
-                        <div class="font-mono text-xs text-slate font-bold">
-                          {{ $ex->total_count }} DILAKUKAN • {{ $ex->total_sets }} SET TOTAL
-                        </div>
-                      </div>
-                    </div>
-                    <div class="font-mono text-right w-full md:w-auto border-t-grid md:border-t-0 pt-2 md:pt-0">
-                      <span class="text-[10px] text-slate font-bold block uppercase">AKUMULASI VOLUMETRIK</span>
-                      <span class="text-lg font-black text-ember">{{ number_format($ex->total_vol) }} KG</span>
-                    </div>
-                  </div>
-                @endforeach
-              </div>
-            @else
-              <div class="p-8 text-center font-mono text-xs font-bold text-slate border-grid bg-light">
-                BELUM ADA DATA GERAKAN UNTUK MEMBUAT RANKING. SILAKAN CATAT LOG LATIHAN.
-              </div>
-            @endif
-          </div>
-
-          <!-- RECENT 7 DAYS TREND GRID -->
-          <div class="border-grid bg-canvas p-5 sm:p-6 flex flex-col gap-4">
-            <div class="flex justify-between items-center border-b-[3px] border-charcoal pb-3">
-              <div>
-                <span class="font-mono text-[10px] font-bold text-ember uppercase tracking-widest">
-                  7-DAY HISTORICAL TREND
-                </span>
-                <h3 class="text-xl sm:text-2xl font-black uppercase tracking-tight text-charcoal mt-0.5">
-                  TREN VOLUMETRIK 7 HARI TERAKHIR
-                </h3>
-              </div>
-              <span class="font-mono text-xs font-bold text-slate uppercase tracking-widest">DAILY_TREND</span>
-            </div>
-
-            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 mt-1">
-              @foreach($recentSevenDays as $item)
-                <div class="border-grid p-3 flex flex-col justify-between gap-2 text-center {{ $item['volume'] > 0 ? 'bg-canvas border-t-[6px] border-t-ember' : 'bg-light' }}">
-                  <span class="font-mono text-[10px] font-bold uppercase text-slate">
-                    {{ date('d/m', strtotime($item['date'])) }}
-                  </span>
-                  <div class="font-mono text-base font-black {{ $item['volume'] > 0 ? 'text-charcoal' : 'text-slate' }}">
-                    {{ number_format($item['volume']) }}
-                    <span class="text-[10px] block font-normal">KG</span>
-                  </div>
-                  <span class="font-mono text-[9px] font-bold uppercase border-t-grid pt-1 text-slate">
-                    {{ $item['sets'] }} SET
-                  </span>
+              <form action="/dashboard/settings/profile" method="POST" class="space-y-4">
+                @csrf
+                <div class="flex flex-col gap-1">
+                  <label class="font-mono text-xs font-bold uppercase tracking-widest text-charcoal">
+                    NAMA LENGKAP PENGGUNA
+                  </label>
+                  <input 
+                    type="text" 
+                    name="name"
+                    value="{{ $user ? $user->name : session('user') }}"
+                    required
+                    class="w-full bg-light border-grid p-3 font-mono text-xs text-charcoal font-bold uppercase focus:bg-canvas focus:outline-none focus:border-ember"
+                  >
                 </div>
-              @endforeach
+
+                <div class="flex flex-col gap-1">
+                  <label class="font-mono text-xs font-bold uppercase tracking-widest text-charcoal">
+                    ALAMAT EMAIL TERDAFTAR
+                  </label>
+                  <input 
+                    type="email" 
+                    name="email"
+                    value="{{ $user ? $user->email : session('user_email') }}"
+                    required
+                    class="w-full bg-light border-grid p-3 font-mono text-xs text-charcoal font-bold uppercase focus:bg-canvas focus:outline-none focus:border-ember"
+                  >
+                </div>
+
+                <button 
+                  type="submit" 
+                  class="w-full border-grid bg-ember text-canvas font-bold text-xs uppercase tracking-widest py-3.5 hover:bg-charcoal transition-none active:translate-y-1 mt-2"
+                >
+                  PERBARUI PROFIL →
+                </button>
+              </form>
             </div>
+
+            <!-- SECTION 2: CHANGE PASSWORD -->
+            <div class="border-grid bg-canvas p-6 flex flex-col justify-between gap-4">
+              <div class="border-b-[3px] border-charcoal pb-3">
+                <span class="font-mono text-[10px] font-bold uppercase tracking-widest text-ember">SECTION 02</span>
+                <h3 class="text-xl font-black uppercase text-charcoal mt-0.5">KEAMANAN & KATA SANDI</h3>
+              </div>
+
+              <form action="/dashboard/settings/password" method="POST" class="space-y-3">
+                @csrf
+                <div class="flex flex-col gap-1">
+                  <label class="font-mono text-xs font-bold uppercase tracking-widest text-charcoal">
+                    KATA SANDI LAMA
+                  </label>
+                  <input 
+                    type="password" 
+                    name="current_password"
+                    required
+                    placeholder="••••••••"
+                    class="w-full bg-light border-grid p-2.5 font-mono text-xs text-charcoal font-bold focus:bg-canvas focus:outline-none focus:border-ember"
+                  >
+                </div>
+
+                <div class="flex flex-col gap-1">
+                  <label class="font-mono text-xs font-bold uppercase tracking-widest text-charcoal">
+                    KATA SANDI BARU
+                  </label>
+                  <input 
+                    type="password" 
+                    name="new_password"
+                    required
+                    placeholder="MINIMAL 6 KARAKTER"
+                    class="w-full bg-light border-grid p-2.5 font-mono text-xs text-charcoal font-bold focus:bg-canvas focus:outline-none focus:border-ember"
+                  >
+                </div>
+
+                <div class="flex flex-col gap-1">
+                  <label class="font-mono text-xs font-bold uppercase tracking-widest text-charcoal">
+                    KONFIRMASI KATA SANDI BARU
+                  </label>
+                  <input 
+                    type="password" 
+                    name="new_password_confirmation"
+                    required
+                    placeholder="ULANGI KATA SANDI BARU"
+                    class="w-full bg-light border-grid p-2.5 font-mono text-xs text-charcoal font-bold focus:bg-canvas focus:outline-none focus:border-ember"
+                  >
+                </div>
+
+                <button 
+                  type="submit" 
+                  class="w-full border-grid bg-charcoal text-canvas font-bold text-xs uppercase tracking-widest py-3 hover:bg-ember transition-none active:translate-y-1"
+                >
+                  UBAH KATA SANDI →
+                </button>
+              </form>
+            </div>
+
+            <!-- SECTION 3: DATA MANAGEMENT & RESET -->
+            <div class="border-grid bg-canvas p-6 flex flex-col justify-between gap-4">
+              <div class="border-b-[3px] border-charcoal pb-3">
+                <span class="font-mono text-[10px] font-bold uppercase tracking-widest text-ember">SECTION 03</span>
+                <h3 class="text-xl font-black uppercase text-charcoal mt-0.5">EKSPOR & PENGELOLAAN DATA</h3>
+              </div>
+
+              <div class="flex flex-col gap-3">
+                <a 
+                  href="/dashboard/logs/export-excel" 
+                  class="border-grid bg-light text-charcoal text-center font-bold text-xs uppercase tracking-widest py-3 hover:bg-charcoal hover:text-canvas transition-none active:translate-y-1 block"
+                >
+                  [ EXPORT SEMUA LOG KE EXCEL ]
+                </a>
+
+                <div class="border-t-grid pt-3 flex flex-col gap-2">
+                  <span class="font-mono text-xs font-bold uppercase text-ember">DANGER ZONE // RESET DATA</span>
+
+                  <button 
+                    onclick="openResetLogsModal()"
+                    class="border-grid bg-canvas text-ember font-bold text-xs uppercase tracking-widest py-2.5 hover:bg-ember hover:text-canvas transition-none active:translate-y-1"
+                  >
+                    ✕ RESET SEMUA LOG LATIHAN ({{ $totalLogsCount }} ENTRI)
+                  </button>
+
+                  <button 
+                    onclick="openResetSchedulesModal()"
+                    class="border-grid bg-canvas text-ember font-bold text-xs uppercase tracking-widest py-2.5 hover:bg-ember hover:text-canvas transition-none active:translate-y-1"
+                  >
+                    ✕ RESET SEMUA JADWAL PROGRAM ({{ $totalSchedulesCount }} HARI)
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- SECTION 4: SYSTEM STATUS & DIAGNOSTICS -->
+            <div class="border-grid bg-light p-6 flex flex-col justify-between gap-4">
+              <div class="border-b-[3px] border-charcoal pb-3">
+                <span class="font-mono text-[10px] font-bold uppercase tracking-widest text-charcoal">SECTION 04</span>
+                <h3 class="text-xl font-black uppercase text-charcoal mt-0.5">STATUS SISTEM & DIAGNOSTIK</h3>
+              </div>
+
+              <div class="font-mono text-xs space-y-2 uppercase font-bold text-charcoal">
+                <div class="flex justify-between border-b-grid pb-2">
+                  <span>VERSION SISTEM:</span>
+                  <span class="text-ember">NAOOLIFT v2.0 BRUTALIST</span>
+                </div>
+                <div class="flex justify-between border-b-grid pb-2">
+                  <span>FRAMEWORK ENGINE:</span>
+                  <span>LARAVEL 12 (PHP 8.2)</span>
+                </div>
+                <div class="flex justify-between border-b-grid pb-2">
+                  <span>DATABASE ENGINE:</span>
+                  <span>SQLITE DATABASE</span>
+                </div>
+                <div class="flex justify-between border-b-grid pb-2">
+                  <span>STATUS AKUN:</span>
+                  <span class="text-ember">AUTHENTICATED ACTIVE</span>
+                </div>
+                <div class="flex justify-between">
+                  <span>ACTIVE USER SESSION:</span>
+                  <span class="truncate max-w-[180px]">{{ session('user') }}</span>
+                </div>
+              </div>
+            </div>
+
           </div>
 
         </div>
@@ -445,7 +432,7 @@
     <!-- FULL-WIDTH SWISS BRUTALIST FOOTER BAR -->
     <footer class="border-t-grid bg-charcoal text-canvas p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-center font-mono text-[10px] sm:text-xs uppercase tracking-widest gap-2">
       <div>NAOOLIFT SYSTEM © 2026</div>
-      <div class="text-slate">MODULE: OVERALL_WORKOUT_STATISTICS</div>
+      <div class="text-slate">MODULE: SYSTEM_&_USER_SETTINGS</div>
     </footer>
 
   </div>
@@ -464,11 +451,59 @@
       <span class="text-xs font-black">✎</span>
       <span>LOG</span>
     </a>
-    <a href="/dashboard/stats" class="py-3 bg-ember text-canvas flex flex-col items-center justify-center gap-0.5">
-      <span class="text-xs font-black">▲</span>
-      <span>STATS</span>
+    <a href="/dashboard/settings" class="py-3 bg-ember text-canvas flex flex-col items-center justify-center gap-0.5">
+      <span class="text-xs font-black">⚙</span>
+      <span>SETTING</span>
     </a>
   </nav>
+
+  <!-- RESET LOGS CONFIRMATION MODAL -->
+  <div id="reset-logs-modal" class="fixed inset-0 z-[100] bg-charcoal/80 flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-[440px] border-grid bg-canvas p-6 sm:p-8 flex flex-col gap-4 shadow-none relative animate-fade-in">
+      <div class="flex justify-between items-center border-b-[3px] border-charcoal pb-3">
+        <h3 class="font-black text-xl uppercase tracking-tighter text-charcoal">
+          KONFIRMASI RESET LOG
+        </h3>
+        <span class="font-mono text-xs font-bold text-ember">DANGER_ZONE</span>
+      </div>
+      <p class="text-xs sm:text-sm font-semibold text-charcoal leading-relaxed">
+        Apakah Anda yakin ingin menghapus SELURUH ({{ $totalLogsCount }}) entri catatan log latihan Anda? Tindakan ini tidak dapat dibatalkan!
+      </p>
+      <form action="/dashboard/settings/reset-logs" method="POST" class="flex gap-3 pt-2">
+        @csrf
+        <button type="button" onclick="closeResetLogsModal()" class="flex-1 border-[3px] border-charcoal bg-light text-charcoal font-bold text-xs uppercase tracking-widest py-3 hover:bg-charcoal hover:text-canvas transition-none active:translate-y-1">
+          BATAL
+        </button>
+        <button type="submit" class="flex-1 border-[3px] border-charcoal bg-ember text-canvas font-bold text-xs uppercase tracking-widest py-3 hover:bg-charcoal transition-none active:translate-y-1">
+          YA, RESET LOG →
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- RESET SCHEDULES CONFIRMATION MODAL -->
+  <div id="reset-schedules-modal" class="fixed inset-0 z-[100] bg-charcoal/80 flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-[440px] border-grid bg-canvas p-6 sm:p-8 flex flex-col gap-4 shadow-none relative animate-fade-in">
+      <div class="flex justify-between items-center border-b-[3px] border-charcoal pb-3">
+        <h3 class="font-black text-xl uppercase tracking-tighter text-charcoal">
+          KONFIRMASI RESET JADWAL
+        </h3>
+        <span class="font-mono text-xs font-bold text-ember">DANGER_ZONE</span>
+      </div>
+      <p class="text-xs sm:text-sm font-semibold text-charcoal leading-relaxed">
+        Apakah Anda yakin ingin menghapus SELURUH ({{ $totalSchedulesCount }}) entri jadwal program harian Anda? Tindakan ini tidak dapat dibatalkan!
+      </p>
+      <form action="/dashboard/settings/reset-schedules" method="POST" class="flex gap-3 pt-2">
+        @csrf
+        <button type="button" onclick="closeResetSchedulesModal()" class="flex-1 border-[3px] border-charcoal bg-light text-charcoal font-bold text-xs uppercase tracking-widest py-3 hover:bg-charcoal hover:text-canvas transition-none active:translate-y-1">
+          BATAL
+        </button>
+        <button type="submit" class="flex-1 border-[3px] border-charcoal bg-ember text-canvas font-bold text-xs uppercase tracking-widest py-3 hover:bg-charcoal transition-none active:translate-y-1">
+          YA, RESET JADWAL →
+        </button>
+      </form>
+    </div>
+  </div>
 
   <!-- SWISS BRUTALIST LOGOUT CONFIRMATION MODAL -->
   <div id="logout-modal" class="fixed inset-0 z-[100] bg-charcoal/80 flex items-center justify-center p-4 hidden">
@@ -509,6 +544,26 @@
     updateTime();
     setInterval(updateTime, 1000);
 
+    function openResetLogsModal() {
+      const modal = document.getElementById('reset-logs-modal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeResetLogsModal() {
+      const modal = document.getElementById('reset-logs-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function openResetSchedulesModal() {
+      const modal = document.getElementById('reset-schedules-modal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeResetSchedulesModal() {
+      const modal = document.getElementById('reset-schedules-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
     function openLogoutModal() {
       const modal = document.getElementById('logout-modal');
       if (modal) modal.classList.remove('hidden');
@@ -521,6 +576,8 @@
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
+        closeResetLogsModal();
+        closeResetSchedulesModal();
         closeLogoutModal();
       }
     });

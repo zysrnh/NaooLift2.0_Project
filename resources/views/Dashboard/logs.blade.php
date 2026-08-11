@@ -247,8 +247,8 @@
             02 // SISTEM & AKUN
           </div>
 
-          <a href="#settings" class="p-4 border-b-grid hover-invert flex items-center justify-between transition-none">
-            <span>[05] PENGATURAN</span>
+          <a href="/dashboard/settings" class="p-4 border-b-grid hover-invert flex items-center justify-between transition-none">
+            <span>[06] PENGATURAN</span>
             <span class="text-slate font-normal">→</span>
           </a>
         </div>

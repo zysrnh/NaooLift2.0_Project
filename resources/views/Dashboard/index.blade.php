@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NaooLift — Dashboard</title>
+<title>NaooLift — Dashboard Jadwal Latihan</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Space+Mono:wght@400;700&display=swap');
@@ -62,7 +62,6 @@
     color: #EAE6E0;
   }
 
-  /* Mobile App Navigation Bar Styles */
   @media (max-width: 767px) {
     body {
       padding-bottom: 70px; /* Offset for mobile bottom app bar */
@@ -130,7 +129,7 @@
             NAOOLIFT.LOG
           </a>
           <div class="font-mono text-[9px] text-slate uppercase tracking-widest mt-0.5">
-            SYS_DASHBOARD v2.0
+            SYS_SCHEDULE v2.0
           </div>
         </div>
         <!-- Mobile App Status Indicator -->
@@ -140,13 +139,13 @@
         </span>
       </div>
 
-      <!-- Desktop Top Status & Action Navigation Bar (Hidden on Mobile for App Simplicity) -->
+      <!-- Desktop Top Status & Action Navigation Bar -->
       <div class="hidden md:flex flex-1 flex-row font-mono text-xs font-bold uppercase tracking-widest text-charcoal">
         <div class="flex-1 p-4 border-r-grid flex justify-between items-center bg-canvas">
-          <span class="font-sans">MODULE_STATUS:</span>
+          <span class="font-sans">MODUL UTAMA:</span>
           <span class="text-ember flex items-center gap-1.5 font-bold">
             <span class="w-2 h-2 bg-ember animate-pulse inline-block"></span>
-            OPERATIONAL
+            JADWAL_LATIHAN
           </span>
         </div>
         <div class="flex-1 p-4 border-r-grid flex justify-between items-center bg-light">
@@ -170,10 +169,10 @@
       </div>
     </header>
 
-    <!-- INNER DASHBOARD BODY (DESKTOP SIDEBAR + MOBILE PWA LAYOUT) -->
+    <!-- INNER DASHBOARD BODY (SIDEBAR + MAIN SCHEDULE GRID) -->
     <div class="flex flex-col md:flex-row flex-1 items-stretch">
       
-      <!-- DESKTOP SWISS BRUTALIST SIDEBAR (Hidden on Mobile) -->
+      <!-- DESKTOP SWISS BRUTALIST SIDEBAR -->
       <aside class="hidden md:flex w-64 border-r-grid bg-canvas flex-col justify-between shrink-0">
         
         <!-- Sidebar Navigation Menu Links -->
@@ -181,11 +180,11 @@
           
           <!-- Section 1: Main Modules -->
           <div class="p-3 bg-light border-b-grid font-bold text-[10px] text-slate">
-            01 // MENU UTAMA
+            01 // MODUL LATIHAN
           </div>
           
           <a href="/dashboard" class="p-4 border-b-grid bg-charcoal text-canvas flex items-center justify-between font-bold">
-            <span>[01] OVERVIEW</span>
+            <span>[01] JADWAL LATIHAN</span>
             <span class="text-ember">●</span>
           </a>
           
@@ -199,24 +198,14 @@
             <span class="text-slate font-normal">→</span>
           </a>
 
-          <a href="#schedule" class="p-4 border-b-grid hover-invert flex items-center justify-between transition-none">
-            <span>[04] JADWAL</span>
-            <span class="text-slate font-normal">→</span>
-          </a>
-
-          <!-- Section 2: Settings & System -->
+          <!-- Section 2: System -->
           <div class="p-3 bg-light border-b-grid font-bold text-[10px] text-slate border-t-grid">
             02 // SISTEM & AKUN
           </div>
 
           <a href="#settings" class="p-4 border-b-grid hover-invert flex items-center justify-between transition-none">
-            <span>[05] PENGATURAN</span>
+            <span>[04] PENGATURAN</span>
             <span class="text-slate font-normal">→</span>
-          </a>
-
-          <a href="#status" class="p-4 border-b-grid hover-invert flex items-center justify-between transition-none">
-            <span>[06] MESIN</span>
-            <span class="text-ember font-bold">LIVE</span>
           </a>
         </div>
 
@@ -246,10 +235,10 @@
 
       </aside>
 
-      <!-- RIGHT MAIN CONTENT AREA (Clean Mobile App Canvas) -->
+      <!-- RIGHT MAIN CONTENT AREA (Workout Schedule View) -->
       <main class="flex-1 flex flex-col min-w-0 bg-canvas justify-between">
         
-        <!-- Mobile Quick Info Strip (App Style) -->
+        <!-- Mobile Quick Info Strip -->
         <div class="md:hidden flex border-b-grid bg-light p-3 justify-between items-center font-mono text-[11px] font-bold text-charcoal uppercase tracking-widest">
           <span>USER: <span class="text-ember">@if(session('user')) {{ session('user') }} @else GUEST @endif</span></span>
           <span id="dash-timer-mobile">00:00:00</span>
@@ -262,89 +251,181 @@
           <div class="border-b-[3px] border-charcoal pb-4 sm:pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
               <span class="font-mono text-[11px] sm:text-xs font-bold uppercase tracking-widest text-ember">
-                01 // OVERVIEW_ANALYTICS
+                01 // MONDAY_TO_SUNDAY_ROUTINE
               </span>
               <h2 class="text-2xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tighter text-charcoal mt-1">
-                DASBOR LATIHAN
+                JADWAL LATIHAN MINGGUAN
               </h2>
               <p class="text-xs sm:text-sm font-semibold text-slate mt-1 max-w-xl">
-                Modul pengawasan dan log ringkasan statistik latihan harian Anda.
+                Atur dan kelola pembagian sesi latihan Anda dari hari Senin hingga Minggu.
               </p>
             </div>
             <div class="font-mono text-[10px] sm:text-xs font-bold uppercase tracking-widest text-charcoal bg-light p-2.5 sm:p-3 border-grid">
-              DOC_REF: DASH-2026-v2.0
+              DOC_REF: SCHED-2026-v2.0
             </div>
           </div>
 
-          <!-- Metric Cards Grid (App Viewport Adaptive) -->
+          <!-- Schedule Summary Metric Cards -->
           <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
             <!-- Metric Card 1 -->
             <div class="border-grid bg-canvas p-4 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4">
               <span class="font-mono text-[10px] sm:text-[11px] font-bold text-slate uppercase tracking-widest">
-                TOTAL SESI
+                SESI LATIHAN
               </span>
               <div class="font-mono text-3xl sm:text-5xl font-bold text-charcoal">
-                0
+                {{ $totalWorkoutDays }} <span class="text-sm sm:text-lg text-slate">HARI</span>
               </div>
               <div class="font-mono text-[9px] sm:text-[10px] font-bold text-slate uppercase tracking-wider border-t-grid pt-2">
-                SESI: 0
+                HARI AKTIF
               </div>
             </div>
 
             <!-- Metric Card 2 -->
             <div class="border-grid bg-canvas p-4 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4">
               <span class="font-mono text-[10px] sm:text-[11px] font-bold text-slate uppercase tracking-widest">
-                TOTAL BEBAN
+                HARI ISTIRAHAT
               </span>
               <div class="font-mono text-3xl sm:text-5xl font-bold text-charcoal">
-                0 <span class="text-sm sm:text-lg">KG</span>
+                {{ $totalRestDays }} <span class="text-sm sm:text-lg text-slate">HARI</span>
               </div>
               <div class="font-mono text-[9px] sm:text-[10px] font-bold text-slate uppercase tracking-wider border-t-grid pt-2">
-                VOLUMETRIK
+                RECOVERY / REST
               </div>
             </div>
 
             <!-- Metric Card 3 -->
             <div class="border-grid bg-canvas p-4 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4">
               <span class="font-mono text-[10px] sm:text-[11px] font-bold text-slate uppercase tracking-widest">
-                REKOR MAX
+                TOTAL TERCATAT
               </span>
-              <div class="font-mono text-3xl sm:text-5xl font-bold text-slate">
-                -
+              <div class="font-mono text-3xl sm:text-5xl font-bold text-charcoal">
+                {{ $totalDaysSet }} <span class="text-sm sm:text-lg text-slate">/ 7</span>
               </div>
               <div class="font-mono text-[9px] sm:text-[10px] font-bold text-slate uppercase tracking-wider border-t-grid pt-2">
-                LIFT: UNSET
+                CAKUPAN MINGGUAN
               </div>
             </div>
 
             <!-- Metric Card 4 -->
             <div class="border-grid bg-light p-4 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4">
               <span class="font-mono text-[10px] sm:text-[11px] font-bold text-charcoal uppercase tracking-widest">
-                STATUS MESIN
+                STATUS MODUL
               </span>
               <div class="font-mono text-xl sm:text-3xl font-bold text-ember flex items-center gap-1.5">
                 <span class="w-2.5 h-2.5 bg-ember animate-pulse inline-block"></span>
-                STANDBY
+                ACTIVE
               </div>
               <div class="font-mono text-[9px] sm:text-[10px] font-bold text-charcoal uppercase tracking-wider border-t-grid pt-2">
-                SYSTEM_READY
+                DATABASE_SYNCED
               </div>
             </div>
           </div>
 
-          <!-- EMPTY STATE PLACEHOLDER BOX -->
-          <div class="border-grid bg-light p-6 sm:p-16 flex flex-col items-center justify-center text-center gap-3 sm:gap-4 my-2 min-h-[240px]">
-            <div class="w-10 h-10 sm:w-12 sm:h-12 border-grid bg-charcoal text-canvas flex items-center justify-center font-mono font-black text-lg sm:text-xl mb-1">
-              !
+          <!-- WEEKLY SCHEDULE GRID (SENIN - MINGGU CARDS) -->
+          <div class="flex flex-col gap-4 mt-2">
+            <div class="flex justify-between items-center border-b-[3px] border-charcoal pb-3">
+              <h3 class="text-xl sm:text-2xl font-black uppercase tracking-tighter text-charcoal">
+                JADWAL 7 HARI SEMINGGU
+              </h3>
+              <span class="font-mono text-xs font-bold text-ember uppercase tracking-widest">
+                DATABASE PERSISTENT
+              </span>
             </div>
-            <h3 class="text-xl sm:text-3xl font-black uppercase tracking-tighter text-charcoal">
-              DATA LATIHAN MASIH KOSONG
-            </h3>
-            <p class="text-xs sm:text-sm font-semibold text-slate max-w-md">
-              Belum ada riwayat sesi latihan yang dicatat pada akun ini. Modul input dan grafik perkembangan akan tersedia di sini.
-            </p>
-            <div class="font-mono text-[10px] sm:text-xs font-bold uppercase tracking-widest text-ember border-grid bg-canvas px-3 py-1.5 mt-1">
-              STATUS: WAITING_FOR_LOG_INPUT
+
+            <!-- 7 Days Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              @foreach($days as $index => $day)
+                @php
+                  $sched = $userSchedules->get($day);
+                @endphp
+
+                <div class="border-grid bg-canvas flex flex-col justify-between p-4 sm:p-5 gap-4 hover:border-ember transition-colors">
+                  
+                  <!-- Card Header: Day Title -->
+                  <div class="flex justify-between items-center border-b-grid pb-3">
+                    <span class="font-mono text-xs font-bold uppercase tracking-widest text-slate">
+                      0{{ $index + 1 }} // {{ $day }}
+                    </span>
+                    @if($sched)
+                      @if($sched->is_rest)
+                        <span class="font-mono text-[10px] bg-slate text-canvas px-2 py-0.5 font-bold uppercase">
+                          REST DAY
+                        </span>
+                      @else
+                        <span class="font-mono text-[10px] bg-ember text-canvas px-2 py-0.5 font-bold uppercase">
+                          WORKOUT
+                        </span>
+                      @endif
+                    @else
+                      <span class="font-mono text-[10px] bg-light text-slate px-2 py-0.5 font-bold uppercase">
+                        EMPTY
+                      </span>
+                    @endif
+                  </div>
+
+                  <!-- Card Body: Schedule Details -->
+                  <div class="flex flex-col gap-2 min-h-[90px]">
+                    @if($sched)
+                      <h4 class="text-lg font-black uppercase tracking-tight text-charcoal">
+                        {{ $sched->title }}
+                      </h4>
+
+                      @if($sched->focus_target)
+                        <div class="font-mono text-xs font-bold text-ember uppercase tracking-wide">
+                          FOKUS: {{ $sched->focus_target }}
+                        </div>
+                      @endif
+
+                      @if($sched->notes)
+                        <p class="text-xs font-semibold text-slate mt-1 line-clamp-3">
+                          {{ $sched->notes }}
+                        </p>
+                      @endif
+                    @else
+                      <div class="flex flex-col items-center justify-center h-full py-4 text-center gap-1">
+                        <span class="font-mono text-xs font-bold text-slate uppercase tracking-widest">
+                          [ BELUM ADA JADWAL ]
+                        </span>
+                        <span class="text-[11px] font-semibold text-slate">
+                          Klik di bawah untuk mengatur latihan.
+                        </span>
+                      </div>
+                    @endif
+                  </div>
+
+                  <!-- Card Footer Action Buttons -->
+                  <div class="border-t-grid pt-3 flex gap-2">
+                    @if($sched)
+                      <button 
+                        onclick="openScheduleModal('{{ $day }}', '{{ addslashes($sched->title) }}', '{{ addslashes($sched->focus_target) }}', '{{ addslashes($sched->notes) }}', {{ $sched->is_rest ? 'true' : 'false' }})"
+                        class="flex-1 border-grid bg-light text-charcoal text-center font-bold text-[11px] uppercase tracking-widest py-2 hover:bg-charcoal hover:text-canvas transition-none active:translate-y-1"
+                      >
+                        EDIT
+                      </button>
+
+                      <form action="/schedules/delete" method="POST" class="inline">
+                        @csrf
+                        <input type="hidden" name="day_name" value="{{ $day }}">
+                        <button 
+                          type="submit" 
+                          class="border-grid bg-canvas text-ember font-bold text-[11px] uppercase tracking-widest px-3 py-2 hover:bg-ember hover:text-canvas transition-none active:translate-y-1"
+                          title="Hapus Jadwal"
+                        >
+                          ✕
+                        </button>
+                      </form>
+                    @else
+                      <button 
+                        onclick="openScheduleModal('{{ $day }}', '', '', '', false)"
+                        class="w-full border-grid bg-ember text-canvas text-center font-bold text-[11px] uppercase tracking-widest py-2.5 hover:bg-charcoal transition-none active:translate-y-1"
+                      >
+                        + ATUR JADWAL
+                      </button>
+                    @endif
+                  </div>
+
+                </div>
+              @endforeach
             </div>
           </div>
 
@@ -353,7 +434,7 @@
         <!-- FOOTER -->
         <footer class="mt-auto border-t-grid bg-charcoal text-canvas p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-center font-mono text-[10px] sm:text-xs uppercase tracking-widest gap-2">
           <div>NAOOLIFT SYSTEM © 2026</div>
-          <div class="text-slate">MODULE: MOBILE_APP_NATIVE_PWA</div>
+          <div class="text-slate">MODULE: WORKOUT_SCHEDULE_CRUD</div>
         </footer>
 
       </main>
@@ -362,34 +443,122 @@
 
   </div>
 
-  <!-- NATIVE MOBILE APP PWA BOTTOM NAVIGATION BAR (Visible ONLY on Mobile < 768px) -->
+  <!-- NATIVE MOBILE APP PWA BOTTOM NAVIGATION BAR -->
   <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-charcoal text-canvas border-t-[3px] border-charcoal grid grid-cols-4 font-mono text-[10px] font-bold uppercase tracking-widest text-center shadow-none">
-    
-    <!-- Tab 1: Dashboard Home -->
     <a href="/dashboard" class="py-3 bg-ember text-canvas border-r-grid flex flex-col items-center justify-center gap-0.5">
       <span class="text-xs font-black">■</span>
-      <span>DASBOR</span>
+      <span>JADWAL</span>
     </a>
-
-    <!-- Tab 2: Logs -->
     <a href="#log" class="py-3 text-canvas hover:bg-light hover:text-charcoal border-r-grid flex flex-col items-center justify-center gap-0.5 transition-none">
       <span class="text-xs font-black">≡</span>
       <span>LOG</span>
     </a>
-
-    <!-- Tab 3: Stats -->
     <a href="#stats" class="py-3 text-canvas hover:bg-light hover:text-charcoal border-r-grid flex flex-col items-center justify-center gap-0.5 transition-none">
       <span class="text-xs font-black">▲</span>
       <span>REKOR</span>
     </a>
-
-    <!-- Tab 4: Landing / Exit -->
     <a href="/" class="py-3 text-canvas hover:bg-light hover:text-charcoal flex flex-col items-center justify-center gap-0.5 transition-none">
       <span class="text-xs font-black">←</span>
       <span>LANDING</span>
     </a>
-
   </nav>
+
+  <!-- SWISS BRUTALIST ADD / EDIT SCHEDULE MODAL -->
+  <div id="schedule-modal" class="fixed inset-0 z-[100] bg-charcoal/80 flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-[480px] border-grid bg-canvas p-6 sm:p-8 flex flex-col gap-4 shadow-none relative animate-fade-in my-auto">
+      
+      <div class="flex justify-between items-center border-b-[3px] border-charcoal pb-3">
+        <div>
+          <h3 class="font-black text-xl uppercase tracking-tighter text-charcoal">
+            ATUR JADWAL LATIHAN
+          </h3>
+          <div id="modal-day-subtitle" class="font-mono text-xs font-bold text-ember uppercase tracking-widest">
+            HARI SENIN
+          </div>
+        </div>
+        <button onclick="closeScheduleModal()" class="font-mono text-xs font-bold text-charcoal hover:text-ember">[✕]</button>
+      </div>
+
+      <form action="/schedules" method="POST" class="space-y-4">
+        @csrf
+        <input type="hidden" id="form-day-name" name="day_name" value="SENIN">
+
+        <!-- Field 1: Nama Sesi Latihan -->
+        <div class="flex flex-col gap-1">
+          <label class="font-mono text-[11px] font-bold uppercase tracking-widest text-charcoal">
+            01 / NAMA SESI LATIHAN / ROUTINE
+          </label>
+          <input 
+            type="text" 
+            id="form-title"
+            name="title" 
+            required 
+            placeholder="CONTOH: PUSH DAY - DADA & TRICEPS"
+            class="w-full bg-light border-grid p-2.5 font-mono text-xs text-charcoal font-bold uppercase focus:bg-canvas focus:outline-none focus:border-ember transition-colors"
+          >
+        </div>
+
+        <!-- Field 2: Target Otot Focus -->
+        <div class="flex flex-col gap-1">
+          <label class="font-mono text-[11px] font-bold uppercase tracking-widest text-charcoal">
+            02 / TARGET OTOT / FOKUS (OPSIONAL)
+          </label>
+          <input 
+            type="text" 
+            id="form-focus-target"
+            name="focus_target" 
+            placeholder="CONTOH: CHEST, SHOULDERS, TRICEPS"
+            class="w-full bg-light border-grid p-2.5 font-mono text-xs text-charcoal font-bold uppercase focus:bg-canvas focus:outline-none focus:border-ember transition-colors"
+          >
+        </div>
+
+        <!-- Field 3: Catatan Routine -->
+        <div class="flex flex-col gap-1">
+          <label class="font-mono text-[11px] font-bold uppercase tracking-widest text-charcoal">
+            03 / CATATAN / TARGET SET & REPS (OPSIONAL)
+          </label>
+          <textarea 
+            id="form-notes"
+            name="notes" 
+            rows="3"
+            placeholder="CONTOH: 4 Set Bench Press, 3 Set Incline Press, 3 Set Lateral Raise"
+            class="w-full bg-light border-grid p-2.5 font-mono text-xs text-charcoal font-semibold focus:bg-canvas focus:outline-none focus:border-ember transition-colors"
+          ></textarea>
+        </div>
+
+        <!-- Checkbox: Rest Day Mode -->
+        <div class="flex items-center gap-2 pt-1">
+          <input 
+            type="checkbox" 
+            id="form-is-rest"
+            name="is_rest"
+            class="w-4 h-4 border-grid accent-ember cursor-pointer"
+          >
+          <label for="form-is-rest" class="font-mono text-xs font-bold uppercase tracking-widest text-charcoal cursor-pointer">
+            SET SEBAGAI HARI ISTIRAHAT (REST DAY)
+          </label>
+        </div>
+
+        <!-- Modal Action Buttons -->
+        <div class="flex gap-3 pt-3 border-t-[3px] border-charcoal">
+          <button 
+            type="button" 
+            onclick="closeScheduleModal()" 
+            class="flex-1 border-[3px] border-charcoal bg-light text-charcoal font-bold text-xs uppercase tracking-widest py-3 hover:bg-charcoal hover:text-canvas transition-none active:translate-y-1"
+          >
+            BATAL
+          </button>
+          <button 
+            type="submit" 
+            class="flex-1 border-[3px] border-charcoal bg-ember text-canvas font-bold text-xs uppercase tracking-widest py-3 hover:bg-charcoal transition-none active:translate-y-1"
+          >
+            SIMPAN JADWAL →
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
 
   <!-- SWISS BRUTALIST LOGOUT CONFIRMATION MODAL -->
   <div id="logout-modal" class="fixed inset-0 z-[100] bg-charcoal/80 flex items-center justify-center p-4 hidden">
@@ -400,11 +569,9 @@
         </h3>
         <span class="font-mono text-xs font-bold text-ember">SYS_LOGOUT</span>
       </div>
-
       <p class="text-xs sm:text-sm font-semibold text-charcoal leading-relaxed">
         Apakah Anda yakin ingin mengakhiri sesi latihan aktif saat ini? Sesi akan kembali ke mode tamu.
       </p>
-
       <div class="flex gap-3 pt-2">
         <button onclick="closeLogoutModal()" class="flex-1 border-[3px] border-charcoal bg-light text-charcoal font-bold text-xs uppercase tracking-widest py-3 hover:bg-charcoal hover:text-canvas transition-none active:translate-y-1">
           BATAL
@@ -417,7 +584,7 @@
   </div>
 
   <script>
-    // 1. Live Clock Counter (Desktop & Mobile Sync)
+    // 1. Live Clock Counter
     function updateTime() {
       const now = new Date();
       const hrs = String(now.getHours()).padStart(2, '0');
@@ -433,7 +600,34 @@
     updateTime();
     setInterval(updateTime, 1000);
 
-    // 2. Logout Modal Functions
+    // 2. Schedule Modal Open & Close Functions
+    function openScheduleModal(dayName, title = '', focusTarget = '', notes = '', isRest = false) {
+      const modal = document.getElementById('schedule-modal');
+      const daySubtitle = document.getElementById('modal-day-subtitle');
+      const formDayName = document.getElementById('form-day-name');
+      const formTitle = document.getElementById('form-title');
+      const formFocusTarget = document.getElementById('form-focus-target');
+      const formNotes = document.getElementById('form-notes');
+      const formIsRest = document.getElementById('form-is-rest');
+
+      if (modal) {
+        if (daySubtitle) daySubtitle.textContent = `HARI ${dayName}`;
+        if (formDayName) formDayName.value = dayName;
+        if (formTitle) formTitle.value = title;
+        if (formFocusTarget) formFocusTarget.value = focusTarget;
+        if (formNotes) formNotes.value = notes;
+        if (formIsRest) formIsRest.checked = isRest;
+
+        modal.classList.remove('hidden');
+      }
+    }
+
+    function closeScheduleModal() {
+      const modal = document.getElementById('schedule-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    // 3. Logout Modal Functions
     function openLogoutModal() {
       const modal = document.getElementById('logout-modal');
       if (modal) modal.classList.remove('hidden');
@@ -445,10 +639,13 @@
     }
 
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeLogoutModal();
+      if (e.key === 'Escape') {
+        closeScheduleModal();
+        closeLogoutModal();
+      }
     });
 
-    // 3. Toast Dismiss
+    // 4. Toast Dismiss
     function dismissToast() {
       const toast = document.getElementById('toast-msg');
       if (toast) {

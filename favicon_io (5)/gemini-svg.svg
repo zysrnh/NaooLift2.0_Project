@@ -1,0 +1,13 @@
+<svg viewBox="0 0 120 40" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+  <!-- 
+    Logo NaooLift 
+    Style: Utilitarian Swiss Brutalism
+    Warna: Charcoal (#1C1C1C) 
+  -->
+  <g transform="translate(12, 0) skewX(-15)">
+    <!-- Huruf N -->
+    <path d="M0 40 V0 H16 L32 20 V0 H48 V40 H32 L16 20 V40 Z" fill="#1C1C1C" />
+    <!-- Huruf L -->
+    <path d="M56 40 V0 H72 V24 H104 V40 Z" fill="#1C1C1C" />
+  </g>
+</svg>

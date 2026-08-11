@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NaooLift — Utilitarian Workout Log System</title>
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Space+Mono:wght@400;700&display=swap');
@@ -197,25 +203,6 @@
       </div>
     </header>
 
-    <!-- ANNOUNCEMENT BANNER: SYSTEM UNDER ACTIVE DEVELOPMENT -->
-    <div class="border-b-grid bg-ember text-canvas p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 font-mono">
-      <div class="flex items-start md:items-center gap-3">
-        <span class="bg-canvas text-ember font-black text-xs px-2.5 py-1 border-grid uppercase shrink-0">
-          ! ANNOUNCEMENT
-        </span>
-        <p class="text-xs font-bold uppercase tracking-wider leading-relaxed">
-          Aplikasi NaooLift saat ini <span class="underline">masih dalam tahap pengembangan aktif</span>. Punya masukan, saran, atau laporan bug? Silakan sampaikan masukan Anda!
-        </p>
-      </div>
-
-      <button 
-        onclick="openFeedbackModal(2)"
-        class="border-grid bg-canvas text-charcoal font-bold text-xs uppercase tracking-widest px-5 py-2.5 hover:bg-charcoal hover:text-canvas transition-none shrink-0 active:translate-y-1"
-      >
-        [ + KIRIM SARAN / MASUKAN ]
-      </button>
-    </div>
-
     <!-- INFO STRIP -->
     <div class="flex flex-col md:flex-row border-b-grid text-xs sm:text-sm font-bold uppercase tracking-widest text-charcoal">
       <div class="flex-1 p-4 border-b-grid md:border-b-0 md:border-r-grid flex justify-between items-center">
@@ -290,12 +277,18 @@
           <span class="font-mono text-[10px] text-slate font-bold uppercase mt-2">RUNS PERSISTENT IN BACKGROUND</span>
         </div>
 
-        <!-- System Active Workout Days Block -->
+        <!-- System Operational Status Block -->
         <div class="p-6 sm:p-10 flex-1 flex flex-col justify-center bg-charcoal text-canvas hover:bg-ember transition-none cursor-default">
-          <span class="text-xs sm:text-sm font-bold uppercase tracking-widest mb-4 sm:mb-6">02 / HARI AKTIF LATIHAN</span>
+          <div class="flex justify-between items-center mb-4 sm:mb-6">
+            <span class="text-xs sm:text-sm font-bold uppercase tracking-widest">02 / STATUS SISTEM</span>
+            <span class="font-mono text-[10px] bg-canvas text-charcoal px-2 py-0.5 font-bold uppercase flex items-center gap-1.5 border-grid">
+              <span class="w-2 h-2 bg-ember animate-pulse inline-block"></span>
+              ONLINE
+            </span>
+          </div>
           <div class="flex items-baseline gap-2">
-            <span class="font-mono text-6xl sm:text-8xl font-black tracking-tighter leading-none">{{ $activeDaysCount }}</span>
-            <span class="text-xl sm:text-2xl font-bold uppercase tracking-widest">HARI TERDRAFT</span>
+            <span class="font-mono text-5xl sm:text-7xl font-black tracking-tighter leading-none text-canvas">v2.0</span>
+            <span class="text-lg sm:text-xl font-bold uppercase tracking-widest text-light">OPERATIONAL</span>
           </div>
         </div>
 

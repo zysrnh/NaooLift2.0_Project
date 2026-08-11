@@ -1,9 +1,15 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="scroll-smooth">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NaooLift — Panel Kontrol Admin</title>
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Space+Mono:wght@400;700&display=swap');
@@ -57,6 +63,64 @@
     animation: fadeInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
+  /* Blinking & Pulse Animations per rule.md */
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+  .animate-blink {
+    animation: blink 1.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Section Highlight Pulse on Sidebar Click */
+  @keyframes sectionPulseHighlight {
+    0% {
+      border-color: #9A4A2E;
+      background-color: rgba(154, 74, 46, 0.12);
+    }
+    50% {
+      border-color: #9A4A2E;
+    }
+    100% {
+      border-color: #1C1C1C;
+      background-color: #EAE6E0;
+    }
+  }
+  .animate-section-highlight {
+    animation: sectionPulseHighlight 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  /* Sharp Brutalist Card Hover Translation Animation */
+  .admin-card-pop {
+    transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.15s ease, background-color 0.15s ease;
+  }
+  .admin-card-pop:hover {
+    transform: translateY(-4px);
+  }
+
+  /* Table Row Hover Fast Invert */
+  .admin-row-hover {
+    transition: background-color 0.1s linear, color 0.1s linear;
+  }
+  .admin-row-hover:hover {
+    background-color: #1C1C1C !important;
+    color: #EAE6E0 !important;
+  }
+  .admin-row-hover:hover td {
+    color: #EAE6E0 !important;
+  }
+
+  /* Button Click Tactile Translate */
+  .btn-tactile {
+    transition: transform 0.08s ease-out, background-color 0.1s linear, color 0.1s linear;
+  }
+  .btn-tactile:active {
+    transform: translateY(2px);
+  }
+
+  .hover-invert {
+    transition: background-color 0.1s ease, color 0.1s ease;
+  }
   .hover-invert:hover {
     background-color: #1C1C1C;
     color: #EAE6E0;
@@ -132,7 +196,7 @@
           </div>
         </div>
         <span class="font-mono text-[10px] bg-charcoal text-canvas px-2 py-1 font-bold uppercase border-grid flex items-center gap-1.5">
-          <span class="w-2 h-2 bg-ember animate-pulse inline-block"></span>
+          <span class="w-2 h-2 bg-ember animate-blink inline-block"></span>
           ADMIN
         </span>
       </div>
@@ -148,14 +212,15 @@
         <div class="flex-1 p-4 border-r-grid flex justify-between items-center bg-light">
           <span class="font-sans">MAILBOX MASUKAN:</span>
           <span class="font-bold font-mono text-ember flex items-center gap-1.5">
+            <span class="w-2 h-2 bg-ember animate-pulse inline-block"></span>
             {{ $unreadFeedbackCount }} UNREAD
           </span>
         </div>
         <div class="flex flex-row w-64 font-sans font-bold">
-          <a href="/dashboard" class="flex-1 p-4 bg-canvas text-charcoal text-center hover:bg-charcoal hover:text-canvas transition-none flex items-center justify-center border-r-grid active:translate-y-1">
+          <a href="/dashboard" class="flex-1 p-4 bg-canvas text-charcoal text-center hover:bg-charcoal hover:text-canvas transition-none flex items-center justify-center border-r-grid btn-tactile">
             ← DASBOR USER
           </a>
-          <button onclick="openLogoutModal()" class="flex-1 p-4 bg-charcoal text-canvas text-center hover:bg-ember transition-none flex items-center justify-center active:translate-y-1">
+          <button onclick="openLogoutModal()" class="flex-1 p-4 bg-charcoal text-canvas text-center hover:bg-ember transition-none flex items-center justify-center btn-tactile">
             KELUAR [✕]
           </button>
         </div>
@@ -173,22 +238,22 @@
             01 // PANEL ADMIN
           </div>
           
-          <a href="/admin/dashboard" class="p-4 border-b-grid bg-charcoal text-canvas flex items-center justify-between font-bold">
+          <a href="#overview-section" class="p-4 border-b-grid bg-charcoal text-canvas flex items-center justify-between font-bold sidebar-item">
             <span>[01] OVERVIEW ADMIN</span>
-            <span class="text-ember">●</span>
+            <span class="text-ember animate-blink">●</span>
           </a>
 
-          <a href="#mailbox-section" class="p-4 border-b-grid hover-invert flex items-center justify-between transition-none text-ember font-bold">
+          <a href="#mailbox-section" class="p-4 border-b-grid hover-invert flex items-center justify-between transition-none text-ember font-bold sidebar-item">
             <span>[02] MAILBOX MASUKAN</span>
-            <span class="bg-ember text-canvas text-[10px] px-1.5 py-0.5 font-bold">{{ $unreadFeedbackCount }}</span>
+            <span class="bg-ember text-canvas text-[10px] px-1.5 py-0.5 font-bold animate-pulse">{{ $unreadFeedbackCount }}</span>
           </a>
           
-          <a href="#users-section" class="p-4 border-b-grid hover-invert flex items-center justify-between transition-none">
+          <a href="#users-section" class="p-4 border-b-grid hover-invert flex items-center justify-between transition-none sidebar-item">
             <span>[03] MANAJEMEN USER</span>
             <span class="text-slate font-normal">↓</span>
           </a>
 
-          <a href="#logs-section" class="p-4 border-b-grid hover-invert flex items-center justify-between transition-none">
+          <a href="#logs-section" class="p-4 border-b-grid hover-invert flex items-center justify-between transition-none sidebar-item">
             <span>[04] MONITORING LOG</span>
             <span class="text-slate font-normal">↓</span>
           </a>
@@ -211,7 +276,8 @@
         <div class="mt-auto border-t-grid bg-light flex flex-col font-mono text-xs uppercase tracking-widest">
           <div class="p-4 flex flex-col gap-1 bg-canvas">
             <span class="text-[10px] text-slate font-bold">ADMIN_SESSION:</span>
-            <span class="font-bold text-ember truncate">
+            <span class="font-bold text-ember truncate flex items-center gap-1.5">
+              <span class="w-2 h-2 bg-ember animate-pulse inline-block"></span>
               {{ session('user', 'ADMIN') }}
             </span>
           </div>
@@ -230,9 +296,10 @@
         <div class="p-4 sm:p-8 lg:p-10 flex flex-col gap-6 sm:gap-8">
 
           <!-- Hero Section Header -->
-          <div class="border-b-[3px] border-charcoal pb-4 sm:pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div id="overview-section" class="border-b-[3px] border-charcoal pb-4 sm:pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4 scroll-mt-6">
             <div>
-              <span class="font-mono text-[11px] sm:text-xs font-bold uppercase tracking-widest text-ember">
+              <span class="font-mono text-[11px] sm:text-xs font-bold uppercase tracking-widest text-ember flex items-center gap-1.5">
+                <span class="w-2 h-2 bg-ember animate-pulse inline-block"></span>
                 ADMINISTRATION_CONTROL_CENTER
               </span>
               <h2 class="text-2xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tighter text-charcoal mt-1">
@@ -246,77 +313,82 @@
             <div class="flex items-center gap-2 shrink-0">
               <a 
                 href="/dashboard"
-                class="border-grid bg-ember text-canvas font-bold text-xs uppercase tracking-widest px-5 py-3.5 hover:bg-charcoal transition-none active:translate-y-1"
+                class="border-grid bg-ember text-canvas font-bold text-xs uppercase tracking-widest px-5 py-3.5 hover:bg-charcoal transition-none btn-tactile"
               >
                 <span>← BUKA DASBOR ATLET USER</span>
               </a>
             </div>
           </div>
 
-          <!-- 4 EXECUTIVE ADMIN METRIC CARDS -->
+          <!-- 4 EXECUTIVE ADMIN METRIC CARDS WITH ANIMATIONS -->
           <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-            <div class="border-grid bg-canvas p-4 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4 border-l-[8px] border-l-ember">
+            <div class="border-grid bg-canvas p-4 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4 border-l-[8px] border-l-ember admin-card-pop cursor-default">
               <span class="font-mono text-[10px] sm:text-[11px] font-bold text-slate uppercase tracking-widest">
                 TOTAL PENGGUNA TERDAFTAR
               </span>
               <div class="font-mono text-3xl sm:text-4xl font-black text-ember">
                 {{ $totalUsersCount }} <span class="text-sm text-charcoal">USER</span>
               </div>
-              <div class="font-mono text-[9px] text-slate font-bold uppercase border-t-grid pt-2">
-                REGISTERED ATHLETES
+              <div class="font-mono text-[9px] text-slate font-bold uppercase border-t-grid pt-2 flex justify-between items-center">
+                <span>REGISTERED ATHLETES</span>
+                <span class="text-ember font-bold">●</span>
               </div>
             </div>
 
-            <div class="border-grid bg-canvas p-4 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4">
+            <div class="border-grid bg-canvas p-4 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4 border-l-[8px] border-l-charcoal admin-card-pop cursor-default">
               <span class="font-mono text-[10px] sm:text-[11px] font-bold text-slate uppercase tracking-widest">
                 MAILBOX MASUKAN & SARAN
               </span>
               <div class="font-mono text-3xl sm:text-4xl font-black text-charcoal flex items-baseline gap-2">
                 <span>{{ $feedbackMessages->count() }}</span>
-                <span class="text-xs font-bold text-ember">({{ $unreadFeedbackCount }} BARU)</span>
+                <span class="text-xs font-bold text-ember animate-pulse">({{ $unreadFeedbackCount }} BARU)</span>
               </div>
-              <div class="font-mono text-[9px] text-slate font-bold uppercase border-t-grid pt-2">
-                USER FEEDBACK MESSAGES
+              <div class="font-mono text-[9px] text-slate font-bold uppercase border-t-grid pt-2 flex justify-between items-center">
+                <span>USER FEEDBACK MESSAGES</span>
+                <span class="text-ember font-bold">●</span>
               </div>
             </div>
 
-            <div class="border-grid bg-canvas p-4 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4">
+            <div class="border-grid bg-canvas p-4 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4 admin-card-pop cursor-default">
               <span class="font-mono text-[10px] sm:text-[11px] font-bold text-slate uppercase tracking-widest">
                 TOTAL LOG LATIHAN
               </span>
               <div class="font-mono text-3xl sm:text-4xl font-black text-charcoal">
                 {{ $totalLogsCount }} <span class="text-sm text-slate">LOGS</span>
               </div>
-              <div class="font-mono text-[9px] text-slate font-bold uppercase border-t-grid pt-2">
-                WORKOUT LOGS RECORDED
+              <div class="font-mono text-[9px] text-slate font-bold uppercase border-t-grid pt-2 flex justify-between items-center">
+                <span>WORKOUT LOGS RECORDED</span>
+                <span class="text-charcoal font-bold">●</span>
               </div>
             </div>
 
-            <div class="border-grid bg-light p-4 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4">
+            <div class="border-grid bg-light p-4 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4 admin-card-pop cursor-default">
               <span class="font-mono text-[10px] sm:text-[11px] font-bold text-charcoal uppercase tracking-widest">
                 TOTAL TONASE SISTEM
               </span>
               <div class="font-mono text-3xl sm:text-4xl font-black text-charcoal">
                 {{ number_format($totalSystemVolume) }} <span class="text-sm text-slate">KG</span>
               </div>
-              <div class="font-mono text-[9px] text-charcoal font-bold uppercase border-t-grid pt-2">
-                TOTAL WEIGHT LIFTED
+              <div class="font-mono text-[9px] text-charcoal font-bold uppercase border-t-grid pt-2 flex justify-between items-center">
+                <span>TOTAL WEIGHT LIFTED</span>
+                <span class="text-ember font-bold">●</span>
               </div>
             </div>
           </div>
 
           <!-- TABLE 01: MAILBOX MASUKAN & SARAN PENGEMBANGAN -->
-          <div id="mailbox-section" class="border-grid bg-canvas p-5 sm:p-8 flex flex-col gap-4 border-l-[8px] border-l-ember">
+          <div id="mailbox-section" class="border-grid bg-canvas p-5 sm:p-8 flex flex-col gap-4 border-l-[8px] border-l-ember scroll-mt-6">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b-[3px] border-charcoal pb-4 gap-2">
               <div>
-                <span class="font-mono text-[10px] font-bold text-ember uppercase tracking-widest">
+                <span class="font-mono text-[10px] font-bold text-ember uppercase tracking-widest flex items-center gap-1.5">
+                  <span class="w-2 h-2 bg-ember animate-pulse inline-block"></span>
                   SECTION 01 // MAILBOX_FEEDBACK_MESSAGES
                 </span>
                 <h3 class="text-xl sm:text-2xl font-black uppercase tracking-tight text-charcoal mt-0.5">
                   MAILBOX MASUKAN & SARAN PENGEMBANGAN PENGGUNA
                 </h3>
               </div>
-              <span class="font-mono text-xs font-bold text-ember uppercase tracking-widest bg-light px-2.5 py-1 border-grid">
+              <span class="font-mono text-xs font-bold text-ember uppercase tracking-widest bg-light px-2.5 py-1 border-grid animate-pulse">
                 {{ $unreadFeedbackCount }} PESAN BELUM DIBACA
               </span>
             </div>
@@ -337,7 +409,7 @@
                   </thead>
                   <tbody>
                     @foreach($feedbackMessages as $idx => $fb)
-                      <tr class="border-b-grid {{ !$fb->is_read ? 'bg-amber-100/60 font-bold' : ($idx % 2 === 1 ? 'bg-light' : 'bg-canvas') }} hover:bg-charcoal hover:text-canvas transition-none">
+                      <tr class="border-b-grid {{ !$fb->is_read ? 'bg-amber-100/60 font-bold' : ($idx % 2 === 1 ? 'bg-light' : 'bg-canvas') }} admin-row-hover">
                         <td class="p-3 border-r-grid font-bold text-[11px] whitespace-nowrap">
                           {{ date('d/m/Y H:i', strtotime($fb->created_at)) }}
                         </td>
@@ -366,7 +438,7 @@
                           <form action="/admin/feedback/toggle-read" method="POST">
                             @csrf
                             <input type="hidden" name="feedback_id" value="{{ $fb->id }}">
-                            <button type="submit" class="border-grid bg-canvas text-charcoal hover:bg-charcoal hover:text-canvas font-mono font-bold text-[10px] px-2 py-1 transition-none">
+                            <button type="submit" class="border-grid bg-canvas text-charcoal hover:bg-charcoal hover:text-canvas font-mono font-bold text-[10px] px-2 py-1 btn-tactile">
                               @if($fb->is_read) [TANDAI BELUM] @else [TANDAI DIBACA] @endif
                             </button>
                           </form>
@@ -374,7 +446,7 @@
                           <form action="/admin/feedback/delete" method="POST" onsubmit="return confirm('HAPUS PESAN MASUKAN INI?');">
                             @csrf
                             <input type="hidden" name="feedback_id" value="{{ $fb->id }}">
-                            <button type="submit" class="border-grid bg-ember text-canvas hover:bg-charcoal font-mono font-bold text-[10px] px-2 py-1 transition-none">
+                            <button type="submit" class="border-grid bg-ember text-canvas hover:bg-charcoal font-mono font-bold text-[10px] px-2 py-1 btn-tactile">
                               [✕ HAPUS]
                             </button>
                           </form>
@@ -392,7 +464,7 @@
           </div>
 
           <!-- TABLE 02: MANAJEMEN AKUN PENGGUNA -->
-          <div id="users-section" class="border-grid bg-canvas p-5 sm:p-8 flex flex-col gap-4">
+          <div id="users-section" class="border-grid bg-canvas p-5 sm:p-8 flex flex-col gap-4 scroll-mt-6">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b-[3px] border-charcoal pb-4 gap-2">
               <div>
                 <span class="font-mono text-[10px] font-bold text-ember uppercase tracking-widest">
@@ -422,7 +494,7 @@
                   </thead>
                   <tbody>
                     @foreach($users as $idx => $u)
-                      <tr class="border-b-grid {{ $idx % 2 === 1 ? 'bg-light' : 'bg-canvas' }} hover:bg-charcoal hover:text-canvas transition-none">
+                      <tr class="border-b-grid {{ $idx % 2 === 1 ? 'bg-light' : 'bg-canvas' }} admin-row-hover">
                         <td class="p-3 border-r-grid font-bold">
                           #{{ $u->id }}
                         </td>
@@ -438,11 +510,11 @@
                         <td class="p-3 border-r-grid text-center font-bold">
                           {{ $u->schedules_count }} HARI
                         </td>
-                        <td class="p-3 border-r-grid text-center font-bold">
+                        <td class="p-3 border-r-grid text-center font-bold whitespace-nowrap">
                           @if($u->is_admin)
-                            <span class="bg-ember text-canvas px-2 py-1 text-[10px]">● ADMIN</span>
+                            <span class="bg-ember text-canvas px-2.5 py-1 text-[10px] inline-block font-mono font-bold tracking-wider border-grid">● ADMIN</span>
                           @else
-                            <span class="bg-light text-charcoal border-grid px-2 py-1 text-[10px]">USER</span>
+                            <span class="bg-light text-charcoal px-2.5 py-1 text-[10px] inline-block font-mono font-bold tracking-wider border-grid">ATLET</span>
                           @endif
                         </td>
                         <td class="p-3 border-r-grid text-center text-slate">
@@ -452,7 +524,7 @@
                           <form action="/admin/users/toggle-admin" method="POST">
                             @csrf
                             <input type="hidden" name="user_id" value="{{ $u->id }}">
-                            <button type="submit" class="border-grid bg-canvas text-charcoal hover:bg-charcoal hover:text-canvas font-mono font-bold text-[10px] px-2 py-1 transition-none">
+                            <button type="submit" class="border-grid bg-canvas text-charcoal hover:bg-charcoal hover:text-canvas font-mono font-bold text-[10px] px-2 py-1 btn-tactile">
                               [TOGGLE ADMIN]
                             </button>
                           </form>
@@ -460,7 +532,7 @@
                           <form action="/admin/users/delete" method="POST" onsubmit="return confirm('HAPUS AKUN {{ strtoupper($u->name) }} DAN SELURUH DATANYA?');">
                             @csrf
                             <input type="hidden" name="user_id" value="{{ $u->id }}">
-                            <button type="submit" class="border-grid bg-ember text-canvas hover:bg-charcoal font-mono font-bold text-[10px] px-2 py-1 transition-none">
+                            <button type="submit" class="border-grid bg-ember text-canvas hover:bg-charcoal font-mono font-bold text-[10px] px-2 py-1 btn-tactile">
                               [✕ HAPUS]
                             </button>
                           </form>
@@ -478,10 +550,11 @@
           </div>
 
           <!-- TABLE 03: MONITORING WORKOUT LOGS GLOBAL -->
-          <div id="logs-section" class="border-grid bg-canvas p-5 sm:p-8 flex flex-col gap-4">
+          <div id="logs-section" class="border-grid bg-canvas p-5 sm:p-8 flex flex-col gap-4 scroll-mt-6">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b-[3px] border-charcoal pb-4 gap-2">
               <div>
-                <span class="font-mono text-[10px] font-bold text-ember uppercase tracking-widest">
+                <span class="font-mono text-[10px] font-bold text-ember uppercase tracking-widest flex items-center gap-1.5">
+                  <span class="w-2 h-2 bg-ember animate-pulse inline-block"></span>
                   SECTION 03 // GLOBAL_WORKOUT_LOGS_MONITORING
                 </span>
                 <h3 class="text-xl sm:text-2xl font-black uppercase tracking-tight text-charcoal mt-0.5">
@@ -511,7 +584,7 @@
                       @php
                         $vol = $log->sets * $log->reps * $log->weight_kg;
                       @endphp
-                      <tr class="border-b-grid {{ $idx % 2 === 1 ? 'bg-light' : 'bg-canvas' }} hover:bg-charcoal hover:text-canvas transition-none">
+                      <tr class="border-b-grid {{ $idx % 2 === 1 ? 'bg-light' : 'bg-canvas' }} admin-row-hover">
                         <td class="p-3 border-r-grid font-bold">
                           {{ date('d/m/Y', strtotime($log->log_date)) }}
                         </td>
@@ -537,7 +610,7 @@
                           <form action="/admin/logs/delete" method="POST" onsubmit="return confirm('HAPUS ENTRI LOG {{ $log->exercise_name }}?');">
                             @csrf
                             <input type="hidden" name="log_id" value="{{ $log->id }}">
-                            <button type="submit" class="border-grid bg-ember text-canvas font-mono font-bold text-[10px] px-2 py-1 transition-none">
+                            <button type="submit" class="border-grid bg-ember text-canvas font-mono font-bold text-[10px] px-2 py-1 btn-tactile">
                               [✕ HAPUS LOG]
                             </button>
                           </form>
@@ -581,10 +654,10 @@
         Apakah Anda yakin ingin mengakhiri sesi administrasi aktif saat ini? Sesi akan kembali ke mode tamu.
       </p>
       <div class="flex gap-3 pt-2">
-        <button onclick="closeLogoutModal()" class="flex-1 border-[3px] border-charcoal bg-light text-charcoal font-bold text-xs uppercase tracking-widest py-3 hover:bg-charcoal hover:text-canvas transition-none active:translate-y-1">
+        <button onclick="closeLogoutModal()" class="flex-1 border-[3px] border-charcoal bg-light text-charcoal font-bold text-xs uppercase tracking-widest py-3 hover:bg-charcoal hover:text-canvas transition-none btn-tactile">
           BATAL
         </button>
-        <a href="/logout" class="flex-1 border-[3px] border-charcoal bg-ember text-canvas text-center font-bold text-xs uppercase tracking-widest py-3 hover:bg-charcoal transition-none active:translate-y-1 flex items-center justify-center">
+        <a href="/logout" class="flex-1 border-[3px] border-charcoal bg-ember text-canvas text-center font-bold text-xs uppercase tracking-widest py-3 hover:bg-charcoal transition-none btn-tactile flex items-center justify-center">
           YA, KELUAR →
         </a>
       </div>
@@ -592,6 +665,35 @@
   </div>
 
   <script>
+    // Smooth Scroll & Section Highlight Animation when clicking Sidebar Items
+    document.querySelectorAll('aside a.sidebar-item[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('href');
+        const targetElement = document.querySelector(targetId);
+        
+        if (targetElement) {
+          // Update active sidebar item styling
+          document.querySelectorAll('aside a.sidebar-item').forEach(el => {
+            el.classList.remove('bg-charcoal', 'text-canvas');
+            if (!el.classList.contains('hover-invert')) el.classList.add('hover-invert');
+          });
+          this.classList.add('bg-charcoal', 'text-canvas');
+
+          // Smooth scroll to section
+          targetElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+
+          // Trigger section pulse highlight animation
+          targetElement.classList.remove('animate-section-highlight');
+          void targetElement.offsetWidth; // Reflow
+          targetElement.classList.add('animate-section-highlight');
+        }
+      });
+    });
+
     function openLogoutModal() {
       const modal = document.getElementById('logout-modal');
       if (modal) modal.classList.remove('hidden');

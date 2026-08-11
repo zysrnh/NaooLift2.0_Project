@@ -29,4 +29,28 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * Get the schedules for the user.
+     */
+    public function schedules()
+    {
+        return $this->hasMany(Schedule::class);
+    }
+
+    /**
+     * Get the workout logs for the user.
+     */
+    public function workoutLogs()
+    {
+        return $this->hasMany(WorkoutLog::class);
+    }
+
+    /**
+     * Alias for workoutLogs.
+     */
+    public function workout_logs()
+    {
+        return $this->hasMany(WorkoutLog::class);
+    }
 }

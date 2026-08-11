@@ -3,7 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NaooLift — Log Catatan Latihan & Stopwatch</title>
+<title>NaooLift — Log Catatan Latihan</title>
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="manifest" href="/site.webmanifest">
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Space+Mono:wght@400;700&display=swap');
@@ -251,6 +256,13 @@
             <span>[06] PENGATURAN</span>
             <span class="text-slate font-normal">→</span>
           </a>
+
+          @if(session('is_admin') || (Auth::check() && Auth::user()->is_admin))
+            <a href="/admin/dashboard" class="p-4 border-b-grid bg-ember text-canvas flex items-center justify-between font-bold hover:bg-charcoal transition-none">
+              <span>[07] PANEL ADMIN</span>
+              <span>→</span>
+            </a>
+          @endif
         </div>
 
         <div class="mt-auto border-t-grid bg-light flex flex-col font-mono text-xs uppercase tracking-widest">

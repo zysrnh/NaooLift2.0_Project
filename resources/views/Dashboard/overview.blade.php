@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NaooLift — Overview Dasbor Latihan</title>
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Space+Mono:wght@400;700&display=swap');
@@ -128,12 +134,12 @@
             NAOOLIFT.LOG
           </a>
           <div class="font-mono text-[9px] text-slate uppercase tracking-widest mt-0.5">
-            SYS_OVERVIEW v2.0
+            ATLET_DASHBOARD v2.0
           </div>
         </div>
-        <span class="md:hidden font-mono text-[10px] bg-light text-charcoal px-2.5 py-1 font-bold uppercase border-grid flex items-center gap-1.5">
-          <span class="w-2 h-2 bg-ember animate-pulse inline-block"></span>
-          ONLINE
+        <span class="font-mono text-[10px] bg-ember text-canvas px-2 py-1 font-bold uppercase border-grid flex items-center gap-1.5">
+          <span class="w-2 h-2 bg-canvas animate-pulse inline-block"></span>
+          LIVE
         </span>
       </div>
 
@@ -213,6 +219,13 @@
             <span>[06] PENGATURAN</span>
             <span class="text-slate font-normal">→</span>
           </a>
+
+          @if(session('is_admin') || (Auth::check() && Auth::user()->is_admin))
+            <a href="/admin/dashboard" class="p-4 border-b-grid bg-ember text-canvas flex items-center justify-between font-bold hover:bg-charcoal transition-none">
+              <span>[07] PANEL ADMIN</span>
+              <span>→</span>
+            </a>
+          @endif
         </div>
 
         <div class="mt-auto border-t-grid bg-light flex flex-col font-mono text-xs uppercase tracking-widest">

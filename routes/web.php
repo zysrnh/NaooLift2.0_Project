@@ -61,11 +61,15 @@ Route::post('/feedback', function (Request $request) {
 
 // Helper function to get authenticated user ID
 function getAuthUserId() {
-    if (Auth::check()) return Auth::id();
+    if (Auth::check()) {
+        session(['is_admin' => Auth::user()->is_admin]);
+        return Auth::id();
+    }
     if (session('user_email')) {
         $user = User::where('email', session('user_email'))->first();
         if ($user) {
             Auth::login($user);
+            session(['is_admin' => $user->is_admin]);
             return $user->id;
         }
     }

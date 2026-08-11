@@ -88,7 +88,7 @@ function computePercentDiff($current, $previous) {
     return round((($current - $previous) / $previous) * 100, 1);
 }
 
-// 1. Dashboard Overview Route
+// 1. Dashboard Overview Route (/dashboard)
 Route::get('/dashboard', function () {
     if (!Auth::check() && !session('user')) {
         return redirect('/login')->with('error', 'AKSES DITOLAK! SILAKAN LOGIN ATAU DAFTAR AKUN UNTUK MENGAKSES DASBOR.');
@@ -101,15 +101,33 @@ Route::get('/dashboard', function () {
     
     $todayInfo = getTodayInfo($userId);
     $todayName = $todayInfo['todayName'];
+    $todayDate = date('Y-m-d');
     $todaySchedule = $todayInfo['todaySchedule'];
     $todayRoutineTitle = $todayInfo['todayRoutineTitle'];
 
-    $totalLogs = WorkoutLog::where('user_id', $userId)->count();
+    $allLogs = WorkoutLog::where('user_id', $userId)->get();
+    $totalLogs = $allLogs->count();
+    $allTimeVol = calculateLogsVolume($allLogs);
+
+    $todayLogs = WorkoutLog::where('user_id', $userId)->where('log_date', $todayDate)->get();
+    $todayVol = calculateLogsVolume($todayLogs);
+    $todaySets = $todayLogs->sum('sets');
+
     $totalDaysSet = $schedules->count();
     $totalRestDays = $schedules->where('is_rest', true)->count();
     $totalWorkoutDays = $totalDaysSet - $totalRestDays;
 
-    return view('Dashboard.overview', compact('schedules', 'todayName', 'todaySchedule', 'todayRoutineTitle', 'totalDaysSet', 'totalRestDays', 'totalWorkoutDays', 'totalLogs', 'currentMonthLabel'));
+    $recentLogs = WorkoutLog::where('user_id', $userId)
+        ->orderBy('log_date', 'desc')
+        ->orderBy('id', 'desc')
+        ->take(5)
+        ->get();
+
+    return view('Dashboard.overview', compact(
+        'schedules', 'todayName', 'todaySchedule', 'todayRoutineTitle',
+        'totalDaysSet', 'totalRestDays', 'totalWorkoutDays', 'totalLogs',
+        'currentMonthLabel', 'allTimeVol', 'todayVol', 'todaySets', 'recentLogs'
+    ));
 });
 
 // 2. Workout Schedule Route with Monthly Program Selection
@@ -170,7 +188,7 @@ Route::get('/dashboard/schedule/export-excel', function (Request $request) {
     return response($html, 200, $headers);
 });
 
-// 3. Date-based Workout Log Route (/dashboard/logs)
+// 3. Date-based and Multi-Period Workout Log Route (/dashboard/logs)
 Route::get('/dashboard/logs', function (Request $request) {
     if (!Auth::check() && !session('user')) {
         return redirect('/login')->with('error', 'AKSES DITOLAK! SILAKAN LOGIN ATAU DAFTAR AKUN.');
@@ -178,6 +196,7 @@ Route::get('/dashboard/logs', function (Request $request) {
 
     $userId = getAuthUserId();
 
+    $activeView = $request->query('view', 'daily'); // 'daily', 'weekly', 'monthly', 'all'
     $selectedDate = $request->query('date', date('Y-m-d'));
     $selectedMonthYear = date('Y-m', strtotime($selectedDate));
     $selectedMonthLabel = getIndonesianMonthLabel($selectedMonthYear);
@@ -199,7 +218,27 @@ Route::get('/dashboard/logs', function (Request $request) {
         ->where('day_name', $dayNameId)
         ->first();
 
-    $logs = WorkoutLog::where('user_id', $userId)->where('log_date', $selectedDate)->orderBy('id', 'asc')->get();
+    $query = WorkoutLog::where('user_id', $userId);
+
+    if ($activeView === 'daily') {
+        $query->where('log_date', $selectedDate)->orderBy('id', 'asc');
+        $viewLabel = 'CATATAN LATIHAN TANGGAL ' . date('d/m/Y', strtotime($selectedDate));
+    } elseif ($activeView === 'weekly') {
+        $mondayThisWeek = date('Y-m-d', strtotime('monday this week'));
+        $sundayThisWeek = date('Y-m-d', strtotime('sunday this week'));
+        $query->whereBetween('log_date', [$mondayThisWeek, $sundayThisWeek])->orderBy('log_date', 'desc')->orderBy('id', 'desc');
+        $viewLabel = 'SEMUA CATATAN LATIHAN MINGGU INI (' . date('d/m', strtotime($mondayThisWeek)) . ' - ' . date('d/m/Y', strtotime($sundayThisWeek)) . ')';
+    } elseif ($activeView === 'monthly') {
+        $firstDayThisMonth = date('Y-m-01');
+        $lastDayThisMonth = date('Y-m-t');
+        $query->whereBetween('log_date', [$firstDayThisMonth, $lastDayThisMonth])->orderBy('log_date', 'desc')->orderBy('id', 'desc');
+        $viewLabel = 'SEMUA CATATAN LATIHAN BULAN INI (' . $selectedMonthLabel . ')';
+    } else { // 'all'
+        $query->orderBy('log_date', 'desc')->orderBy('id', 'desc');
+        $viewLabel = 'SEMUA RIWAYAT CATATAN LATIHAN (ALL-TIME)';
+    }
+
+    $logs = $query->get();
 
     $todayInfo = getTodayInfo($userId);
     $todayName = $todayInfo['todayName'];
@@ -207,11 +246,14 @@ Route::get('/dashboard/logs', function (Request $request) {
 
     $totalExercises = $logs->count();
     $totalSets = $logs->sum('sets');
-    $totalVolumeKg = $logs->sum(function($item) {
-        return $item->sets * $item->reps * $item->weight_kg;
-    });
+    $totalVolumeKg = calculateLogsVolume($logs);
+    $totalDurationSeconds = $logs->sum('duration_seconds');
 
-    return view('Dashboard.logs', compact('selectedDate', 'selectedMonthLabel', 'dayNameId', 'scheduledRoutine', 'logs', 'todayName', 'todayRoutineTitle', 'totalExercises', 'totalSets', 'totalVolumeKg'));
+    return view('Dashboard.logs', compact(
+        'activeView', 'selectedDate', 'selectedMonthLabel', 'dayNameId', 'scheduledRoutine',
+        'logs', 'viewLabel', 'todayName', 'todayRoutineTitle',
+        'totalExercises', 'totalSets', 'totalVolumeKg', 'totalDurationSeconds'
+    ));
 });
 
 // Export Workout Logs to Styled Excel Document
@@ -232,9 +274,7 @@ Route::get('/dashboard/logs/export-excel', function (Request $request) {
         $titleLabel = 'SEMUA CATATAN LATIHAN NAOOLIFT';
     }
 
-    $totalVolume = $logs->sum(function($item) {
-        return $item->sets * $item->reps * $item->weight_kg;
-    });
+    $totalVolume = calculateLogsVolume($logs);
 
     $headers = [
         "Content-type" => "application/vnd.ms-excel; charset=utf-8",
@@ -417,10 +457,7 @@ Route::get('/dashboard/settings', function () {
     $todayName = $todayInfo['todayName'];
     $todayRoutineTitle = $todayInfo['todayRoutineTitle'];
 
-    $totalLogsCount = WorkoutLog::where('user_id', $userId)->count();
-    $totalSchedulesCount = Schedule::where('user_id', $userId)->count();
-
-    return view('Dashboard.settings', compact('user', 'todayName', 'todayRoutineTitle', 'totalLogsCount', 'totalSchedulesCount'));
+    return view('Dashboard.settings', compact('user', 'todayName', 'todayRoutineTitle'));
 });
 
 // Update Profile
@@ -474,27 +511,7 @@ Route::post('/dashboard/settings/password', function (Request $request) {
     return redirect('/dashboard/settings')->with('success', 'KATA SANDI AKUN BERHASIL DIPERBARUI!');
 });
 
-// Reset Workout Logs Data
-Route::post('/dashboard/settings/reset-logs', function (Request $request) {
-    $userId = getAuthUserId();
-    if (!$userId) return redirect('/login')->with('error', 'AKSES DITOLAK!');
-
-    WorkoutLog::where('user_id', $userId)->delete();
-
-    return redirect('/dashboard/settings')->with('info', 'SELURUH CATATAN LOG LATIHAN BERHASIL DIHAPUS & DIRESET.');
-});
-
-// Reset Schedule Program Data
-Route::post('/dashboard/settings/reset-schedules', function (Request $request) {
-    $userId = getAuthUserId();
-    if (!$userId) return redirect('/login')->with('error', 'AKSES DITOLAK!');
-
-    Schedule::where('user_id', $userId)->delete();
-
-    return redirect('/dashboard/settings')->with('info', 'SELURUH JADWAL PROGRAM BULANAN BERHASIL DIHAPUS & DIRESET.');
-});
-
-// Save Workout Log Entry
+// Save Workout Log Entry (With Duration Seconds Support)
 Route::post('/dashboard/logs', function (Request $request) {
     $userId = getAuthUserId();
     if (!$userId) return redirect('/login')->with('error', 'AKSES DITOLAK!');
@@ -506,6 +523,7 @@ Route::post('/dashboard/logs', function (Request $request) {
         'reps' => 'required|integer|min:1',
         'weight_kg' => 'required|numeric|min:0',
         'notes' => 'nullable|string',
+        'duration_seconds' => 'nullable|integer|min:0',
     ], [
         'log_date.required' => 'TANGGAL WAJIB DIISI.',
         'exercise_name.required' => 'NAMA LATIHAN WAJIB DIISI.',
@@ -543,9 +561,11 @@ Route::post('/dashboard/logs', function (Request $request) {
         'reps' => $request->reps,
         'weight_kg' => $request->weight_kg,
         'notes' => $request->notes,
+        'duration_seconds' => $request->duration_seconds ?? null,
     ]);
 
-    return redirect('/dashboard/logs?date=' . $request->log_date)->with('success', 'CATATAN LATIHAN ' . strtoupper($request->exercise_name) . ' BERHASIL DISIMPAN!');
+    $redirectView = $request->input('view', 'daily');
+    return redirect('/dashboard/logs?view=' . $redirectView . '&date=' . $request->log_date)->with('success', 'CATATAN LATIHAN ' . strtoupper($request->exercise_name) . ' BERHASIL DISIMPAN!');
 });
 
 // Delete Workout Log Entry
@@ -556,8 +576,9 @@ Route::post('/dashboard/logs/delete', function (Request $request) {
     $log = WorkoutLog::where('user_id', $userId)->where('id', $request->log_id)->first();
     if ($log) {
         $date = $log->log_date;
+        $view = $request->input('view', 'daily');
         $log->delete();
-        return redirect('/dashboard/logs?date=' . $date)->with('info', 'CATATAN LATIHAN BERHASIL DIHAPUS.');
+        return redirect('/dashboard/logs?view=' . $view . '&date=' . $date)->with('info', 'CATATAN LATIHAN BERHASIL DIHAPUS.');
     }
 
     return back()->with('error', 'LOG TIDAK DITEMUKAN.');

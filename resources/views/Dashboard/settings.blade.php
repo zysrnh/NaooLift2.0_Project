@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NaooLift — Pengaturan Sistem & Akun</title>
+<title>NaooLift — Pengaturan Akun</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Space+Mono:wght@400;700&display=swap');
@@ -142,7 +142,7 @@
           <span class="font-sans">MODUL UTAMA:</span>
           <span class="text-ember flex items-center gap-1.5 font-bold">
             <span class="w-2 h-2 bg-ember animate-pulse inline-block"></span>
-            PENGATURAN_SISTEM
+            PENGATURAN_AKUN
           </span>
         </div>
         <div class="flex-1 p-4 border-r-grid flex justify-between items-center bg-light">
@@ -240,25 +240,25 @@
           <div class="border-b-[3px] border-charcoal pb-4 sm:pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
               <span class="font-mono text-[11px] sm:text-xs font-bold uppercase tracking-widest text-ember">
-                06 // SYSTEM_&_USER_SETTINGS
+                06 // USER_ACCOUNT_SETTINGS
               </span>
               <h2 class="text-2xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tighter text-charcoal mt-1">
-                PENGATURAN SISTEM & AKUN
+                PENGATURAN AKUN
               </h2>
               <p class="text-xs sm:text-sm font-semibold text-slate mt-1 max-w-xl">
-                Kelola informasi profil pengguna, ubah kata sandi akun, serta reset atau ekspor data arsip.
+                Kelola informasi profil nama lengkap dan ubah kata sandi akun Anda.
               </p>
             </div>
           </div>
 
-          <!-- GRID CONTAINING SETTINGS SECTIONS -->
+          <!-- GRID CONTAINING USER SETTINGS -->
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
             <!-- SECTION 1: EDIT PROFILE -->
             <div class="border-grid bg-canvas p-6 flex flex-col justify-between gap-4">
               <div class="border-b-[3px] border-charcoal pb-3">
                 <span class="font-mono text-[10px] font-bold uppercase tracking-widest text-ember">SECTION 01</span>
-                <h3 class="text-xl font-black uppercase text-charcoal mt-0.5">PENGATURAN PROFIL & AKUN</h3>
+                <h3 class="text-xl font-black uppercase text-charcoal mt-0.5">PROFIL PENGGUNA</h3>
               </div>
 
               <form action="/dashboard/settings/profile" method="POST" class="space-y-4">
@@ -355,72 +355,6 @@
               </form>
             </div>
 
-            <!-- SECTION 3: DATA MANAGEMENT & RESET -->
-            <div class="border-grid bg-canvas p-6 flex flex-col justify-between gap-4">
-              <div class="border-b-[3px] border-charcoal pb-3">
-                <span class="font-mono text-[10px] font-bold uppercase tracking-widest text-ember">SECTION 03</span>
-                <h3 class="text-xl font-black uppercase text-charcoal mt-0.5">EKSPOR & PENGELOLAAN DATA</h3>
-              </div>
-
-              <div class="flex flex-col gap-3">
-                <a 
-                  href="/dashboard/logs/export-excel" 
-                  class="border-grid bg-light text-charcoal text-center font-bold text-xs uppercase tracking-widest py-3 hover:bg-charcoal hover:text-canvas transition-none active:translate-y-1 block"
-                >
-                  [ EXPORT SEMUA LOG KE EXCEL ]
-                </a>
-
-                <div class="border-t-grid pt-3 flex flex-col gap-2">
-                  <span class="font-mono text-xs font-bold uppercase text-ember">DANGER ZONE // RESET DATA</span>
-
-                  <button 
-                    onclick="openResetLogsModal()"
-                    class="border-grid bg-canvas text-ember font-bold text-xs uppercase tracking-widest py-2.5 hover:bg-ember hover:text-canvas transition-none active:translate-y-1"
-                  >
-                    ✕ RESET SEMUA LOG LATIHAN ({{ $totalLogsCount }} ENTRI)
-                  </button>
-
-                  <button 
-                    onclick="openResetSchedulesModal()"
-                    class="border-grid bg-canvas text-ember font-bold text-xs uppercase tracking-widest py-2.5 hover:bg-ember hover:text-canvas transition-none active:translate-y-1"
-                  >
-                    ✕ RESET SEMUA JADWAL PROGRAM ({{ $totalSchedulesCount }} HARI)
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- SECTION 4: SYSTEM STATUS & DIAGNOSTICS -->
-            <div class="border-grid bg-light p-6 flex flex-col justify-between gap-4">
-              <div class="border-b-[3px] border-charcoal pb-3">
-                <span class="font-mono text-[10px] font-bold uppercase tracking-widest text-charcoal">SECTION 04</span>
-                <h3 class="text-xl font-black uppercase text-charcoal mt-0.5">STATUS SISTEM & DIAGNOSTIK</h3>
-              </div>
-
-              <div class="font-mono text-xs space-y-2 uppercase font-bold text-charcoal">
-                <div class="flex justify-between border-b-grid pb-2">
-                  <span>VERSION SISTEM:</span>
-                  <span class="text-ember">NAOOLIFT v2.0 BRUTALIST</span>
-                </div>
-                <div class="flex justify-between border-b-grid pb-2">
-                  <span>FRAMEWORK ENGINE:</span>
-                  <span>LARAVEL 12 (PHP 8.2)</span>
-                </div>
-                <div class="flex justify-between border-b-grid pb-2">
-                  <span>DATABASE ENGINE:</span>
-                  <span>SQLITE DATABASE</span>
-                </div>
-                <div class="flex justify-between border-b-grid pb-2">
-                  <span>STATUS AKUN:</span>
-                  <span class="text-ember">AUTHENTICATED ACTIVE</span>
-                </div>
-                <div class="flex justify-between">
-                  <span>ACTIVE USER SESSION:</span>
-                  <span class="truncate max-w-[180px]">{{ session('user') }}</span>
-                </div>
-              </div>
-            </div>
-
           </div>
 
         </div>
@@ -432,7 +366,7 @@
     <!-- FULL-WIDTH SWISS BRUTALIST FOOTER BAR -->
     <footer class="border-t-grid bg-charcoal text-canvas p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-center font-mono text-[10px] sm:text-xs uppercase tracking-widest gap-2">
       <div>NAOOLIFT SYSTEM © 2026</div>
-      <div class="text-slate">MODULE: SYSTEM_&_USER_SETTINGS</div>
+      <div class="text-slate">MODULE: USER_ACCOUNT_SETTINGS</div>
     </footer>
 
   </div>
@@ -456,54 +390,6 @@
       <span>SETTING</span>
     </a>
   </nav>
-
-  <!-- RESET LOGS CONFIRMATION MODAL -->
-  <div id="reset-logs-modal" class="fixed inset-0 z-[100] bg-charcoal/80 flex items-center justify-center p-4 hidden">
-    <div class="w-full max-w-[440px] border-grid bg-canvas p-6 sm:p-8 flex flex-col gap-4 shadow-none relative animate-fade-in">
-      <div class="flex justify-between items-center border-b-[3px] border-charcoal pb-3">
-        <h3 class="font-black text-xl uppercase tracking-tighter text-charcoal">
-          KONFIRMASI RESET LOG
-        </h3>
-        <span class="font-mono text-xs font-bold text-ember">DANGER_ZONE</span>
-      </div>
-      <p class="text-xs sm:text-sm font-semibold text-charcoal leading-relaxed">
-        Apakah Anda yakin ingin menghapus SELURUH ({{ $totalLogsCount }}) entri catatan log latihan Anda? Tindakan ini tidak dapat dibatalkan!
-      </p>
-      <form action="/dashboard/settings/reset-logs" method="POST" class="flex gap-3 pt-2">
-        @csrf
-        <button type="button" onclick="closeResetLogsModal()" class="flex-1 border-[3px] border-charcoal bg-light text-charcoal font-bold text-xs uppercase tracking-widest py-3 hover:bg-charcoal hover:text-canvas transition-none active:translate-y-1">
-          BATAL
-        </button>
-        <button type="submit" class="flex-1 border-[3px] border-charcoal bg-ember text-canvas font-bold text-xs uppercase tracking-widest py-3 hover:bg-charcoal transition-none active:translate-y-1">
-          YA, RESET LOG →
-        </button>
-      </form>
-    </div>
-  </div>
-
-  <!-- RESET SCHEDULES CONFIRMATION MODAL -->
-  <div id="reset-schedules-modal" class="fixed inset-0 z-[100] bg-charcoal/80 flex items-center justify-center p-4 hidden">
-    <div class="w-full max-w-[440px] border-grid bg-canvas p-6 sm:p-8 flex flex-col gap-4 shadow-none relative animate-fade-in">
-      <div class="flex justify-between items-center border-b-[3px] border-charcoal pb-3">
-        <h3 class="font-black text-xl uppercase tracking-tighter text-charcoal">
-          KONFIRMASI RESET JADWAL
-        </h3>
-        <span class="font-mono text-xs font-bold text-ember">DANGER_ZONE</span>
-      </div>
-      <p class="text-xs sm:text-sm font-semibold text-charcoal leading-relaxed">
-        Apakah Anda yakin ingin menghapus SELURUH ({{ $totalSchedulesCount }}) entri jadwal program harian Anda? Tindakan ini tidak dapat dibatalkan!
-      </p>
-      <form action="/dashboard/settings/reset-schedules" method="POST" class="flex gap-3 pt-2">
-        @csrf
-        <button type="button" onclick="closeResetSchedulesModal()" class="flex-1 border-[3px] border-charcoal bg-light text-charcoal font-bold text-xs uppercase tracking-widest py-3 hover:bg-charcoal hover:text-canvas transition-none active:translate-y-1">
-          BATAL
-        </button>
-        <button type="submit" class="flex-1 border-[3px] border-charcoal bg-ember text-canvas font-bold text-xs uppercase tracking-widest py-3 hover:bg-charcoal transition-none active:translate-y-1">
-          YA, RESET JADWAL →
-        </button>
-      </form>
-    </div>
-  </div>
 
   <!-- SWISS BRUTALIST LOGOUT CONFIRMATION MODAL -->
   <div id="logout-modal" class="fixed inset-0 z-[100] bg-charcoal/80 flex items-center justify-center p-4 hidden">
@@ -544,26 +430,6 @@
     updateTime();
     setInterval(updateTime, 1000);
 
-    function openResetLogsModal() {
-      const modal = document.getElementById('reset-logs-modal');
-      if (modal) modal.classList.remove('hidden');
-    }
-
-    function closeResetLogsModal() {
-      const modal = document.getElementById('reset-logs-modal');
-      if (modal) modal.classList.add('hidden');
-    }
-
-    function openResetSchedulesModal() {
-      const modal = document.getElementById('reset-schedules-modal');
-      if (modal) modal.classList.remove('hidden');
-    }
-
-    function closeResetSchedulesModal() {
-      const modal = document.getElementById('reset-schedules-modal');
-      if (modal) modal.classList.add('hidden');
-    }
-
     function openLogoutModal() {
       const modal = document.getElementById('logout-modal');
       if (modal) modal.classList.remove('hidden');
@@ -576,8 +442,6 @@
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
-        closeResetLogsModal();
-        closeResetSchedulesModal();
         closeLogoutModal();
       }
     });

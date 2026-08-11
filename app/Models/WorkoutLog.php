@@ -18,6 +18,7 @@ class WorkoutLog extends Model
         'reps',
         'weight_kg',
         'notes',
+        'duration_seconds',
     ];
 
     public function user()

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NaooLift — Log Sesi Latihan</title>
+<title>NaooLift — Log Catatan Latihan & Stopwatch</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Space+Mono:wght@400;700&display=swap');
@@ -84,7 +84,7 @@
       padding: 0 !important;
       color: #000000 !important;
     }
-    header, aside, nav, #toast-container, button, form, .no-print, .hero-header, .action-bar, .screen-only-logs, .summary-metrics {
+    header, aside, nav, #toast-container, button, form, .no-print, .hero-header, .action-bar, .timer-widget, .view-selector-bar {
       display: none !important;
     }
     .print-only-header, .print-only-table {
@@ -180,7 +180,7 @@
           <span class="font-sans">MODUL UTAMA:</span>
           <span class="text-ember flex items-center gap-1.5 font-bold">
             <span class="w-2 h-2 bg-ember animate-pulse inline-block"></span>
-            LOG_SESI_LATIHAN
+            CATATAN_LOG_LATIHAN
           </span>
         </div>
         <div class="flex-1 p-4 border-r-grid flex justify-between items-center bg-light">
@@ -274,12 +274,11 @@
         <!-- PRINT ONLY CLEAN ARCHIVAL HEADER -->
         <div class="print-only-header border-b-[3px] border-black p-5 bg-black text-white font-mono">
           <div class="flex justify-between items-center">
-            <h1 class="text-xl font-black uppercase tracking-tight">NAOOLIFT — LAPORAN ARSIP CATATAN LATIHAN</h1>
-            <div class="text-xs text-amber-400 font-bold">OFFICIAL_REPORT</div>
+            <h1 class="text-xl font-black uppercase tracking-tight">NAOOLIFT — ARSIP LOG CATATAN LATIHAN</h1>
+            <div class="text-xs text-amber-400 font-bold">WORKOUT_LOGS_ARCHIVE</div>
           </div>
           <div class="flex justify-between items-center text-xs text-gray-300 mt-2 border-t border-gray-700 pt-2">
             <div>USER: {{ session('user', 'USER NAOOLIFT') }}</div>
-            <div>TANGGAL LATIHAN: {{ date('d/m/Y', strtotime($selectedDate)) }} ({{ $dayNameId }})</div>
             <div>TANGGAL CETAK: {{ date('d/m/Y H:i:s') }}</div>
           </div>
         </div>
@@ -291,275 +290,323 @@
           <div class="hero-header border-b-[3px] border-charcoal pb-4 sm:pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
               <span class="font-mono text-[11px] sm:text-xs font-bold uppercase tracking-widest text-ember">
-                03 // DATE_BASED_WORKOUT_LOGS
+                03 // WORKOUT_LOGGING_MODULE
               </span>
               <h2 class="text-2xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tighter text-charcoal mt-1">
-                LOG SESI LATIHAN
+                LOG CATATAN LATIHAN
               </h2>
               <p class="text-xs sm:text-sm font-semibold text-slate mt-1 max-w-xl">
-                Catat beban berat, set, dan repetisi gerakan latihan Anda berdasarkan tanggal.
+                Catat setiap set, repetisi, beban (KG), serta durasi latihan Anda. Gunakan stopwatch sesi di bawah untuk menghitung waktu latihan.
               </p>
             </div>
             
+            <!-- ACTION BUTTONS -->
             <div class="flex flex-wrap items-center gap-2 shrink-0">
-              <!-- Export Styled Excel Button -->
+              <button 
+                onclick="openAddLogModal()"
+                class="border-grid bg-ember text-canvas font-bold text-xs uppercase tracking-widest px-5 py-3.5 hover:bg-charcoal transition-none active:translate-y-1 flex items-center gap-2"
+              >
+                <span>[ + TAMBAH LOG LATIHAN ]</span>
+              </button>
+
               <a 
                 href="/dashboard/logs/export-excel?date={{ $selectedDate }}"
-                class="border-grid bg-light text-charcoal font-bold text-xs uppercase tracking-widest px-4 py-3.5 hover:bg-charcoal hover:text-canvas transition-none active:translate-y-1"
-                title="Export Spreadsheet Excel Berwarna"
+                class="border-grid bg-canvas text-charcoal font-bold text-xs uppercase tracking-widest px-4 py-3.5 hover:bg-charcoal hover:text-canvas transition-none active:translate-y-1"
+                title="Download file Excel"
               >
                 <span>[ EXPORT EXCEL ]</span>
               </a>
 
-              <!-- Export Printable Data PDF Button -->
               <button 
                 onclick="window.print()"
                 class="border-grid bg-canvas text-charcoal font-bold text-xs uppercase tracking-widest px-4 py-3.5 hover:bg-charcoal hover:text-canvas transition-none active:translate-y-1"
-                title="Cetak Data Latihan / PDF Arsip"
+                title="Cetak PDF A4"
               >
                 <span>[ CETAK / PDF ARSIP ]</span>
               </button>
+            </div>
+          </div>
+
+          <!-- BACKGROUND ACTIVE WORKOUT STOPWATCH WIDGET (RUNS IN BACKGROUND) -->
+          <div class="timer-widget border-grid bg-charcoal text-canvas p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 border-l-[8px] border-l-ember">
+            <div class="flex flex-col gap-1">
+              <div class="flex items-center gap-2 font-mono text-[11px] font-bold uppercase tracking-widest text-slate">
+                <span id="workout-pulse-dot" class="w-2.5 h-2.5 bg-slate inline-block"></span>
+                <span id="workout-timer-status">STOPWATCH SESI LATIHAN (SIAP)</span>
+              </div>
+              <div class="font-mono text-4xl sm:text-5xl font-black text-canvas tracking-tight" id="workout-stopwatch-display">
+                00:00:00
+              </div>
+              <span class="font-mono text-[10px] text-slate font-bold uppercase">
+                PERSISTENT IN BACKGROUND (TIDAK MATI SAAT TAB DITUTUP)
+              </span>
+            </div>
+
+            <!-- STOPWATCH CONTROL BUTTONS -->
+            <div class="flex flex-wrap items-center gap-2 shrink-0">
+              <button 
+                id="btn-timer-start" 
+                onclick="startWorkoutTimer()" 
+                class="border-grid bg-ember text-canvas font-mono font-bold text-xs uppercase tracking-widest px-4 py-3 hover:bg-canvas hover:text-charcoal transition-none active:translate-y-1"
+              >
+                [ ▶ MULAI SESI ]
+              </button>
 
               <button 
-                onclick="openAddLogModal()"
-                class="border-grid bg-ember text-canvas font-bold text-xs uppercase tracking-widest px-5 py-3.5 hover:bg-charcoal transition-none active:translate-y-1 flex items-center justify-center gap-2"
+                id="btn-timer-pause" 
+                onclick="pauseWorkoutTimer()" 
+                class="border-grid bg-canvas text-charcoal font-mono font-bold text-xs uppercase tracking-widest px-4 py-3 hover:bg-ember hover:text-canvas transition-none active:translate-y-1 hidden"
               >
-                <span>+ CATAT GERAKAN</span>
+                [ ⏸ PAUSE ]
+              </button>
+
+              <button 
+                id="btn-timer-finish" 
+                onclick="finishWorkoutTimer()" 
+                class="border-grid bg-ember text-canvas font-mono font-bold text-xs uppercase tracking-widest px-4 py-3 hover:bg-canvas hover:text-charcoal transition-none active:translate-y-1 hidden"
+              >
+                [ ⏹ SIMPAN DURASI KE LOG ]
+              </button>
+
+              <button 
+                onclick="resetWorkoutTimer()" 
+                class="border-grid bg-canvas text-charcoal font-mono font-bold text-xs uppercase tracking-widest px-3 py-3 hover:bg-charcoal hover:text-canvas transition-none active:translate-y-1"
+                title="Reset Timer"
+              >
+                [ ↺ RESET ]
               </button>
             </div>
           </div>
 
-          <!-- DATE SELECTOR ACTION BAR -->
-          <div class="action-bar border-grid bg-light p-4 flex flex-col md:flex-row justify-between items-center gap-4">
-            <form action="/dashboard/logs" method="GET" class="flex items-center gap-2 w-full md:w-auto">
-              <span class="font-mono text-xs font-bold uppercase tracking-widest text-charcoal whitespace-nowrap">
-                PILIH TANGGAL:
-              </span>
-              <input 
-                type="date" 
-                name="date"
-                value="{{ $selectedDate }}"
-                onchange="this.form.submit()"
-                class="bg-canvas border-grid p-2 font-mono text-xs font-bold uppercase text-charcoal focus:outline-none focus:border-ember cursor-pointer flex-1 md:flex-none"
-              >
-              <button type="submit" class="border-grid bg-charcoal text-canvas font-bold text-xs uppercase tracking-widest px-3 py-2 hover:bg-ember transition-none">
-                CARI
-              </button>
+          <!-- VIEW SELECTOR BAR (HARIAN / MINGGU INI / BULAN INI / SEMUA RIWAYAT) -->
+          <div class="view-selector-bar border-grid bg-light p-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 font-mono text-xs font-bold uppercase tracking-widest">
+            <a 
+              href="/dashboard/logs?view=daily&date={{ $selectedDate }}" 
+              class="p-3 border-grid text-center transition-none {{ $activeView === 'daily' ? 'bg-charcoal text-canvas' : 'bg-canvas text-charcoal hover:bg-charcoal hover:text-canvas' }}"
+            >
+              [01] HARIAN (TANGGAL PILIHAN)
+            </a>
+            <a 
+              href="/dashboard/logs?view=weekly" 
+              class="p-3 border-grid text-center transition-none {{ $activeView === 'weekly' ? 'bg-charcoal text-canvas' : 'bg-canvas text-charcoal hover:bg-charcoal hover:text-canvas' }}"
+            >
+              [02] MINGGU INI (MINGGUAN)
+            </a>
+            <a 
+              href="/dashboard/logs?view=monthly" 
+              class="p-3 border-grid text-center transition-none {{ $activeView === 'monthly' ? 'bg-charcoal text-canvas' : 'bg-canvas text-charcoal hover:bg-charcoal hover:text-canvas' }}"
+            >
+              [03] BULAN INI (BULANAN)
+            </a>
+            <a 
+              href="/dashboard/logs?view=all" 
+              class="p-3 border-grid text-center transition-none {{ $activeView === 'all' ? 'bg-charcoal text-canvas' : 'bg-canvas text-charcoal hover:bg-charcoal hover:text-canvas' }}"
+            >
+              [04] SEMUA RIWAYAT (ALL-TIME)
+            </a>
+          </div>
+
+          <!-- DATE SELECTOR FORM (DISPLAYED ONLY WHEN IN DAILY VIEW) -->
+          @if($activeView === 'daily')
+            <form action="/dashboard/logs" method="GET" class="border-grid bg-light p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <input type="hidden" name="view" value="daily">
+              <div class="flex items-center gap-3 w-full sm:w-auto">
+                <span class="font-mono text-xs font-bold uppercase tracking-widest text-charcoal whitespace-nowrap">PILIH TANGGAL LATIHAN:</span>
+                <input 
+                  type="date" 
+                  name="date" 
+                  value="{{ $selectedDate }}"
+                  onchange="this.form.submit()"
+                  class="bg-canvas border-grid p-2 font-mono text-xs font-bold uppercase text-charcoal focus:outline-none focus:border-ember cursor-pointer"
+                >
+              </div>
+              
+              <div class="font-mono text-xs text-slate font-bold uppercase">
+                PROGRAM SESI: <span class="text-ember font-black">{{ $scheduledRoutine ? $scheduledRoutine->title : 'BELUM ADA JADWAL' }}</span>
+              </div>
             </form>
+          @endif
 
-            <div class="flex items-center gap-2 w-full md:w-auto justify-end">
-              <a href="/dashboard/logs?date={{ date('Y-m-d') }}" class="border-grid bg-canvas px-3 py-1.5 font-mono text-[11px] font-bold uppercase text-charcoal hover:bg-charcoal hover:text-canvas transition-none">
-                [ HARI INI ]
-              </a>
-              <a href="/dashboard/logs?date={{ date('Y-m-d', strtotime('-1 day')) }}" class="border-grid bg-canvas px-3 py-1.5 font-mono text-[11px] font-bold uppercase text-charcoal hover:bg-charcoal hover:text-canvas transition-none">
-                [ KEMARIN ]
-              </a>
-              <a href="/dashboard/logs/export-excel" class="border-grid bg-ember text-canvas px-3 py-1.5 font-mono text-[11px] font-bold uppercase hover:bg-charcoal transition-none" title="Download Semua Excel">
-                [ DOWNLOAD SEMUA EXCEL ]
-              </a>
+          <!-- AGGREGATE SUMMARY METRICS FOR SELECTED VIEW -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+            <div class="border-grid bg-canvas p-4 sm:p-5 flex flex-col justify-between gap-2 border-l-[8px] border-l-ember">
+              <span class="font-mono text-[10px] sm:text-[11px] font-bold text-slate uppercase tracking-widest">
+                TOTAL VOLUMETRIK BEBAN
+              </span>
+              <div class="font-mono text-3xl sm:text-4xl font-black text-ember">
+                {{ number_format($totalVolumeKg) }} <span class="text-sm text-charcoal">KG</span>
+              </div>
+              <span class="font-mono text-[9px] text-slate font-bold uppercase border-t-grid pt-1">
+                ACCUMULATED VOLUME
+              </span>
+            </div>
+
+            <div class="border-grid bg-canvas p-4 sm:p-5 flex flex-col justify-between gap-2">
+              <span class="font-mono text-[10px] sm:text-[11px] font-bold text-slate uppercase tracking-widest">
+                TOTAL GERAKAN LATIHAN
+              </span>
+              <div class="font-mono text-3xl sm:text-4xl font-black text-charcoal">
+                {{ $totalExercises }} <span class="text-sm text-slate">GERAKAN</span>
+              </div>
+              <span class="font-mono text-[9px] text-slate font-bold uppercase border-t-grid pt-1">
+                EXERCISES COUNT
+              </span>
+            </div>
+
+            <div class="border-grid bg-canvas p-4 sm:p-5 flex flex-col justify-between gap-2">
+              <span class="font-mono text-[10px] sm:text-[11px] font-bold text-slate uppercase tracking-widest">
+                TOTAL SET LATIHAN
+              </span>
+              <div class="font-mono text-3xl sm:text-4xl font-black text-charcoal">
+                {{ $totalSets }} <span class="text-sm text-slate">SET</span>
+              </div>
+              <span class="font-mono text-[9px] text-slate font-bold uppercase border-t-grid pt-1">
+                TOTAL SETS LOGGED
+              </span>
+            </div>
+
+            <div class="border-grid bg-light p-4 sm:p-5 flex flex-col justify-between gap-2">
+              <span class="font-mono text-[10px] sm:text-[11px] font-bold text-charcoal uppercase tracking-widest">
+                AKUMULASI DURASI SESI
+              </span>
+              <div class="font-mono text-2xl sm:text-3xl font-black text-charcoal">
+                @php
+                  $hours = floor($totalDurationSeconds / 3600);
+                  $mins = floor(($totalDurationSeconds % 3600) / 60);
+                  $secs = $totalDurationSeconds % 60;
+                @endphp
+                @if($hours > 0)
+                  {{ $hours }}<span class="text-xs text-slate">J</span> {{ $mins }}<span class="text-xs text-slate">M</span>
+                @elseif($mins > 0)
+                  {{ $mins }}<span class="text-xs text-slate">M</span> {{ $secs }}<span class="text-xs text-slate">D</span>
+                @else
+                  {{ $secs }}<span class="text-xs text-slate">DETIK</span>
+                @endif
+              </div>
+              <span class="font-mono text-[9px] text-charcoal font-bold uppercase border-t-grid pt-1">
+                WORKOUT DURATION
+              </span>
             </div>
           </div>
 
-          <!-- CONNECTED ROUTINE HIGHLIGHT STRIP -->
-          <div class="border-grid bg-canvas p-4 sm:p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
-            <div>
-              <span class="font-mono text-[10px] font-bold text-slate uppercase tracking-widest">
-                TANGGAL DILIHAT: {{ date('d F Y', strtotime($selectedDate)) }} ({{ $dayNameId }})
-              </span>
-              <h3 class="text-xl sm:text-2xl font-black uppercase tracking-tight text-charcoal mt-0.5">
-                ROUTINE: {{ $scheduledRoutine ? $scheduledRoutine->title : 'LATIHAN BEBAS / UNSET' }}
-              </h3>
-              @if($scheduledRoutine && $scheduledRoutine->focus_target)
-                <div class="font-mono text-xs font-bold text-ember uppercase tracking-wider mt-0.5">
-                  FOKUS OTOT TERJADWAL: {{ $scheduledRoutine->focus_target }}
-                </div>
-              @endif
-            </div>
-
-            @if($scheduledRoutine)
-              @if($scheduledRoutine->is_rest)
-                <span class="font-mono text-xs bg-slate text-canvas px-3 py-1.5 font-bold uppercase border-grid">
-                  TERJADWAL: REST DAY
+          <!-- TABLE OF LOGGED EXERCISES -->
+          <div class="border-grid bg-canvas p-5 sm:p-8 flex flex-col gap-4">
+            <div class="flex justify-between items-center border-b-[3px] border-charcoal pb-4">
+              <div>
+                <span class="font-mono text-[10px] font-bold text-ember uppercase tracking-widest">
+                  LIST_ENTRIES
                 </span>
-              @else
-                <span class="font-mono text-xs bg-ember text-canvas px-3 py-1.5 font-bold uppercase border-grid">
-                  TERJADWAL: WORKOUT
-                </span>
-              @endif
-            @else
-              <span class="font-mono text-xs bg-light text-slate px-3 py-1.5 font-bold uppercase border-grid">
-                BELUM ADA JADWAL DITETAPKAN
-              </span>
-            @endif
-          </div>
-
-          <!-- Date Summary Metrics (Hidden in Print for 1-Page Compactness) -->
-          <div class="summary-metrics grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
-            <div class="border-grid bg-canvas p-4 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4">
-              <span class="font-mono text-[10px] sm:text-[11px] font-bold text-slate uppercase tracking-widest">
-                TOTAL GERAKAN
-              </span>
-              <div class="font-mono text-3xl sm:text-5xl font-bold text-charcoal">
-                {{ $totalExercises }} <span class="text-sm sm:text-lg text-slate">GERAKAN</span>
+                <h3 class="text-xl sm:text-2xl font-black uppercase tracking-tight text-charcoal mt-0.5">
+                  {{ $viewLabel }}
+                </h3>
               </div>
-              <div class="font-mono text-[9px] sm:text-[10px] font-bold text-slate uppercase tracking-wider border-t-grid pt-2">
-                EXERCISES LOGGED
-              </div>
-            </div>
-
-            <div class="border-grid bg-canvas p-4 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4">
-              <span class="font-mono text-[10px] sm:text-[11px] font-bold text-slate uppercase tracking-widest">
-                TOTAL SET & REPS
-              </span>
-              <div class="font-mono text-3xl sm:text-5xl font-bold text-charcoal">
-                {{ $totalSets }} <span class="text-sm sm:text-lg text-slate">SET</span>
-              </div>
-              <div class="font-mono text-[9px] sm:text-[10px] font-bold text-slate uppercase tracking-wider border-t-grid pt-2">
-                TOTAL VOLUME SETS
-              </div>
-            </div>
-
-            <div class="border-grid bg-canvas p-4 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4 col-span-2 lg:col-span-1">
-              <span class="font-mono text-[10px] sm:text-[11px] font-bold text-slate uppercase tracking-widest">
-                VOLUMETRIK LATIHAN
-              </span>
-              <div class="font-mono text-3xl sm:text-5xl font-bold text-ember">
-                {{ number_format($totalVolumeKg) }} <span class="text-sm sm:text-lg text-charcoal">KG</span>
-              </div>
-              <div class="font-mono text-[9px] sm:text-[10px] font-bold text-slate uppercase tracking-wider border-t-grid pt-2">
-                TOTAL WEIGHT LOAD
-              </div>
-            </div>
-          </div>
-
-          <!-- SCREEN ONLY WORKOUT CARDS -->
-          <div class="screen-only-logs flex flex-col gap-4 mt-2">
-            <div class="flex justify-between items-center border-b-[3px] border-charcoal pb-3">
-              <h3 class="text-xl sm:text-2xl font-black uppercase tracking-tighter text-charcoal">
-                CATATAN DATA LATIHAN — TANGGAL {{ date('d/m/Y', strtotime($selectedDate)) }}
-              </h3>
-              <span class="font-mono text-xs font-bold text-ember uppercase tracking-widest">
-                {{ $logs->count() }} ENTRI DICATAT
-              </span>
+              <span class="font-mono text-xs font-bold text-slate uppercase tracking-widest">{{ $logs->count() }} DATA</span>
             </div>
 
             @if($logs->count() > 0)
-              <div class="flex flex-col gap-3">
-                @foreach($logs as $index => $log)
-                  <div class="border-grid bg-canvas p-4 sm:p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-ember transition-colors">
-                    
-                    <div class="flex items-start gap-4">
-                      <div class="w-10 h-10 border-grid bg-charcoal text-canvas flex items-center justify-center font-mono font-bold text-sm shrink-0">
-                        0{{ $index + 1 }}
-                      </div>
-
-                      <div class="flex flex-col gap-1">
-                        <h4 class="text-lg sm:text-xl font-black uppercase tracking-tight text-charcoal">
+              <div class="overflow-x-auto border-grid">
+                <table class="w-full text-left border-collapse font-mono text-xs">
+                  <thead>
+                    <tr class="bg-charcoal text-canvas uppercase text-[11px]">
+                      <th class="p-3 border-r-grid">TANGGAL</th>
+                      <th class="p-3 border-r-grid">SESI / ROUTINE</th>
+                      <th class="p-3 border-r-grid">GERAKAN LATIHAN</th>
+                      <th class="p-3 border-r-grid text-center">SET × REPS</th>
+                      <th class="p-3 border-r-grid text-right">BEBAN (KG)</th>
+                      <th class="p-3 border-r-grid text-right">VOLUMETRIK</th>
+                      <th class="p-3 border-r-grid text-center">DURASI SESI</th>
+                      <th class="p-3 border-r-grid">CATATAN</th>
+                      <th class="p-3 text-center no-print">AKSI</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @foreach($logs as $idx => $log)
+                      @php
+                        $vol = $log->sets * $log->reps * $log->weight_kg;
+                      @endphp
+                      <tr class="border-b-grid {{ $idx % 2 === 1 ? 'bg-light' : 'bg-canvas' }} hover:bg-charcoal hover:text-canvas transition-none">
+                        <td class="p-3 border-r-grid font-bold">
+                          {{ date('d/m/Y', strtotime($log->log_date)) }}
+                        </td>
+                        <td class="p-3 border-r-grid font-bold text-ember">
+                          {{ $log->routine_title }}
+                        </td>
+                        <td class="p-3 border-r-grid font-black text-sm">
                           {{ $log->exercise_name }}
-                        </h4>
-                        
-                        <div class="font-mono text-xs font-bold text-ember uppercase tracking-wider flex items-center gap-3">
-                          <span>BEBAN: {{ number_format($log->weight_kg, 1) }} KG</span>
-                          <span>•</span>
-                          <span>SET: {{ $log->sets }} SET</span>
-                          <span>•</span>
-                          <span>REPS: {{ $log->reps }} REPS</span>
-                        </div>
-
-                        @if($log->notes)
-                          <p class="text-xs font-semibold text-slate mt-1">
-                            Catatan: {{ $log->notes }}
-                          </p>
-                        @endif
-                      </div>
-                    </div>
-
-                    <div class="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end border-t-grid md:border-t-0 pt-3 md:pt-0">
-                      <div class="font-mono text-right">
-                        <span class="text-[10px] text-slate font-bold block uppercase">TOTAL VOLUMETRIK</span>
-                        <span class="text-base font-bold text-charcoal uppercase">
-                          {{ number_format($log->sets * $log->reps * $log->weight_kg) }} KG
-                        </span>
-                      </div>
-
-                      <form action="/dashboard/logs/delete" method="POST" class="inline no-print">
-                        @csrf
-                        <input type="hidden" name="log_id" value="{{ $log->id }}">
-                        <button 
-                          type="submit" 
-                          class="border-grid bg-canvas text-ember font-bold text-xs uppercase tracking-widest px-3 py-2 hover:bg-ember hover:text-canvas transition-none active:translate-y-1"
-                          title="Hapus Log"
-                        >
-                          ✕ HAPUS
-                        </button>
-                      </form>
-                    </div>
-
-                  </div>
-                @endforeach
+                        </td>
+                        <td class="p-3 border-r-grid text-center font-bold">
+                          {{ $log->sets }} SET × {{ $log->reps }} REPS
+                        </td>
+                        <td class="p-3 border-r-grid text-right font-bold">
+                          {{ number_format($log->weight_kg, 1) }} KG
+                        </td>
+                        <td class="p-3 border-r-grid text-right font-black text-ember">
+                          {{ number_format($vol) }} KG
+                        </td>
+                        <td class="p-3 border-r-grid text-center font-bold">
+                          @if($log->duration_seconds)
+                            @php
+                              $dMins = floor($log->duration_seconds / 60);
+                              $dSecs = $log->duration_seconds % 60;
+                            @endphp
+                            <span class="bg-ember text-canvas px-2 py-1 text-[10px]">
+                              ⏱ {{ $dMins }}M {{ $dSecs }}S
+                            </span>
+                          @else
+                            <span class="text-slate font-normal">-</span>
+                          @endif
+                        </td>
+                        <td class="p-3 border-r-grid font-sans text-xs text-slate">
+                          {{ $log->notes ?? '-' }}
+                        </td>
+                        <td class="p-3 text-center no-print">
+                          <form action="/dashboard/logs/delete" method="POST" onsubmit="return confirm('HAPUS CATATAN GERAKAN {{ $log->exercise_name }}?');">
+                            @csrf
+                            <input type="hidden" name="log_id" value="{{ $log->id }}">
+                            <input type="hidden" name="view" value="{{ $activeView }}">
+                            <button type="submit" class="text-ember hover:text-canvas hover:bg-ember font-mono font-bold text-[11px] px-2 py-1 border-grid transition-none">
+                              [✕ HAPUS]
+                            </button>
+                          </form>
+                        </td>
+                      </tr>
+                    @endforeach
+                  </tbody>
+                </table>
               </div>
             @else
-              <div class="border-grid bg-light p-8 sm:p-16 flex flex-col items-center justify-center text-center gap-4 my-2 min-h-[260px]">
-                <div class="w-12 h-12 border-grid bg-charcoal text-canvas flex items-center justify-center font-mono font-black text-xl mb-1">
-                  ✎
-                </div>
-                <h3 class="text-2xl sm:text-3xl font-black uppercase tracking-tighter text-charcoal">
-                  BELUM ADA CATATAN LATIHAN PADA TANGGAL INI
-                </h3>
-                <p class="text-xs sm:text-sm font-semibold text-slate max-w-md">
-                  Tekan tombol "+ CATAT GERAKAN LATIHAN" untuk memasukkan set, reps, dan beban berat latihan Anda pada tanggal ini.
-                </p>
-                <button 
-                  onclick="openAddLogModal()"
-                  class="border-grid bg-ember text-canvas font-bold text-xs uppercase tracking-widest px-6 py-3.5 hover:bg-charcoal transition-none active:translate-y-1 mt-2 no-print"
-                >
-                  + CATAT GERAKAN LATIHAN SEKARANG
-                </button>
+              <div class="p-8 text-center font-mono text-xs font-bold text-slate border-grid bg-light">
+                BELUM ADA CATATAN LATIHAN UNTUK PERIODE TAMPILAN INI. SILAKAN KLIK TOMBOL [ + TAMBAH LOG LATIHAN ].
               </div>
             @endif
           </div>
 
-          <!-- PRINT ONLY CLEAN COMPACT DATA TABLE FOR 1-PAGE PERFECT A4 EXPORT -->
+          <!-- PRINT ONLY CLEAN COMPACT TABULAR ARCHIVE -->
           <div class="print-only-table font-mono text-xs">
             <table class="w-full border-collapse border-[2px] border-black">
               <thead>
                 <tr class="bg-black text-white uppercase text-[11px]">
-                  <th class="border-[2px] border-black p-2 text-center w-12">NO</th>
-                  <th class="border-[2px] border-black p-2 text-left">GERAKAN LATIHAN (EXERCISE)</th>
-                  <th class="border-[2px] border-black p-2 text-center w-16">SET</th>
-                  <th class="border-[2px] border-black p-2 text-center w-16">REPS</th>
-                  <th class="border-[2px] border-black p-2 text-right w-24">BEBAN (KG)</th>
-                  <th class="border-[2px] border-black p-2 text-right w-32">VOLUMETRIK</th>
-                  <th class="border-[2px] border-black p-2 text-left">CATATAN PROGRES</th>
+                  <th class="border-[2px] border-black p-2 text-left">TANGGAL</th>
+                  <th class="border-[2px] border-black p-2 text-left">SESI / ROUTINE</th>
+                  <th class="border-[2px] border-black p-2 text-left">GERAKAN LATIHAN</th>
+                  <th class="border-[2px] border-black p-2 text-center">SET × REPS</th>
+                  <th class="border-[2px] border-black p-2 text-right">BEBAN (KG)</th>
+                  <th class="border-[2px] border-black p-2 text-right">VOLUMETRIK</th>
                 </tr>
               </thead>
               <tbody>
-                @forelse($logs as $index => $l)
+                @foreach($logs as $log)
+                  @php $vol = $log->sets * $log->reps * $log->weight_kg; @endphp
                   <tr class="border-[1.5px] border-black font-bold">
-                    <td class="border-[1.5px] border-black p-2 text-center">0{{ $index + 1 }}</td>
-                    <td class="border-[1.5px] border-black p-2 font-black text-black">{{ $l->exercise_name }}</td>
-                    <td class="border-[1.5px] border-black p-2 text-center">{{ $l->sets }}</td>
-                    <td class="border-[1.5px] border-black p-2 text-center">{{ $l->reps }}</td>
-                    <td class="border-[1.5px] border-black p-2 text-right">{{ number_format($l->weight_kg, 1) }} KG</td>
-                    <td class="border-[1.5px] border-black p-2 text-right font-black" style="color: #9A4A2E;">
-                      {{ number_format($l->sets * $l->reps * $l->weight_kg) }} KG
-                    </td>
-                    <td class="border-[1.5px] border-black p-2 text-gray-800">{{ $l->notes ?? '-' }}</td>
+                    <td class="border-[1.5px] border-black p-2">{{ date('d/m/Y', strtotime($log->log_date)) }}</td>
+                    <td class="border-[1.5px] border-black p-2">{{ $log->routine_title }}</td>
+                    <td class="border-[1.5px] border-black p-2 font-black">{{ $log->exercise_name }}</td>
+                    <td class="border-[1.5px] border-black p-2 text-center">{{ $log->sets }} SET × {{ $log->reps }} REPS</td>
+                    <td class="border-[1.5px] border-black p-2 text-right">{{ number_format($log->weight_kg, 1) }} KG</td>
+                    <td class="border-[1.5px] border-black p-2 text-right font-black" style="color: #9A4A2E;">{{ number_format($vol) }} KG</td>
                   </tr>
-                @empty
-                  <tr>
-                    <td colspan="7" class="p-4 text-center text-gray-500">BELUM ADA CATATAN LATIHAN PADA TANGGAL INI.</td>
-                  </tr>
-                @endforelse
+                @endforeach
               </tbody>
-              <tfoot>
-                <tr class="bg-black text-white font-bold text-xs">
-                  <td colspan="5" class="p-2.5 text-right uppercase">AKUMULASI TOTAL VOLUMETRIK LATIHAN:</td>
-                  <td colspan="2" class="p-2.5 text-right font-black text-sm text-amber-400">
-                    {{ number_format($totalVolumeKg) }} KG
-                  </td>
-                </tr>
-              </tfoot>
             </table>
           </div>
 
@@ -572,7 +619,7 @@
     <!-- FULL-WIDTH SWISS BRUTALIST FOOTER BAR -->
     <footer class="border-t-grid bg-charcoal text-canvas p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-center font-mono text-[10px] sm:text-xs uppercase tracking-widest gap-2">
       <div>NAOOLIFT SYSTEM © 2026</div>
-      <div class="text-slate">MODULE: DATE_BASED_WORKOUT_LOGS</div>
+      <div class="text-slate">MODULE: WORKOUT_LOGGING_MODULE</div>
     </footer>
 
   </div>
@@ -587,87 +634,98 @@
       <span class="text-xs font-black">≡</span>
       <span>JADWAL</span>
     </a>
-    <a href="/dashboard/logs" class="py-3 bg-ember text-canvas border-r-grid flex flex-col items-center justify-center gap-0.5">
+    <a href="/dashboard/logs" class="py-3 bg-ember text-canvas flex flex-col items-center justify-center gap-0.5">
       <span class="text-xs font-black">✎</span>
       <span>LOG</span>
     </a>
-    <a href="/" class="py-3 text-canvas hover:bg-light hover:text-charcoal flex flex-col items-center justify-center gap-0.5 transition-none">
-      <span class="text-xs font-black">←</span>
-      <span>LANDING</span>
+    <a href="/dashboard/comparison" class="py-3 text-canvas hover:bg-light hover:text-charcoal border-r-grid flex flex-col items-center justify-center gap-0.5 transition-none">
+      <span class="text-xs font-black">⇄</span>
+      <span>BANDING</span>
     </a>
   </nav>
 
-  <!-- SWISS BRUTALIST ADD WORKOUT LOG MODAL -->
-  <div id="log-modal" class="fixed inset-0 z-[100] bg-charcoal/80 flex items-center justify-center p-4 hidden">
-    <div class="w-full max-w-[480px] border-grid bg-canvas p-6 sm:p-8 flex flex-col gap-4 shadow-none relative animate-fade-in my-auto">
-      
+  <!-- ADD WORKOUT LOG MODAL -->
+  <div id="add-log-modal" class="fixed inset-0 z-[100] bg-charcoal/80 flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-[540px] border-grid bg-canvas p-6 sm:p-8 flex flex-col gap-4 shadow-none relative animate-fade-in">
       <div class="flex justify-between items-center border-b-[3px] border-charcoal pb-3">
-        <div>
-          <h3 class="font-black text-xl uppercase tracking-tighter text-charcoal">
-            CATAT GERAKAN LATIHAN
-          </h3>
-          <div class="font-mono text-xs font-bold text-ember uppercase tracking-widest">
-            MODUL LOG SESI LATIHAN
-          </div>
-        </div>
-        <button onclick="closeLogModal()" class="font-mono text-xs font-bold text-charcoal hover:text-ember">[✕]</button>
+        <h3 class="font-black text-xl uppercase tracking-tighter text-charcoal">
+          CATAT GERAKAN LATIHAN
+        </h3>
+        <button onclick="closeAddLogModal()" class="font-mono text-xs font-bold text-ember hover:text-charcoal">[✕ TUTUP]</button>
       </div>
 
       <form action="/dashboard/logs" method="POST" class="space-y-4">
         @csrf
+        <input type="hidden" name="view" value="{{ $activeView }}">
+        <input type="hidden" id="modal-duration-seconds" name="duration_seconds" value="">
 
-        <div class="flex flex-col gap-1">
-          <label class="font-mono text-[11px] font-bold uppercase tracking-widest text-charcoal">
-            01 / TANGGAL LATIHAN
-          </label>
-          <input 
-            type="date" 
-            name="log_date" 
-            value="{{ $selectedDate }}"
-            required 
-            class="w-full bg-light border-grid p-2.5 font-mono text-xs text-charcoal font-bold uppercase focus:bg-canvas focus:outline-none focus:border-ember transition-colors cursor-pointer"
-          >
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="flex flex-col gap-1">
+            <label class="font-mono text-[11px] font-bold uppercase tracking-widest text-charcoal">
+              TANGGAL LATIHAN
+            </label>
+            <input 
+              type="date" 
+              name="log_date" 
+              value="{{ $selectedDate }}"
+              required
+              class="w-full bg-light border-grid p-2.5 font-mono text-xs font-bold uppercase text-charcoal focus:bg-canvas focus:outline-none focus:border-ember"
+            >
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label class="font-mono text-[11px] font-bold uppercase tracking-widest text-charcoal">
+              NAMA SESI / ROUTINE
+            </label>
+            <input 
+              type="text" 
+              name="routine_title" 
+              value="{{ $scheduledRoutine ? $scheduledRoutine->title : 'LATIHAN BEBAS' }}"
+              required
+              class="w-full bg-light border-grid p-2.5 font-mono text-xs font-bold uppercase text-charcoal focus:bg-canvas focus:outline-none focus:border-ember"
+            >
+          </div>
         </div>
 
         <div class="flex flex-col gap-1">
           <label class="font-mono text-[11px] font-bold uppercase tracking-widest text-charcoal">
-            02 / NAMA GERAKAN LATIHAN (EXERCISE)
+            NAMA GERAKAN LATIHAN
           </label>
           <input 
             type="text" 
             name="exercise_name" 
-            required 
-            placeholder="CONTOH: BENCH PRESS / INCLINE DUMBBELL PRESS"
-            class="w-full bg-light border-grid p-2.5 font-mono text-xs text-charcoal font-bold uppercase focus:bg-canvas focus:outline-none focus:border-ember transition-colors"
+            placeholder="MISAL: BENCH PRESS / BARBELL SQUAT"
+            required
+            class="w-full bg-light border-grid p-3 font-mono text-xs font-bold uppercase text-charcoal focus:bg-canvas focus:outline-none focus:border-ember"
           >
         </div>
 
         <div class="grid grid-cols-3 gap-3">
           <div class="flex flex-col gap-1">
             <label class="font-mono text-[10px] font-bold uppercase tracking-widest text-charcoal">
-              SET
+              JUMLAH SET
             </label>
             <input 
               type="number" 
               name="sets" 
               value="4"
               min="1"
-              required 
-              class="w-full bg-light border-grid p-2.5 font-mono text-xs text-charcoal font-bold text-center focus:bg-canvas focus:outline-none focus:border-ember transition-colors"
+              required
+              class="w-full bg-light border-grid p-2.5 font-mono text-xs font-bold text-charcoal focus:bg-canvas focus:outline-none focus:border-ember"
             >
           </div>
 
           <div class="flex flex-col gap-1">
             <label class="font-mono text-[10px] font-bold uppercase tracking-widest text-charcoal">
-              REPS
+              REPETISI
             </label>
             <input 
               type="number" 
               name="reps" 
               value="10"
               min="1"
-              required 
-              class="w-full bg-light border-grid p-2.5 font-mono text-xs text-charcoal font-bold text-center focus:bg-canvas focus:outline-none focus:border-ember transition-colors"
+              required
+              class="w-full bg-light border-grid p-2.5 font-mono text-xs font-bold text-charcoal focus:bg-canvas focus:outline-none focus:border-ember"
             >
           </div>
 
@@ -677,44 +735,41 @@
             </label>
             <input 
               type="number" 
-              step="0.5"
+              step="0.5" 
               name="weight_kg" 
-              placeholder="60.0"
-              required 
-              class="w-full bg-light border-grid p-2.5 font-mono text-xs text-charcoal font-bold text-center focus:bg-canvas focus:outline-none focus:border-ember transition-colors"
+              value="20"
+              min="0"
+              required
+              class="w-full bg-light border-grid p-2.5 font-mono text-xs font-bold text-charcoal focus:bg-canvas focus:outline-none focus:border-ember"
             >
           </div>
         </div>
 
+        <!-- STOPWATCH DURATION RECORDED BADGE -->
+        <div id="modal-duration-badge" class="hidden font-mono text-xs font-bold bg-light p-2.5 border-grid text-ember flex items-center gap-2">
+          <span>⏱ DURASI SESI TERDAFTAR:</span>
+          <span id="modal-duration-text" class="font-black text-charcoal">00:00:00</span>
+        </div>
+
         <div class="flex flex-col gap-1">
           <label class="font-mono text-[11px] font-bold uppercase tracking-widest text-charcoal">
-            03 / CATATAN PROGRES / EVALUASI (OPSIONAL)
+            CATATAN OPSIONAL
           </label>
-          <textarea 
+          <input 
+            type="text" 
             name="notes" 
-            rows="3"
-            placeholder="CONTOH: Set 4 terasa berat, tembus rekor 60kg."
-            class="w-full bg-light border-grid p-2.5 font-mono text-xs text-charcoal font-semibold focus:bg-canvas focus:outline-none focus:border-ember transition-colors"
-          ></textarea>
+            placeholder="MISAL: RPE 8, FORM BAGUS"
+            class="w-full bg-light border-grid p-2.5 font-mono text-xs font-bold uppercase text-charcoal focus:bg-canvas focus:outline-none focus:border-ember"
+          >
         </div>
 
-        <div class="flex gap-3 pt-3 border-t-[3px] border-charcoal">
-          <button 
-            type="button" 
-            onclick="closeLogModal()" 
-            class="flex-1 border-[3px] border-charcoal bg-light text-charcoal font-bold text-xs uppercase tracking-widest py-3 hover:bg-charcoal hover:text-canvas transition-none active:translate-y-1"
-          >
-            BATAL
-          </button>
-          <button 
-            type="submit" 
-            class="flex-1 border-[3px] border-charcoal bg-ember text-canvas font-bold text-xs uppercase tracking-widest py-3 hover:bg-charcoal transition-none active:translate-y-1"
-          >
-            SIMPAN LOG →
-          </button>
-        </div>
+        <button 
+          type="submit" 
+          class="w-full border-grid bg-ember text-canvas font-bold text-xs uppercase tracking-widest py-3.5 hover:bg-charcoal transition-none active:translate-y-1 mt-2"
+        >
+          SIMPAN LOG LATIHAN →
+        </button>
       </form>
-
     </div>
   </div>
 
@@ -741,7 +796,141 @@
     </div>
   </div>
 
+  <!-- PERSISTENT BACKGROUND WORKOUT STOPWATCH JAVASCRIPT ENGINE -->
   <script>
+    let timerInterval = null;
+
+    function formatTime(seconds) {
+      const h = Math.floor(seconds / 3600);
+      const m = Math.floor((seconds % 3600) / 60);
+      const s = seconds % 60;
+      const hh = String(h).padStart(2, '0');
+      const mm = String(m).padStart(2, '0');
+      const ss = String(s).padStart(2, '0');
+      return `${hh}:${mm}:${ss}`;
+    }
+
+    function updateWorkoutTimerUI() {
+      const isRunning = localStorage.getItem('naoolift_timer_running') === 'true';
+      const isPaused = localStorage.getItem('naoolift_timer_paused') === 'true';
+      const startTime = parseInt(localStorage.getItem('naoolift_timer_start_time') || '0', 10);
+      const accumulatedPaused = parseInt(localStorage.getItem('naoolift_timer_accumulated') || '0', 10);
+
+      const display = document.getElementById('workout-stopwatch-display');
+      const statusText = document.getElementById('workout-timer-status');
+      const pulseDot = document.getElementById('workout-pulse-dot');
+
+      const btnStart = document.getElementById('btn-timer-start');
+      const btnPause = document.getElementById('btn-timer-pause');
+      const btnFinish = document.getElementById('btn-timer-finish');
+
+      if (isRunning) {
+        const now = Date.now();
+        const elapsedSecs = Math.floor((now - startTime) / 1000) + accumulatedPaused;
+        if (display) display.textContent = formatTime(elapsedSecs);
+        if (statusText) statusText.textContent = 'STOPWATCH SESI LATIHAN (● RUNNING IN BACKGROUND)';
+        if (pulseDot) pulseDot.className = 'w-2.5 h-2.5 bg-ember animate-pulse inline-block';
+
+        if (btnStart) btnStart.classList.add('hidden');
+        if (btnPause) btnPause.classList.remove('hidden');
+        if (btnFinish) btnFinish.classList.remove('hidden');
+      } else if (isPaused) {
+        if (display) display.textContent = formatTime(accumulatedPaused);
+        if (statusText) statusText.textContent = 'STOPWATCH SESI LATIHAN (PAUSED)';
+        if (pulseDot) pulseDot.className = 'w-2.5 h-2.5 bg-slate inline-block';
+
+        if (btnStart) {
+          btnStart.textContent = '[ ▶ LANJUTKAN ]';
+          btnStart.classList.remove('hidden');
+        }
+        if (btnPause) btnPause.classList.add('hidden');
+        if (btnFinish) btnFinish.classList.remove('hidden');
+      } else {
+        if (display) display.textContent = '00:00:00';
+        if (statusText) statusText.textContent = 'STOPWATCH SESI LATIHAN (SIAP)';
+        if (pulseDot) pulseDot.className = 'w-2.5 h-2.5 bg-slate inline-block';
+
+        if (btnStart) {
+          btnStart.textContent = '[ ▶ MULAI SESI ]';
+          btnStart.classList.remove('hidden');
+        }
+        if (btnPause) btnPause.classList.add('hidden');
+        if (btnFinish) btnFinish.classList.add('hidden');
+      }
+    }
+
+    function startWorkoutTimer() {
+      const isPaused = localStorage.getItem('naoolift_timer_paused') === 'true';
+      if (!isPaused) {
+        localStorage.setItem('naoolift_timer_start_time', Date.now());
+        localStorage.setItem('naoolift_timer_accumulated', '0');
+      } else {
+        localStorage.setItem('naoolift_timer_start_time', Date.now());
+        localStorage.setItem('naoolift_timer_paused', 'false');
+      }
+
+      localStorage.setItem('naoolift_timer_running', 'true');
+
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(updateWorkoutTimerUI, 1000);
+      updateWorkoutTimerUI();
+    }
+
+    function pauseWorkoutTimer() {
+      const isRunning = localStorage.getItem('naoolift_timer_running') === 'true';
+      if (isRunning) {
+        const startTime = parseInt(localStorage.getItem('naoolift_timer_start_time') || '0', 10);
+        const accumulated = parseInt(localStorage.getItem('naoolift_timer_accumulated') || '0', 10);
+        const elapsedSecs = Math.floor((Date.now() - startTime) / 1000) + accumulated;
+
+        localStorage.setItem('naoolift_timer_accumulated', elapsedSecs);
+        localStorage.setItem('naoolift_timer_running', 'false');
+        localStorage.setItem('naoolift_timer_paused', 'true');
+      }
+
+      if (timerInterval) clearInterval(timerInterval);
+      updateWorkoutTimerUI();
+    }
+
+    function resetWorkoutTimer() {
+      localStorage.removeItem('naoolift_timer_start_time');
+      localStorage.removeItem('naoolift_timer_running');
+      localStorage.removeItem('naoolift_timer_paused');
+      localStorage.removeItem('naoolift_timer_accumulated');
+
+      if (timerInterval) clearInterval(timerInterval);
+      updateWorkoutTimerUI();
+    }
+
+    function finishWorkoutTimer() {
+      const isRunning = localStorage.getItem('naoolift_timer_running') === 'true';
+      let elapsedSecs = parseInt(localStorage.getItem('naoolift_timer_accumulated') || '0', 10);
+
+      if (isRunning) {
+        const startTime = parseInt(localStorage.getItem('naoolift_timer_start_time') || '0', 10);
+        elapsedSecs = Math.floor((Date.now() - startTime) / 1000) + elapsedSecs;
+      }
+
+      pauseWorkoutTimer();
+
+      // Populate into add log modal
+      const modalSecInput = document.getElementById('modal-duration-seconds');
+      const modalBadge = document.getElementById('modal-duration-badge');
+      const modalText = document.getElementById('modal-duration-text');
+
+      if (modalSecInput) modalSecInput.value = elapsedSecs;
+      if (modalBadge) modalBadge.classList.remove('hidden');
+      if (modalText) modalText.textContent = formatTime(elapsedSecs);
+
+      openAddLogModal();
+    }
+
+    // Initialize timer state on page load
+    if (localStorage.getItem('naoolift_timer_running') === 'true') {
+      timerInterval = setInterval(updateWorkoutTimerUI, 1000);
+    }
+    updateWorkoutTimerUI();
+
     function updateTime() {
       const now = new Date();
       const hrs = String(now.getHours()).padStart(2, '0');
@@ -749,21 +938,19 @@
       const secs = String(now.getSeconds()).padStart(2, '0');
       const formatted = `${hrs}:${mins}:${secs}`;
 
-      const dt = document.getElementById('dash-timer');
       const dtm = document.getElementById('dash-timer-mobile');
-      if (dt) dt.textContent = formatted;
       if (dtm) dtm.textContent = formatted;
     }
     updateTime();
     setInterval(updateTime, 1000);
 
     function openAddLogModal() {
-      const modal = document.getElementById('log-modal');
+      const modal = document.getElementById('add-log-modal');
       if (modal) modal.classList.remove('hidden');
     }
 
-    function closeLogModal() {
-      const modal = document.getElementById('log-modal');
+    function closeAddLogModal() {
+      const modal = document.getElementById('add-log-modal');
       if (modal) modal.classList.add('hidden');
     }
 
@@ -779,7 +966,7 @@
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
-        closeLogModal();
+        closeAddLogModal();
         closeLogoutModal();
       }
     });

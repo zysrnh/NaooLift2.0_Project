@@ -10,7 +10,16 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 Route::get('/', function () {
-    return view('LandingPage.welcome');
+    $userId = getAuthUserId();
+    if ($userId) {
+        $activeDaysCount = WorkoutLog::where('user_id', $userId)->pluck('log_date')->unique()->count();
+        $totalLogsCount = WorkoutLog::where('user_id', $userId)->count();
+    } else {
+        $activeDaysCount = WorkoutLog::pluck('log_date')->unique()->count();
+        $totalLogsCount = WorkoutLog::count();
+    }
+
+    return view('LandingPage.welcome', compact('activeDaysCount', 'totalLogsCount'));
 });
 
 // Helper function to get authenticated user ID

@@ -4,12 +4,24 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NaooLift — Utilitarian Workout Log System</title>
+<meta name="theme-color" content="#1C1C1C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NaooLift">
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="manifest" href="/site.webmanifest">
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .catch(err => console.log('SW Registration error:', err));
+    });
+  }
+</script>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Space+Mono:wght@400;700&display=swap');
@@ -701,6 +713,120 @@
     setTimeout(() => {
       dismissToast();
     }, 4500);
+  </script>
+
+  <!-- SWISS BRUTALIST PWA INSTALL BANNER -->
+  <div id="pwa-install-banner" class="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 z-40 max-w-[420px] border-[3px] border-charcoal bg-charcoal text-canvas p-4 font-mono text-xs font-bold uppercase tracking-widest hidden shadow-none animate-toast-slide border-l-[8px] border-l-ember">
+    <div class="flex items-start justify-between gap-3 mb-2">
+      <div class="flex items-center gap-2">
+        <span class="w-2.5 h-2.5 bg-ember animate-pulse inline-block"></span>
+        <span>PASANG APLIKASI NAOOLIFT (PWA)</span>
+      </div>
+      <button onclick="dismissPwaBanner()" class="text-canvas hover:text-ember font-mono font-bold text-xs">[✕]</button>
+    </div>
+    <p class="font-sans text-xs text-light mb-3 normal-case tracking-normal">
+      Pasang NaooLift langsung ke layar beranda Laptop atau HP Anda untuk akses offline &amp; performa cepat.
+    </p>
+    <button id="pwa-install-btn" class="w-full border-[2px] border-canvas bg-ember text-canvas hover:bg-canvas hover:text-charcoal font-mono font-bold text-xs uppercase tracking-widest py-2.5 transition-none active:translate-y-1">
+      [ + PASANG SEKARANG TO HOMESCREEN ]
+    </button>
+  </div>
+
+  <!-- FLOATING SWISS BRUTALIST PWA INSTALL BUTTON -->
+  <button 
+    id="pwa-floating-btn" 
+    onclick="triggerPwaInstall()" 
+    class="fixed bottom-6 left-6 z-40 border-[3px] border-charcoal bg-ember text-canvas p-3 sm:px-4 sm:py-3 font-mono text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-charcoal transition-none btn-tactile active:translate-y-1"
+    title="Pasang NaooLift ke Homescreen Laptop/HP"
+  >
+    <span class="w-2.5 h-2.5 bg-canvas animate-pulse inline-block"></span>
+    <span>📱 PASANG PWA</span>
+  </button>
+
+  <!-- PWA INSTALL GUIDE MODAL -->
+  <div id="pwa-guide-modal" class="fixed inset-0 z-[100] bg-charcoal/80 flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-[460px] border-grid bg-canvas p-6 sm:p-8 flex flex-col gap-4 shadow-none relative animate-fade-in border-l-[8px] border-l-ember">
+      <div class="flex justify-between items-center border-b-[3px] border-charcoal pb-3">
+        <h3 class="font-black text-xl uppercase tracking-tighter text-charcoal flex items-center gap-2">
+          <span>📱</span> PASANG NAOOLIFT PWA
+        </h3>
+        <button onclick="closePwaModal()" class="text-charcoal hover:text-ember font-mono font-bold text-xs">[✕]</button>
+      </div>
+
+      <div id="pwa-modal-body" class="flex flex-col gap-3 font-sans text-xs sm:text-sm font-semibold text-charcoal">
+        <p>
+          Aplikasi NaooLift dapat dipasang langsung ke layar beranda HP atau Laptop Anda tanpa perlu mengunduh dari App Store.
+        </p>
+
+        <div id="pwa-ios-instructions" class="p-3 bg-light border-grid flex flex-col gap-1.5 font-mono text-xs">
+          <span class="font-bold text-ember">PETUNJUK IOS (SAFARI):</span>
+          <span>1. Tekan tombol <strong class="underline">Share / Bagikan [⎋]</strong> di navigasi Safari.</span>
+          <span>2. Gulir ke bawah lalu pilih <strong class="underline">'Add to Home Screen' (+ Tambah ke Layar Utama)</strong>.</span>
+        </div>
+
+        <div id="pwa-chrome-instructions" class="p-3 bg-light border-grid flex flex-col gap-1.5 font-mono text-xs hidden">
+          <span class="font-bold text-ember">PETUNJUK BROWSER:</span>
+          <span>Tekan ikon <strong>Install / Tambahkan [⊕]</strong> di baris URL browser Anda.</span>
+        </div>
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button id="pwa-modal-prompt-btn" onclick="triggerPwaPromptAction()" class="w-full border-[3px] border-charcoal bg-ember text-canvas font-bold text-xs uppercase tracking-widest py-3 hover:bg-charcoal transition-none btn-tactile">
+          [ + PASANG KE LAYAR UTAMA ]
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const btn = document.getElementById('pwa-floating-btn');
+      if (btn) btn.classList.remove('hidden');
+    });
+
+    function triggerPwaInstall() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('User accepted PWA prompt');
+          }
+          deferredPrompt = null;
+        });
+      } else {
+        openPwaModal();
+      }
+    }
+
+    function openPwaModal() {
+      const modal = document.getElementById('pwa-guide-modal');
+      if (modal) modal.classList.remove('hidden');
+
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      if (isIOS) {
+        document.getElementById('pwa-ios-instructions')?.classList.remove('hidden');
+        document.getElementById('pwa-chrome-instructions')?.classList.add('hidden');
+      } else {
+        document.getElementById('pwa-ios-instructions')?.classList.add('hidden');
+        document.getElementById('pwa-chrome-instructions')?.classList.remove('hidden');
+      }
+    }
+
+    function closePwaModal() {
+      const modal = document.getElementById('pwa-guide-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function triggerPwaPromptAction() {
+      if (deferredPrompt) {
+        triggerPwaInstall();
+      } else {
+        closePwaModal();
+      }
+    }
   </script>
 </body>
 </html>

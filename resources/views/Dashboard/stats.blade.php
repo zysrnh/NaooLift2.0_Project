@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NaooLift — Dashboard Overview</title>
+<title>NaooLift — Ringkasan Statistik Latihan</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Space+Mono:wght@400;700&display=swap');
@@ -68,6 +68,44 @@
     }
   }
 
+  .print-only-header, .print-only-table {
+    display: none;
+  }
+
+  /* SWISS BRUTALIST A4 PRINT & PDF OPTIMIZATION STYLESHEET */
+  @page {
+    size: A4 portrait;
+    margin: 8mm;
+  }
+
+  @media print {
+    body {
+      background-color: #FFFFFF !important;
+      padding: 0 !important;
+      color: #000000 !important;
+    }
+    header, aside, nav, #toast-container, button, form, .no-print, .hero-header, .action-bar {
+      display: none !important;
+    }
+    .print-only-header, .print-only-table {
+      display: block !important;
+    }
+    .w-full.max-w-\[1280px\] {
+      max-width: 100% !important;
+      border: 2px solid #000000 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    .border-grid, .border-b-grid, .border-r-grid, .border-t-grid, .border-l-grid {
+      border-color: #000000 !important;
+    }
+    footer {
+      border-top: 2px solid #000000 !important;
+      padding: 8px !important;
+      font-size: 10px !important;
+    }
+  }
+
   ::-webkit-scrollbar { display: none; }
 </style>
 <script>
@@ -122,14 +160,13 @@
     
     <!-- TOP UNIFIED APP HEADER BAR -->
     <header class="flex flex-col md:flex-row border-b-grid">
-      <!-- Sidebar Brand Header -->
       <div class="w-full md:w-64 border-b-grid md:border-b-0 md:border-r-grid bg-charcoal text-canvas p-4 sm:p-5 flex items-center justify-between shrink-0">
         <div>
           <a href="/" class="text-xl font-black uppercase tracking-tighter hover:text-ember transition-colors">
             NAOOLIFT.LOG
           </a>
           <div class="font-mono text-[9px] text-slate uppercase tracking-widest mt-0.5">
-            SYS_OVERVIEW v2.0
+            SYS_STATISTICS v2.0
           </div>
         </div>
         <span class="md:hidden font-mono text-[10px] bg-light text-charcoal px-2.5 py-1 font-bold uppercase border-grid flex items-center gap-1.5">
@@ -138,13 +175,12 @@
         </span>
       </div>
 
-      <!-- Desktop Top Status & Action Navigation Bar -->
       <div class="hidden md:flex flex-1 flex-row font-mono text-xs font-bold uppercase tracking-widest text-charcoal">
         <div class="flex-1 p-4 border-r-grid flex justify-between items-center bg-canvas">
           <span class="font-sans">MODUL UTAMA:</span>
           <span class="text-ember flex items-center gap-1.5 font-bold">
             <span class="w-2 h-2 bg-ember animate-pulse inline-block"></span>
-            RINGKASAN_DASBOR
+            STATISTIK_RINGKASAN
           </span>
         </div>
         <div class="flex-1 p-4 border-r-grid flex justify-between items-center bg-light">
@@ -171,22 +207,20 @@
       </div>
     </header>
 
-    <!-- INNER DASHBOARD BODY (2 COLUMNS) -->
+    <!-- INNER DASHBOARD BODY -->
     <div class="flex flex-col md:flex-row flex-1 items-stretch">
       
       <!-- DESKTOP SWISS BRUTALIST SIDEBAR -->
       <aside class="hidden md:flex w-64 border-r-grid bg-canvas flex-col justify-between shrink-0">
-        
-        <!-- Sidebar Navigation Menu Links -->
         <div class="flex flex-col font-mono text-xs font-bold uppercase tracking-widest text-charcoal">
           
           <div class="p-3 bg-light border-b-grid font-bold text-[10px] text-slate">
             01 // MENU UTAMA
           </div>
           
-          <a href="/dashboard" class="p-4 border-b-grid bg-charcoal text-canvas flex items-center justify-between font-bold">
+          <a href="/dashboard" class="p-4 border-b-grid hover-invert flex items-center justify-between transition-none">
             <span>[01] OVERVIEW</span>
-            <span class="text-ember">●</span>
+            <span class="text-slate font-normal">→</span>
           </a>
           
           <a href="/dashboard/schedule" class="p-4 border-b-grid hover-invert flex items-center justify-between transition-none">
@@ -194,14 +228,14 @@
             <span class="text-slate font-normal">→</span>
           </a>
 
-          <a href="#log" class="p-4 border-b-grid hover-invert flex items-center justify-between transition-none">
+          <a href="/dashboard/logs" class="p-4 border-b-grid hover-invert flex items-center justify-between transition-none">
             <span>[03] LOG LATIHAN</span>
             <span class="text-slate font-normal">→</span>
           </a>
 
-          <a href="/dashboard/stats" class="p-4 border-b-grid hover-invert flex items-center justify-between transition-none">
+          <a href="/dashboard/stats" class="p-4 border-b-grid bg-charcoal text-canvas flex items-center justify-between font-bold">
             <span>[04] STATISTIK</span>
-            <span class="text-slate font-normal">→</span>
+            <span class="text-ember">●</span>
           </a>
 
           <a href="/dashboard/comparison" class="p-4 border-b-grid hover-invert flex items-center justify-between transition-none">
@@ -214,12 +248,11 @@
           </div>
 
           <a href="#settings" class="p-4 border-b-grid hover-invert flex items-center justify-between transition-none">
-            <span>[05] PENGATURAN</span>
+            <span>[06] PENGATURAN</span>
             <span class="text-slate font-normal">→</span>
           </a>
         </div>
 
-        <!-- Sidebar Anchored Bottom User Info Block -->
         <div class="mt-auto border-t-grid bg-light flex flex-col font-mono text-xs uppercase tracking-widest">
           <div class="p-4 flex flex-col gap-1 bg-canvas">
             <span class="text-[10px] text-slate font-bold">ACTIVE_SESSION:</span>
@@ -228,203 +261,178 @@
             </span>
           </div>
         </div>
-
       </aside>
 
       <!-- RIGHT MAIN CONTENT AREA -->
       <main class="flex-1 flex flex-col min-w-0 bg-canvas">
         
-        <!-- Mobile Quick Info Strip -->
         <div class="md:hidden flex border-b-grid bg-light p-3 justify-between items-center font-mono text-[11px] font-bold text-charcoal uppercase tracking-widest">
           <span>USER: <span class="text-ember">@if(session('user')) {{ session('user') }} @else GUEST @endif</span></span>
           <span id="dash-timer-mobile">00:00:00</span>
         </div>
 
-        <!-- MAIN OVERVIEW CONTENT WRAPPER -->
+        <!-- PRINT ONLY CLEAN ARCHIVAL HEADER -->
+        <div class="print-only-header border-b-[3px] border-black p-5 bg-black text-white font-mono">
+          <div class="flex justify-between items-center">
+            <h1 class="text-xl font-black uppercase tracking-tight">NAOOLIFT — RINGKASAN STATISTIK LATIHAN</h1>
+            <div class="text-xs text-amber-400 font-bold">STATISTICS_SUMMARY</div>
+          </div>
+          <div class="flex justify-between items-center text-xs text-gray-300 mt-2 border-t border-gray-700 pt-2">
+            <div>USER: {{ session('user', 'USER NAOOLIFT') }}</div>
+            <div>TANGGAL CETAK: {{ date('d/m/Y H:i:s') }}</div>
+          </div>
+        </div>
+
+        <!-- MAIN CONTENT WRAPPER -->
         <div class="p-4 sm:p-8 lg:p-10 flex flex-col gap-6 sm:gap-8">
 
           <!-- Hero Section Header -->
-          <div class="border-b-[3px] border-charcoal pb-4 sm:pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div class="hero-header border-b-[3px] border-charcoal pb-4 sm:pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
               <span class="font-mono text-[11px] sm:text-xs font-bold uppercase tracking-widest text-ember">
-                01 // DASHBOARD_OVERVIEW_PANEL
+                04 // OVERALL_WORKOUT_STATISTICS
               </span>
               <h2 class="text-2xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tighter text-charcoal mt-1">
-                RINGKASAN DASBOR
+                STATISTIK LATIHAN
               </h2>
               <p class="text-xs sm:text-sm font-semibold text-slate mt-1 max-w-xl">
-                Selamat datang di sistem NaooLift. Pantau jadwal latihan harian dan status modul Anda.
+                Ringkasan akumulasi tonase beban, jumlah gerakan terfavorit, dan histori tren 7 hari terakhir.
               </p>
             </div>
-            <div class="font-mono text-[10px] sm:text-xs font-bold uppercase tracking-widest text-charcoal bg-light p-2.5 sm:p-3 border-grid">
-              DOC_REF: OVERVIEW-2026
+            
+            <div class="flex flex-wrap items-center gap-2 shrink-0">
+              <a 
+                href="/dashboard/comparison"
+                class="border-grid bg-ember text-canvas font-bold text-xs uppercase tracking-widest px-5 py-3.5 hover:bg-charcoal transition-none active:translate-y-1 flex items-center gap-2"
+              >
+                <span>[05] BUKA HALAMAN PERBANDINGAN →</span>
+              </a>
             </div>
           </div>
 
-          <!-- TODAY'S ROUTINE HIGHLIGHT CARD -->
-          <div class="border-grid bg-canvas p-6 sm:p-8 flex flex-col gap-4">
-            <div class="flex justify-between items-center border-b-grid pb-3">
-              <span class="font-mono text-xs font-bold uppercase tracking-widest text-ember flex items-center gap-2">
-                <span class="w-2.5 h-2.5 bg-ember animate-pulse inline-block"></span>
-                LATIHAN HARI INI ({{ $todayName }})
+          <!-- ALL-TIME OVERVIEW METRICS GRID -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+            <div class="border-grid bg-canvas p-4 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4 border-l-[8px] border-l-ember">
+              <span class="font-mono text-[10px] sm:text-[11px] font-bold text-slate uppercase tracking-widest">
+                TOTAL TONASE BEBAN (ALL-TIME)
               </span>
-              <a href="/dashboard/schedule" class="font-mono text-xs font-bold uppercase tracking-widest text-charcoal hover:text-ember transition-colors">
-                KELOLA JADWAL →
-              </a>
+              <div class="font-mono text-3xl sm:text-4xl font-black text-ember">
+                {{ number_format($allTimeVol) }} <span class="text-sm text-charcoal">KG</span>
+              </div>
+              <div class="font-mono text-[9px] sm:text-[10px] font-bold text-slate uppercase tracking-wider border-t-grid pt-2">
+                CUMULATIVE LOAD
+              </div>
             </div>
 
-            @if($todaySchedule)
-              <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 py-2">
-                <div>
-                  <h3 class="text-2xl sm:text-3xl font-black uppercase tracking-tight text-charcoal">
-                    {{ $todaySchedule->title }}
-                  </h3>
-                  @if($todaySchedule->focus_target)
-                    <div class="font-mono text-xs font-bold text-ember uppercase tracking-wider mt-1">
-                      TARGET OTOT: {{ $todaySchedule->focus_target }}
-                    </div>
-                  @endif
-                  @if($todaySchedule->notes)
-                    <p class="text-xs font-semibold text-slate mt-2 max-w-lg">
-                      {{ $todaySchedule->notes }}
-                    </p>
-                  @endif
-                </div>
+            <div class="border-grid bg-canvas p-4 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4">
+              <span class="font-mono text-[10px] sm:text-[11px] font-bold text-slate uppercase tracking-widest">
+                TOTAL SET DICATAT
+              </span>
+              <div class="font-mono text-3xl sm:text-4xl font-black text-charcoal">
+                {{ number_format($allTimeSets) }} <span class="text-sm text-slate">SET</span>
+              </div>
+              <div class="font-mono text-[9px] sm:text-[10px] font-bold text-slate uppercase tracking-wider border-t-grid pt-2">
+                TOTAL SETS LOGGED
+              </div>
+            </div>
 
-                @if($todaySchedule->is_rest)
-                  <span class="font-mono text-xs bg-slate text-canvas px-4 py-2 font-bold uppercase border-grid">
-                    REST DAY / ISTIRAHAT
-                  </span>
-                @else
-                  <span class="font-mono text-xs bg-ember text-canvas px-4 py-2 font-bold uppercase border-grid">
-                    SESI WORKOUT AKTIF
-                  </span>
-                @endif
+            <div class="border-grid bg-canvas p-4 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4">
+              <span class="font-mono text-[10px] sm:text-[11px] font-bold text-slate uppercase tracking-widest">
+                TOTAL GERAKAN LATIHAN
+              </span>
+              <div class="font-mono text-3xl sm:text-4xl font-black text-charcoal">
+                {{ $totalExercisesCount }} <span class="text-sm text-slate">GERAKAN</span>
+              </div>
+              <div class="font-mono text-[9px] sm:text-[10px] font-bold text-slate uppercase tracking-wider border-t-grid pt-2">
+                EXERCISES LOGGED
+              </div>
+            </div>
+
+            <div class="border-grid bg-light p-4 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4">
+              <span class="font-mono text-[10px] sm:text-[11px] font-bold text-charcoal uppercase tracking-widest">
+                HARI AKTIF LATIHAN
+              </span>
+              <div class="font-mono text-3xl sm:text-4xl font-black text-charcoal">
+                {{ $totalActiveDays }} <span class="text-sm text-slate">HARI</span>
+              </div>
+              <div class="font-mono text-[9px] sm:text-[10px] font-bold text-charcoal uppercase tracking-wider border-t-grid pt-2">
+                ACTIVE SESSIONS
+              </div>
+            </div>
+          </div>
+
+          <!-- TOP 5 EXERCISES RANKING -->
+          <div class="border-grid bg-canvas p-5 sm:p-6 flex flex-col gap-4">
+            <div class="flex justify-between items-center border-b-[3px] border-charcoal pb-3">
+              <div>
+                <span class="font-mono text-[10px] font-bold text-ember uppercase tracking-widest">
+                  RANKING GERAKAN
+                </span>
+                <h3 class="text-xl sm:text-2xl font-black uppercase tracking-tight text-charcoal mt-0.5">
+                  5 GERAKAN DENGAN BEBAN TONASE TERBESAR
+                </h3>
+              </div>
+              <span class="font-mono text-xs font-bold text-slate uppercase tracking-widest">TOP_EXERCISES</span>
+            </div>
+
+            @if($topExercises->count() > 0)
+              <div class="flex flex-col gap-3 mt-1">
+                @foreach($topExercises as $rank => $ex)
+                  <div class="border-grid bg-canvas p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                    <div class="flex items-center gap-3">
+                      <div class="w-8 h-8 border-grid bg-charcoal text-canvas flex items-center justify-center font-mono font-bold text-xs shrink-0">
+                        #{{ $rank + 1 }}
+                      </div>
+                      <div>
+                        <h4 class="font-black text-base uppercase text-charcoal">{{ $ex->exercise_name }}</h4>
+                        <div class="font-mono text-xs text-slate font-bold">
+                          {{ $ex->total_count }} DILAKUKAN • {{ $ex->total_sets }} SET TOTAL
+                        </div>
+                      </div>
+                    </div>
+                    <div class="font-mono text-right w-full md:w-auto border-t-grid md:border-t-0 pt-2 md:pt-0">
+                      <span class="text-[10px] text-slate font-bold block uppercase">AKUMULASI VOLUMETRIK</span>
+                      <span class="text-lg font-black text-ember">{{ number_format($ex->total_vol) }} KG</span>
+                    </div>
+                  </div>
+                @endforeach
               </div>
             @else
-              <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 py-4">
-                <div>
-                  <h3 class="text-xl font-black uppercase tracking-tight text-charcoal">
-                    BELUM ADA JADWAL LATIHAN UNTUK HARI {{ $todayName }}
-                  </h3>
-                  <p class="text-xs font-semibold text-slate mt-1">
-                    Tambahkan jadwal latihan hari ini agar sesi latihan Anda tercatat teratur.
-                  </p>
-                </div>
-                <a href="/dashboard/schedule" class="border-grid bg-ember text-canvas font-bold text-xs uppercase tracking-widest px-4 py-3 hover:bg-charcoal transition-none active:translate-y-1">
-                  + ATUR JADWAL →
-                </a>
+              <div class="p-8 text-center font-mono text-xs font-bold text-slate border-grid bg-light">
+                BELUM ADA DATA GERAKAN UNTUK MEMBUAT RANKING. SILAKAN CATAT LOG LATIHAN.
               </div>
             @endif
           </div>
 
-          <!-- Summary Analytics Metric Cards -->
-          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-            <!-- Metric Card 1 -->
-            <div class="border-grid bg-canvas p-4 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4">
-              <span class="font-mono text-[10px] sm:text-[11px] font-bold text-slate uppercase tracking-widest">
-                JADWAL LATIHAN
-              </span>
-              <div class="font-mono text-3xl sm:text-5xl font-bold text-charcoal">
-                {{ $totalWorkoutDays }} <span class="text-sm sm:text-lg text-slate">HARI</span>
-              </div>
-              <div class="font-mono text-[9px] sm:text-[10px] font-bold text-slate uppercase tracking-wider border-t-grid pt-2">
-                WORKOUT ROUTINE
-              </div>
-            </div>
-
-            <!-- Metric Card 2 -->
-            <div class="border-grid bg-canvas p-4 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4">
-              <span class="font-mono text-[10px] sm:text-[11px] font-bold text-slate uppercase tracking-widest">
-                HARI ISTIRAHAT
-              </span>
-              <div class="font-mono text-3xl sm:text-5xl font-bold text-charcoal">
-                {{ $totalRestDays }} <span class="text-sm sm:text-lg text-slate">HARI</span>
-              </div>
-              <div class="font-mono text-[9px] sm:text-[10px] font-bold text-slate uppercase tracking-wider border-t-grid pt-2">
-                RECOVERY DAYS
-              </div>
-            </div>
-
-            <!-- Metric Card 3 -->
-            <div class="border-grid bg-canvas p-4 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4">
-              <span class="font-mono text-[10px] sm:text-[11px] font-bold text-slate uppercase tracking-widest">
-                CAKUPAN JADWAL
-              </span>
-              <div class="font-mono text-3xl sm:text-5xl font-bold text-charcoal">
-                {{ $totalDaysSet }} <span class="text-sm sm:text-lg text-slate">/ 7</span>
-              </div>
-              <div class="font-mono text-[9px] sm:text-[10px] font-bold text-slate uppercase tracking-wider border-t-grid pt-2">
-                WEEKLY COVERAGE
-              </div>
-            </div>
-
-            <!-- Metric Card 4 -->
-            <div class="border-grid bg-light p-4 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4">
-              <span class="font-mono text-[10px] sm:text-[11px] font-bold text-charcoal uppercase tracking-widest">
-                STATUS SISTEM
-              </span>
-              <div class="font-mono text-xl sm:text-3xl font-bold text-ember flex items-center gap-1.5">
-                <span class="w-2.5 h-2.5 bg-ember animate-pulse inline-block"></span>
-                READY
-              </div>
-              <div class="font-mono text-[9px] sm:text-[10px] font-bold text-charcoal uppercase tracking-wider border-t-grid pt-2">
-                DATABASE_SYNCED
-              </div>
-            </div>
-          </div>
-
-          <!-- ACTIVE MODULES QUICK LINK CARDS -->
-          <div class="flex flex-col gap-4">
+          <!-- RECENT 7 DAYS TREND GRID -->
+          <div class="border-grid bg-canvas p-5 sm:p-6 flex flex-col gap-4">
             <div class="flex justify-between items-center border-b-[3px] border-charcoal pb-3">
-              <h3 class="text-xl sm:text-2xl font-black uppercase tracking-tighter text-charcoal">
-                MODUL SISTEM AKTIF
-              </h3>
-              <span class="font-mono text-xs font-bold text-slate uppercase tracking-widest">
-                SYSTEM MODULES
-              </span>
+              <div>
+                <span class="font-mono text-[10px] font-bold text-ember uppercase tracking-widest">
+                  7-DAY HISTORICAL TREND
+                </span>
+                <h3 class="text-xl sm:text-2xl font-black uppercase tracking-tight text-charcoal mt-0.5">
+                  TREN VOLUMETRIK 7 HARI TERAKHIR
+                </h3>
+              </div>
+              <span class="font-mono text-xs font-bold text-slate uppercase tracking-widest">DAILY_TREND</span>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <!-- Module 1: Schedule -->
-              <a href="/dashboard/schedule" class="border-grid bg-canvas p-5 flex flex-col justify-between gap-4 hover:border-ember transition-colors group">
-                <div class="flex justify-between items-start">
-                  <div>
-                    <span class="font-mono text-[10px] font-bold text-ember uppercase tracking-widest">MODUL 01</span>
-                    <h4 class="text-2xl font-black uppercase tracking-tight text-charcoal group-hover:text-ember transition-colors mt-0.5">
-                      JADWAL LATIHAN MINGGUAN
-                    </h4>
+            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 mt-1">
+              @foreach($recentSevenDays as $item)
+                <div class="border-grid p-3 flex flex-col justify-between gap-2 text-center {{ $item['volume'] > 0 ? 'bg-canvas border-t-[6px] border-t-ember' : 'bg-light' }}">
+                  <span class="font-mono text-[10px] font-bold uppercase text-slate">
+                    {{ date('d/m', strtotime($item['date'])) }}
+                  </span>
+                  <div class="font-mono text-base font-black {{ $item['volume'] > 0 ? 'text-charcoal' : 'text-slate' }}">
+                    {{ number_format($item['volume']) }}
+                    <span class="text-[10px] block font-normal">KG</span>
                   </div>
-                  <span class="font-mono text-xs bg-ember text-canvas px-2.5 py-1 font-bold uppercase">AKTIF</span>
+                  <span class="font-mono text-[9px] font-bold uppercase border-t-grid pt-1 text-slate">
+                    {{ $item['sets'] }} SET
+                  </span>
                 </div>
-                <p class="text-xs font-semibold text-slate">
-                  Atur pembagian hari latihan (Senin - Minggu), target otot, serta catatan sesi latihan secara dinamis.
-                </p>
-                <div class="border-t-grid pt-3 font-mono text-xs font-bold text-charcoal uppercase tracking-widest flex items-center justify-between">
-                  <span>BUKA MODUL JADWAL</span>
-                  <span>→</span>
-                </div>
-              </a>
-
-              <!-- Module 2: Workout Log -->
-              <div class="border-grid bg-light p-5 flex flex-col justify-between gap-4 opacity-75">
-                <div class="flex justify-between items-start">
-                  <div>
-                    <span class="font-mono text-[10px] font-bold text-slate uppercase tracking-widest">MODUL 02</span>
-                    <h4 class="text-2xl font-black uppercase tracking-tight text-charcoal mt-0.5">
-                      LOG SESI LATIHAN
-                    </h4>
-                  </div>
-                  <span class="font-mono text-xs bg-slate text-canvas px-2.5 py-1 font-bold uppercase">SEGERA</span>
-                </div>
-                <p class="text-xs font-semibold text-slate">
-                  Pencatatan real-time set, reps, dan beban berat latihan harian Anda.
-                </p>
-                <div class="border-t-grid pt-3 font-mono text-xs font-bold text-slate uppercase tracking-widest flex items-center justify-between">
-                  <span>TAHAP PENGEMBANGAN</span>
-                  <span>🔒</span>
-                </div>
-              </div>
+              @endforeach
             </div>
           </div>
 
@@ -437,14 +445,14 @@
     <!-- FULL-WIDTH SWISS BRUTALIST FOOTER BAR -->
     <footer class="border-t-grid bg-charcoal text-canvas p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-center font-mono text-[10px] sm:text-xs uppercase tracking-widest gap-2">
       <div>NAOOLIFT SYSTEM © 2026</div>
-      <div class="text-slate">MODULE: OVERVIEW_PANEL</div>
+      <div class="text-slate">MODULE: OVERALL_WORKOUT_STATISTICS</div>
     </footer>
 
   </div>
 
   <!-- NATIVE MOBILE APP PWA BOTTOM NAVIGATION BAR -->
   <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-charcoal text-canvas border-t-[3px] border-charcoal grid grid-cols-4 font-mono text-[10px] font-bold uppercase tracking-widest text-center shadow-none">
-    <a href="/dashboard" class="py-3 bg-ember text-canvas border-r-grid flex flex-col items-center justify-center gap-0.5">
+    <a href="/dashboard" class="py-3 text-canvas hover:bg-light hover:text-charcoal border-r-grid flex flex-col items-center justify-center gap-0.5 transition-none">
       <span class="text-xs font-black">■</span>
       <span>OVERVIEW</span>
     </a>
@@ -452,13 +460,13 @@
       <span class="text-xs font-black">≡</span>
       <span>JADWAL</span>
     </a>
-    <a href="#stats" class="py-3 text-canvas hover:bg-light hover:text-charcoal border-r-grid flex flex-col items-center justify-center gap-0.5 transition-none">
-      <span class="text-xs font-black">▲</span>
-      <span>REKOR</span>
+    <a href="/dashboard/logs" class="py-3 text-canvas hover:bg-light hover:text-charcoal border-r-grid flex flex-col items-center justify-center gap-0.5 transition-none">
+      <span class="text-xs font-black">✎</span>
+      <span>LOG</span>
     </a>
-    <a href="/" class="py-3 text-canvas hover:bg-light hover:text-charcoal flex flex-col items-center justify-center gap-0.5 transition-none">
-      <span class="text-xs font-black">←</span>
-      <span>LANDING</span>
+    <a href="/dashboard/stats" class="py-3 bg-ember text-canvas flex flex-col items-center justify-center gap-0.5">
+      <span class="text-xs font-black">▲</span>
+      <span>STATS</span>
     </a>
   </nav>
 
@@ -512,7 +520,9 @@
     }
 
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeLogoutModal();
+      if (e.key === 'Escape') {
+        closeLogoutModal();
+      }
     });
 
     function dismissToast() {

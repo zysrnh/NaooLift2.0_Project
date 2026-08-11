@@ -233,8 +233,13 @@
             <span class="text-slate font-normal">→</span>
           </a>
 
-          <a href="#stats" class="p-4 border-b-grid hover-invert flex items-center justify-between transition-none">
+          <a href="/dashboard/stats" class="p-4 border-b-grid hover-invert flex items-center justify-between transition-none">
             <span>[04] STATISTIK</span>
+            <span class="text-slate font-normal">→</span>
+          </a>
+
+          <a href="/dashboard/comparison" class="p-4 border-b-grid hover-invert flex items-center justify-between transition-none">
+            <span>[05] PERBANDINGAN</span>
             <span class="text-slate font-normal">→</span>
           </a>
 

@@ -7,6 +7,7 @@ use App\Models\Schedule;
 use App\Models\WorkoutLog;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 Route::get('/', function () {
     return view('LandingPage.welcome');
@@ -70,6 +71,21 @@ function getTodayInfo($userId) {
         'todayRoutineTitle' => $routineTitle,
         'todaySchedule' => $sched,
     ];
+}
+
+// Helper function to calculate total volumetric load from a collection of logs
+function calculateLogsVolume($logs) {
+    return $logs->sum(function($item) {
+        return $item->sets * $item->reps * $item->weight_kg;
+    });
+}
+
+// Helper to compute percentage change
+function computePercentDiff($current, $previous) {
+    if ($previous == 0) {
+        return $current > 0 ? 100.0 : 0.0;
+    }
+    return round((($current - $previous) / $previous) * 100, 1);
 }
 
 // 1. Dashboard Overview Route
@@ -231,6 +247,161 @@ Route::get('/dashboard/logs/export-excel', function (Request $request) {
     $html = view('Exports.workout_logs_excel', compact('logs', 'titleLabel', 'userName', 'totalVolume', 'selectedDate'))->render();
 
     return response($html, 200, $headers);
+});
+
+// 4. Statistics Overview Route (/dashboard/stats)
+Route::get('/dashboard/stats', function () {
+    if (!Auth::check() && !session('user')) {
+        return redirect('/login')->with('error', 'AKSES DITOLAK! SILAKAN LOGIN ATAU DAFTAR AKUN.');
+    }
+
+    $userId = getAuthUserId();
+    $todayInfo = getTodayInfo($userId);
+    $todayName = $todayInfo['todayName'];
+    $todayRoutineTitle = $todayInfo['todayRoutineTitle'];
+
+    $allLogs = WorkoutLog::where('user_id', $userId)->get();
+
+    $allTimeVol = calculateLogsVolume($allLogs);
+    $allTimeSets = $allLogs->sum('sets');
+    $totalExercisesCount = $allLogs->count();
+    $totalActiveDays = $allLogs->pluck('log_date')->unique()->count();
+
+    // Top Executed Exercises Ranking
+    $topExercises = WorkoutLog::where('user_id', $userId)
+        ->select('exercise_name', DB::raw('SUM(sets * reps * weight_kg) as total_vol'), DB::raw('SUM(sets) as total_sets'), DB::raw('COUNT(*) as total_count'))
+        ->groupBy('exercise_name')
+        ->orderBy('total_vol', 'desc')
+        ->take(5)
+        ->get();
+
+    // Recent 7 Days Volume Trend
+    $recentSevenDays = [];
+    for ($i = 6; $i >= 0; $i--) {
+        $d = date('Y-m-d', strtotime("-$i day"));
+        $dayLogs = $allLogs->where('log_date', $d);
+        $vol = calculateLogsVolume($dayLogs);
+        $recentSevenDays[] = [
+            'date' => $d,
+            'day_label' => date('D', strtotime($d)),
+            'volume' => $vol,
+            'sets' => $dayLogs->sum('sets')
+        ];
+    }
+
+    return view('Dashboard.stats', compact(
+        'todayName', 'todayRoutineTitle',
+        'allTimeVol', 'allTimeSets', 'totalExercisesCount', 'totalActiveDays',
+        'topExercises', 'recentSevenDays'
+    ));
+});
+
+// 5. Dedicated Comparison Page Route (/dashboard/comparison)
+Route::get('/dashboard/comparison', function (Request $request) {
+    if (!Auth::check() && !session('user')) {
+        return redirect('/login')->with('error', 'AKSES DITOLAK! SILAKAN LOGIN ATAU DAFTAR AKUN.');
+    }
+
+    $userId = getAuthUserId();
+    $todayInfo = getTodayInfo($userId);
+    $todayName = $todayInfo['todayName'];
+    $todayRoutineTitle = $todayInfo['todayRoutineTitle'];
+
+    $activeMode = $request->query('mode', 'daily');
+
+    // A. HARI INI vs KEMARIN
+    $todayDate = date('Y-m-d');
+    $yesterdayDate = date('Y-m-d', strtotime('-1 day'));
+
+    $todayLogs = WorkoutLog::where('user_id', $userId)->where('log_date', $todayDate)->get();
+    $yesterdayLogs = WorkoutLog::where('user_id', $userId)->where('log_date', $yesterdayDate)->get();
+
+    $todayVol = calculateLogsVolume($todayLogs);
+    $yesterdayVol = calculateLogsVolume($yesterdayLogs);
+    $dailyVolDiff = $todayVol - $yesterdayVol;
+    $dailyVolPercent = computePercentDiff($todayVol, $yesterdayVol);
+
+    $todaySets = $todayLogs->sum('sets');
+    $yesterdaySets = $yesterdayLogs->sum('sets');
+
+    $todayExercises = $todayLogs->count();
+    $yesterdayExercises = $yesterdayLogs->count();
+
+    // B. MINGGU INI vs MINGGU KEMARIN
+    $mondayThisWeek = date('Y-m-d', strtotime('monday this week'));
+    $sundayThisWeek = date('Y-m-d', strtotime('sunday this week'));
+    
+    $mondayLastWeek = date('Y-m-d', strtotime('monday last week'));
+    $sundayLastWeek = date('Y-m-d', strtotime('sunday last week'));
+
+    $thisWeekLogs = WorkoutLog::where('user_id', $userId)
+        ->whereBetween('log_date', [$mondayThisWeek, $sundayThisWeek])->get();
+    $lastWeekLogs = WorkoutLog::where('user_id', $userId)
+        ->whereBetween('log_date', [$mondayLastWeek, $sundayLastWeek])->get();
+
+    $thisWeekVol = calculateLogsVolume($thisWeekLogs);
+    $lastWeekVol = calculateLogsVolume($lastWeekLogs);
+    $weeklyVolDiff = $thisWeekVol - $lastWeekVol;
+    $weeklyVolPercent = computePercentDiff($thisWeekVol, $lastWeekVol);
+
+    $thisWeekSets = $thisWeekLogs->sum('sets');
+    $lastWeekSets = $lastWeekLogs->sum('sets');
+    
+    $thisWeekActiveDays = $thisWeekLogs->pluck('log_date')->unique()->count();
+    $lastWeekActiveDays = $lastWeekLogs->pluck('log_date')->unique()->count();
+
+    // C. BULAN INI vs BULAN KEMARIN
+    $firstDayThisMonth = date('Y-m-01');
+    $lastDayThisMonth = date('Y-m-t');
+
+    $firstDayLastMonth = date('Y-m-01', strtotime('first day of last month'));
+    $lastDayLastMonth = date('Y-m-t', strtotime('last day of last month'));
+
+    $thisMonthLogs = WorkoutLog::where('user_id', $userId)
+        ->whereBetween('log_date', [$firstDayThisMonth, $lastDayThisMonth])->get();
+    $lastMonthLogs = WorkoutLog::where('user_id', $userId)
+        ->whereBetween('log_date', [$firstDayLastMonth, $lastDayLastMonth])->get();
+
+    $thisMonthVol = calculateLogsVolume($thisMonthLogs);
+    $lastMonthVol = calculateLogsVolume($lastMonthLogs);
+    $monthlyVolDiff = $thisMonthVol - $lastMonthVol;
+    $monthlyVolPercent = computePercentDiff($thisMonthVol, $lastMonthVol);
+
+    $thisMonthSets = $thisMonthLogs->sum('sets');
+    $lastMonthSets = $lastMonthLogs->sum('sets');
+
+    $thisMonthActiveDays = $thisMonthLogs->pluck('log_date')->unique()->count();
+    $lastMonthActiveDays = $lastMonthLogs->pluck('log_date')->unique()->count();
+
+    $thisMonthLabel = getIndonesianMonthLabel(date('Y-m'));
+    $lastMonthLabel = getIndonesianMonthLabel(date('Y-m', strtotime('first day of last month')));
+
+    // D. CUSTOM TANGGAL A VS TANGGAL B
+    $customDateA = $request->query('date_a', date('Y-m-d'));
+    $customDateB = $request->query('date_b', date('Y-m-d', strtotime('-1 day')));
+
+    $customLogsA = WorkoutLog::where('user_id', $userId)->where('log_date', $customDateA)->get();
+    $customLogsB = WorkoutLog::where('user_id', $userId)->where('log_date', $customDateB)->get();
+
+    $customVolA = calculateLogsVolume($customLogsA);
+    $customVolB = calculateLogsVolume($customLogsB);
+    $customVolDiff = $customVolA - $customVolB;
+    $customVolPercent = computePercentDiff($customVolA, $customVolB);
+
+    $customSetsA = $customLogsA->sum('sets');
+    $customSetsB = $customLogsB->sum('sets');
+
+    $customExercisesA = $customLogsA->count();
+    $customExercisesB = $customLogsB->count();
+
+    return view('Dashboard.comparison', compact(
+        'todayName', 'todayRoutineTitle', 'activeMode',
+        'todayVol', 'yesterdayVol', 'dailyVolDiff', 'dailyVolPercent', 'todaySets', 'yesterdaySets', 'todayExercises', 'yesterdayExercises',
+        'thisWeekVol', 'lastWeekVol', 'weeklyVolDiff', 'weeklyVolPercent', 'thisWeekSets', 'lastWeekSets', 'thisWeekActiveDays', 'lastWeekActiveDays',
+        'thisMonthVol', 'lastMonthVol', 'monthlyVolDiff', 'monthlyVolPercent', 'thisMonthSets', 'lastMonthSets', 'thisMonthActiveDays', 'lastMonthActiveDays',
+        'thisMonthLabel', 'lastMonthLabel',
+        'customDateA', 'customDateB', 'customVolA', 'customVolB', 'customVolDiff', 'customVolPercent', 'customSetsA', 'customSetsB', 'customExercisesA', 'customExercisesB'
+    ));
 });
 
 // Save Workout Log Entry

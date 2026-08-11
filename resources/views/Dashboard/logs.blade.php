@@ -146,8 +146,11 @@
           </span>
         </div>
         <div class="flex-1 p-4 border-r-grid flex justify-between items-center bg-light">
-          <span class="font-sans">SYS_TIME:</span>
-          <span id="dash-timer" class="font-bold">00:00:00</span>
+          <span class="font-sans">HARI INI ({{ $todayName }}):</span>
+          <span class="font-bold text-ember font-mono flex items-center gap-1.5 truncate max-w-[210px]" title="{{ $todayRoutineTitle }}">
+            <span class="w-2 h-2 bg-ember animate-pulse inline-block shrink-0"></span>
+            {{ $todayRoutineTitle }}
+          </span>
         </div>
         <div class="flex flex-row w-64 font-sans font-bold">
           <a href="/" class="flex-1 p-4 bg-canvas text-charcoal text-center hover:bg-charcoal hover:text-canvas transition-none flex items-center justify-center border-r-grid active:translate-y-1">

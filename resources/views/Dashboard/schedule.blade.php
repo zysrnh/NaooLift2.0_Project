@@ -313,11 +313,11 @@
               </p>
             </div>
             
-            <div class="flex flex-wrap items-center gap-2 shrink-0">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto shrink-0">
               <!-- Export Styled Excel Button -->
               <a 
                 href="/dashboard/schedule/export-excel?month={{ $selectedMonth }}"
-                class="border-grid bg-light text-charcoal font-bold text-xs uppercase tracking-widest px-4 py-3.5 hover:bg-charcoal hover:text-canvas transition-none active:translate-y-1"
+                class="border-grid bg-light text-charcoal font-bold text-xs uppercase tracking-widest px-4 py-3.5 text-center hover:bg-charcoal hover:text-canvas transition-none active:translate-y-1 w-full sm:w-auto"
                 title="Export Spreadsheet Excel Berwarna"
               >
                 <span>[ EXPORT EXCEL ]</span>
@@ -326,7 +326,7 @@
               <!-- Export Printable Data PDF Button -->
               <button 
                 onclick="window.print()"
-                class="border-grid bg-canvas text-charcoal font-bold text-xs uppercase tracking-widest px-4 py-3.5 hover:bg-charcoal hover:text-canvas transition-none active:translate-y-1"
+                class="border-grid bg-canvas text-charcoal font-bold text-xs uppercase tracking-widest px-4 py-3.5 text-center hover:bg-charcoal hover:text-canvas transition-none active:translate-y-1 w-full sm:w-auto"
                 title="Cetak Data Jadwal / PDF Arsip"
               >
                 <span>[ CETAK / PDF ARSIP ]</span>
@@ -334,7 +334,7 @@
 
               <button 
                 onclick="openAddScheduleModal()"
-                class="border-grid bg-ember text-canvas font-bold text-xs uppercase tracking-widest px-5 py-3.5 hover:bg-charcoal transition-none active:translate-y-1 flex items-center justify-center gap-2"
+                class="border-grid bg-ember text-canvas font-bold text-xs uppercase tracking-widest px-5 py-3.5 hover:bg-charcoal transition-none active:translate-y-1 flex items-center justify-center gap-2 w-full sm:w-auto"
               >
                 <span>+ TAMBAH JADWAL HARI</span>
               </button>
@@ -342,25 +342,25 @@
           </div>
 
           <!-- MONTHLY PROGRAM PERIOD SELECTOR BAR -->
-          <div class="action-bar border-grid bg-light p-4 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="flex items-center gap-2 w-full md:w-auto">
+          <div class="action-bar border-grid bg-light p-3.5 sm:p-4 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 w-full">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
               <span class="font-mono text-xs font-bold uppercase tracking-widest text-charcoal whitespace-nowrap">
                 PROGRAM BULAN:
               </span>
               <select 
                 onchange="window.location.href='/dashboard/schedule?month=' + this.value"
-                class="bg-canvas border-grid p-2 font-mono text-xs font-bold uppercase text-charcoal focus:outline-none focus:border-ember cursor-pointer flex-1 md:flex-none"
+                class="bg-canvas border-grid p-2.5 sm:p-2 font-mono text-[11px] sm:text-xs font-bold uppercase text-charcoal focus:outline-none focus:border-ember cursor-pointer w-full sm:w-auto max-w-full truncate"
               >
                 @foreach($allMonths as $m)
                   <option value="{{ $m }}" {{ $m === $selectedMonth ? 'selected' : '' }}>
-                    PROGRAM {{ \App\Models\Schedule::class ? getIndonesianMonthLabel($m) : $m }} {{ $m === date('Y-m') ? '(BULAN INI)' : '' }}
+                    {{ getIndonesianMonthLabel($m) }} {{ $m === date('Y-m') ? '(BULAN INI)' : '' }}
                   </option>
                 @endforeach
               </select>
             </div>
 
-            <div class="font-mono text-xs font-bold text-ember uppercase tracking-widest">
-              PROGRAM AKTIF: {{ $monthLabel }}
+            <div class="font-mono text-xs font-bold text-ember uppercase tracking-widest text-right sm:text-left">
+              AKTIF: {{ $monthLabel }}
             </div>
           </div>
 

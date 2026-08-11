@@ -740,7 +740,7 @@
     title="Pasang NaooLift ke Homescreen Laptop/HP"
   >
     <span class="w-2.5 h-2.5 bg-canvas animate-pulse inline-block"></span>
-    <span>[ + PASANG PWA ]</span>
+    <span>TAMBAHKAN KE LAYAR UTAMA</span>
   </button>
 
   <!-- PWA INSTALL GUIDE MODAL -->

@@ -740,7 +740,7 @@
     title="Pasang NaooLift ke Homescreen Laptop/HP"
   >
     <span class="w-2.5 h-2.5 bg-canvas animate-pulse inline-block"></span>
-    <span>📱 PASANG PWA</span>
+    <span>[ + PASANG PWA ]</span>
   </button>
 
   <!-- PWA INSTALL GUIDE MODAL -->
@@ -748,7 +748,7 @@
     <div class="w-full max-w-[460px] border-grid bg-canvas p-6 sm:p-8 flex flex-col gap-4 shadow-none relative animate-fade-in border-l-[8px] border-l-ember">
       <div class="flex justify-between items-center border-b-[3px] border-charcoal pb-3">
         <h3 class="font-black text-xl uppercase tracking-tighter text-charcoal flex items-center gap-2">
-          <span>📱</span> PASANG NAOOLIFT PWA
+          <span>[SYS_PWA]</span> PASANG NAOOLIFT
         </h3>
         <button onclick="closePwaModal()" class="text-charcoal hover:text-ember font-mono font-bold text-xs">[✕]</button>
       </div>
